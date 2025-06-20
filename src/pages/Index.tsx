@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +26,7 @@ const Index = () => {
       difficulty: "Intermediate",
       color: "bg-gradient-to-br from-green-500 to-green-700",
       objectives: ["Lab test interpretation", "Pattern recognition", "Clinical correlation"],
-      unlocked: false
+      unlocked: true
     },
     {
       id: 3,
@@ -123,7 +122,12 @@ const Index = () => {
                   </div>
                   <Button 
                     className={`w-full ${level.unlocked ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
-                    onClick={() => level.unlocked && level.id === 1 && navigate('/level1')}
+                    onClick={() => {
+                      if (level.unlocked) {
+                        if (level.id === 1) navigate('/level1');
+                        else if (level.id === 2) navigate('/level2');
+                      }
+                    }}
                     disabled={!level.unlocked}
                   >
                     <Play className="h-4 w-4 mr-2" />
