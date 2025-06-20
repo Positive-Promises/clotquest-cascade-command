@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Check, Zap, AlertTriangle } from 'lucide-react';
 
@@ -10,6 +9,7 @@ interface Factor {
   position: { x: number; y: number } | null;
   isPlaced: boolean;
   correctPosition: { x: number; y: number };
+  color: string;
 }
 
 interface AnimatedCascadeProps {
