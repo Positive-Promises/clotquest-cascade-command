@@ -27,7 +27,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [showTutorial, setShowTutorial] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mock state - would be connected to auth
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const tutorialSteps = [
     {
@@ -112,33 +112,36 @@ const Index = () => {
   ];
 
   const handleLogin = () => {
-    // Mock login - in real app would integrate with Supabase
     setIsLoggedIn(true);
   };
 
   const handleSignUp = () => {
-    // Mock signup - in real app would integrate with Supabase
     setIsLoggedIn(true);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-x-hidden">
       <AudioSystem gameState="menu" level={1} />
       
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDYwIDAgTCAwIDAgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] bg-repeat"></div>
+      </div>
+      
       {/* Mobile-optimized Header */}
-      <div className="container mx-auto px-4 py-8 sm:py-16">
+      <div className="container mx-auto px-4 py-8 sm:py-16 relative z-10">
         <div className="text-center mb-8 sm:mb-16">
           <div className="flex justify-center mb-4 sm:mb-6">
-            <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-2xl">
+            <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-2xl animate-pulse-glow">
               <Trophy className="h-12 w-12 sm:h-16 sm:w-16 text-white" />
             </div>
           </div>
           
-          <h1 className="text-4xl sm:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent px-2">
+          <h1 className="font-playfair text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent px-2 animate-fade-in">
             HemoMaster Academy
           </h1>
           
-          <p className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="font-inter text-lg sm:text-xl lg:text-2xl text-gray-300 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4">
             Master the complexities of hemostasis and thrombosis through immersive, 
             interactive learning experiences designed by medical experts.
           </p>
@@ -148,7 +151,7 @@ const Index = () => {
             <Button
               onClick={() => setShowHowToPlay(true)}
               variant="outline"
-              className="w-full sm:w-auto border-blue-400 text-blue-300 hover:bg-blue-400/10"
+              className="w-full sm:w-auto border-blue-400/50 text-blue-300 hover:bg-blue-400/10 backdrop-blur-sm bg-white/5 transition-all duration-300 hover:scale-105"
             >
               <HelpCircle className="h-4 w-4 mr-2" />
               How to Play
@@ -156,7 +159,7 @@ const Index = () => {
             
             <Button
               onClick={() => setShowTutorial(true)}
-              className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+              className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg transition-all duration-300 hover:scale-105"
             >
               <Play className="h-4 w-4 mr-2" />
               Start Tutorial
@@ -165,15 +168,15 @@ const Index = () => {
           
           {/* Mobile-optimized badges */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 px-4">
-            <Badge variant="outline" className="px-3 py-2 text-blue-300 border-blue-300">
+            <Badge variant="outline" className="px-3 py-2 text-blue-300 border-blue-300/50 bg-blue-500/10 backdrop-blur-sm">
               <Brain className="h-4 w-4 mr-2" />
               Evidence-Based
             </Badge>
-            <Badge variant="outline" className="px-3 py-2 text-green-300 border-green-300">
+            <Badge variant="outline" className="px-3 py-2 text-green-300 border-green-300/50 bg-green-500/10 backdrop-blur-sm">
               <Zap className="h-4 w-4 mr-2" />
               Interactive
             </Badge>
-            <Badge variant="outline" className="px-3 py-2 text-purple-300 border-purple-300">
+            <Badge variant="outline" className="px-3 py-2 text-purple-300 border-purple-300/50 bg-purple-500/10 backdrop-blur-sm">
               <Award className="h-4 w-4 mr-2" />
               Clinical Excellence
             </Badge>
@@ -194,26 +197,30 @@ const Index = () => {
           {levels.map((level) => (
             <Card 
               key={level.id} 
-              className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
+              className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 hover:bg-white/10 group"
             >
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`p-2 sm:p-3 bg-gradient-to-r ${level.color} rounded-lg shadow-lg`}>
+                  <div className={`p-2 sm:p-3 bg-gradient-to-r ${level.color} rounded-lg shadow-lg group-hover:animate-pulse-glow transition-all duration-300`}>
                     {level.icon}
                   </div>
                   <Badge 
                     variant="outline" 
-                    className={`text-xs sm:text-sm ${
-                      level.difficulty === 'Beginner' ? 'border-green-400 text-green-300' :
-                      level.difficulty === 'Intermediate' ? 'border-yellow-400 text-yellow-300' :
-                      'border-red-400 text-red-300'
-                    } font-semibold`}
+                    className={`text-xs sm:text-sm font-semibold backdrop-blur-sm ${
+                      level.difficulty === 'Beginner' ? 'border-green-400/50 text-green-300 bg-green-500/10' :
+                      level.difficulty === 'Intermediate' ? 'border-yellow-400/50 text-yellow-300 bg-yellow-500/10' :
+                      'border-red-400/50 text-red-300 bg-red-500/10'
+                    }`}
                   >
                     {level.difficulty}
                   </Badge>
                 </div>
-                <CardTitle className="text-xl sm:text-2xl text-white mb-2">{level.title}</CardTitle>
-                <p className="text-gray-300 leading-relaxed text-sm sm:text-base">{level.description}</p>
+                <CardTitle className="font-playfair text-xl sm:text-2xl text-white mb-2 group-hover:text-blue-300 transition-colors duration-300">
+                  {level.title}
+                </CardTitle>
+                <p className="font-inter text-gray-300 leading-relaxed text-sm sm:text-base group-hover:text-gray-200 transition-colors duration-300">
+                  {level.description}
+                </p>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="mb-6">
@@ -223,8 +230,8 @@ const Index = () => {
                   </h4>
                   <ul className="space-y-2">
                     {level.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-gray-300 text-xs sm:text-sm">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-3 flex-shrink-0"></div>
+                      <li key={index} className="flex items-center text-gray-300 text-xs sm:text-sm group-hover:text-gray-200 transition-colors duration-300">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-3 flex-shrink-0 group-hover:bg-blue-300 transition-colors duration-300"></div>
                         {feature}
                       </li>
                     ))}
@@ -232,7 +239,7 @@ const Index = () => {
                 </div>
                 <Button 
                   onClick={() => navigate(level.path)}
-                  className={`w-full bg-gradient-to-r ${level.color} hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 shadow-lg transition-all duration-200`}
+                  className={`w-full bg-gradient-to-r ${level.color} hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}
                 >
                   <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Start Level {level.id}
@@ -244,36 +251,36 @@ const Index = () => {
 
         {/* Mobile-optimized educational footer */}
         <div className="mt-8 sm:mt-16 text-center">
-          <Card className="bg-white bg-opacity-5 backdrop-blur-lg border border-white border-opacity-10 shadow-xl max-w-4xl mx-auto">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl max-w-4xl mx-auto">
             <CardContent className="p-6 sm:p-8">
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
+              <h3 className="font-playfair text-xl sm:text-2xl font-bold text-white mb-4">
                 Why Choose HemoMaster Academy?
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-                <div className="space-y-3">
-                  <div className="p-3 bg-blue-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <div className="space-y-3 group">
+                  <div className="p-3 bg-blue-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center border border-blue-400/30 group-hover:animate-pulse-glow transition-all duration-300">
                     <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
                   </div>
-                  <h4 className="text-white font-semibold">Evidence-Based</h4>
-                  <p className="text-gray-300 text-sm">
+                  <h4 className="font-inter text-white font-semibold">Evidence-Based</h4>
+                  <p className="font-inter text-gray-300 text-sm">
                     All content is based on current medical literature and clinical guidelines
                   </p>
                 </div>
-                <div className="space-y-3">
-                  <div className="p-3 bg-green-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <div className="space-y-3 group">
+                  <div className="p-3 bg-green-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center border border-green-400/30 group-hover:animate-pulse-glow transition-all duration-300">
                     <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
                   </div>
-                  <h4 className="text-white font-semibold">Interactive Learning</h4>
-                  <p className="text-gray-300 text-sm">
+                  <h4 className="font-inter text-white font-semibold">Interactive Learning</h4>
+                  <p className="font-inter text-gray-300 text-sm">
                     Engage with dynamic simulations and hands-on problem solving
                   </p>
                 </div>
-                <div className="space-y-3">
-                  <div className="p-3 bg-purple-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                <div className="space-y-3 group">
+                  <div className="p-3 bg-purple-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center border border-purple-400/30 group-hover:animate-pulse-glow transition-all duration-300">
                     <Award className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400" />
                   </div>
-                  <h4 className="text-white font-semibold">Clinical Excellence</h4>
-                  <p className="text-gray-300 text-sm">
+                  <h4 className="font-inter text-white font-semibold">Clinical Excellence</h4>
+                  <p className="font-inter text-gray-300 text-sm">
                     Develop skills that directly translate to improved patient care
                   </p>
                 </div>

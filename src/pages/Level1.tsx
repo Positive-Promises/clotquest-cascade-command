@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,8 @@ import { ArrowUp, Check, Target, BookOpen, Clock, Play, RotateCcw, AlertTriangle
 import { useToast } from '@/hooks/use-toast';
 import EnhancedFactor from '@/components/EnhancedFactor';
 import AnimatedCascade from '@/components/AnimatedCascade';
+import AudioSystem from '@/components/AudioSystem';
+import Tutorial from '@/components/Tutorial';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,8 +47,49 @@ const Level1 = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [level1Complete, setLevel1Complete] = useState(false);
   const [emergencyMode, setEmergencyMode] = useState(false);
-  const [patientStatus, setPatientStatus] = useState(100); // Patient health percentage
+  const [patientStatus, setPatientStatus] = useState(100);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Tutorial steps for Level 1
+  const tutorialSteps = [
+    {
+      id: 1,
+      title: "Welcome to Coagulation Cascade Commander!",
+      description: "This level teaches you the complete coagulation cascade. Drag factors from the left panel to their correct positions.",
+      position: "bottom" as const
+    },
+    {
+      id: 2,
+      title: "Factor Bank",
+      description: "These are your clotting factors. Each has detailed medical information when you hover over them.",
+      position: "right" as const
+    },
+    {
+      id: 3,
+      title: "Emergency Mode",
+      description: "Try Emergency Mode for a thrilling challenge - save a bleeding patient by forming the clot quickly!",
+      position: "top" as const
+    },
+    {
+      id: 4,
+      title: "Cascade Visualization",
+      description: "Drag factors here to their correct positions. Look for the pathway colors to guide you.",
+      position: "left" as const
+    },
+    {
+      id: 5,
+      title: "Educational Content",
+      description: "Hover over any factor for detailed medical information, clinical relevance, and research links.",
+      position: "top" as const
+    },
+    {
+      id: 6,
+      title: "Ready to Start!",
+      description: "You're ready to master the coagulation cascade! Click 'Start Normal Mode' to begin your journey.",
+      position: "bottom" as const
+    }
+  ];
 
   const [factors, setFactors] = useState<Factor[]>([
     {
@@ -67,16 +110,6 @@ const Level1 = () => {
           title: 'Factor XII and Contact Activation',
           url: 'https://pubmed.ncbi.nlm.nih.gov/25861491/',
           type: 'pubmed'
-        },
-        {
-          title: 'Hemostasis and Thrombosis - Hoffman 7th Ed.',
-          url: 'https://www.sciencedirect.com/book/9780323462020/hemostasis-and-thrombosis',
-          type: 'textbook'
-        },
-        {
-          title: 'Coagulation Cascade Animation',
-          url: 'https://www.youtube.com/watch?v=8-iGJ9vM_Gg',
-          type: 'video'
         }
       ]
     },
@@ -98,11 +131,6 @@ const Level1 = () => {
           title: 'Factor XI Deficiency',
           url: 'https://pubmed.ncbi.nlm.nih.gov/29920516/',
           type: 'pubmed'
-        },
-        {
-          title: 'Williams Hematology 9th Edition',
-          url: 'https://accessmedicine.mhmedical.com/book.aspx?bookid=1581',
-          type: 'textbook'
         }
       ]
     },
@@ -124,11 +152,6 @@ const Level1 = () => {
           title: 'Hemophilia B: Christmas Disease',
           url: 'https://pubmed.ncbi.nlm.nih.gov/30620421/',
           type: 'pubmed'
-        },
-        {
-          title: 'Nathan and Oski\'s Hematology of Infancy',
-          url: 'https://www.sciencedirect.com/book/9780323401395/nathan-and-oskis-hematology-and-oncology-of-infancy-and-childhood',
-          type: 'textbook'
         }
       ]
     },
@@ -150,11 +173,6 @@ const Level1 = () => {
           title: 'Factor VII Deficiency',
           url: 'https://pubmed.ncbi.nlm.nih.gov/28301907/',
           type: 'pubmed'
-        },
-        {
-          title: 'Tissue Factor Pathway',
-          url: 'https://www.youtube.com/watch?v=rIuLsGHwdQE',
-          type: 'video'
         }
       ]
     },
@@ -260,11 +278,6 @@ const Level1 = () => {
           title: 'Fibrinogen Disorders',
           url: 'https://pubmed.ncbi.nlm.nih.gov/29436322/',
           type: 'pubmed'
-        },
-        {
-          title: 'Fibrin Formation Video',
-          url: 'https://www.youtube.com/watch?v=rMhdLRq5qJA',
-          type: 'video'
         }
       ]
     }
@@ -275,13 +288,8 @@ const Level1 = () => {
     if (emergencyMode && gameStarted && patientStatus > 0) {
       const emergencyTimer = setInterval(() => {
         setPatientStatus(prev => {
-          const newStatus = prev - 2; // Patient loses 2% health every second
+          const newStatus = prev - 2;
           if (newStatus <= 0) {
-            toast({
-              title: "💀 Patient Critical!",
-              description: "The patient has lost too much blood. Emergency intervention required!",
-              variant: "destructive"
-            });
             return 0;
           }
           return newStatus;
@@ -289,7 +297,18 @@ const Level1 = () => {
       }, 1000);
       return () => clearInterval(emergencyTimer);
     }
-  }, [emergencyMode, gameStarted, patientStatus, toast]);
+  }, [emergencyMode, gameStarted, patientStatus]);
+
+  // Show critical patient toast when health is low
+  useEffect(() => {
+    if (emergencyMode && patientStatus <= 0 && patientStatus !== 100) {
+      toast({
+        title: "💀 Patient Critical!",
+        description: "The patient has lost too much blood. Emergency intervention required!",
+        variant: "destructive"
+      });
+    }
+  }, [patientStatus, emergencyMode, toast]);
 
   useEffect(() => {
     if (gameStarted) {
@@ -299,6 +318,21 @@ const Level1 = () => {
       return () => clearInterval(timer);
     }
   }, [gameStarted]);
+
+  const showSuccessToast = useCallback((factor: Factor, isEmergency: boolean) => {
+    toast({
+      title: "Perfect Placement! 🎯",
+      description: `${factor.name} correctly positioned! ${isEmergency ? 'Patient stabilizing!' : '+100 points'}`,
+    });
+  }, [toast]);
+
+  const showErrorToast = useCallback((factor: Factor) => {
+    toast({
+      title: "Close, but not quite right! 🤔",
+      description: `${factor.name} needs to be positioned more precisely in the cascade.`,
+      variant: "destructive"
+    });
+  }, [toast]);
 
   const handleDragStart = (e: React.DragEvent, factor: Factor) => {
     e.dataTransfer.setData('factorId', factor.id);
@@ -319,19 +353,13 @@ const Level1 = () => {
         if (isCorrect) {
           setScore(prev => prev + 100);
           if (emergencyMode) {
-            setPatientStatus(prev => Math.min(100, prev + 10)); // Heal patient by 10%
+            setPatientStatus(prev => Math.min(100, prev + 10));
           }
-          toast({
-            title: "Perfect Placement! 🎯",
-            description: `${factor.name} correctly positioned! ${emergencyMode ? 'Patient stabilizing!' : '+100 points'}`,
-          });
+          // Use callback to avoid render phase state update
+          setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
           return { ...factor, position: factor.correctPosition, isPlaced: true };
         } else {
-          toast({
-            title: "Close, but not quite right! 🤔",
-            description: `${factor.name} needs to be positioned more precisely in the cascade.`,
-            variant: "destructive"
-          });
+          setTimeout(() => showErrorToast(factor), 0);
           return { ...factor, position: { x, y }, isPlaced: false };
         }
       }
@@ -343,7 +371,7 @@ const Level1 = () => {
     e.preventDefault();
   };
 
-  const checkCompletion = () => {
+  const checkCompletion = useCallback(() => {
     const allPlaced = factors.every(factor => factor.isPlaced);
     if (allPlaced && !level1Complete) {
       setLevel1Complete(true);
@@ -351,16 +379,18 @@ const Level1 = () => {
       const emergencyBonus = emergencyMode ? 500 : 0;
       setScore(prev => prev + timeBonus + emergencyBonus);
       setShowCompletionDialog(true);
-      toast({
-        title: "🎉 Cascade Mastered!",
-        description: `Outstanding work! ${emergencyMode ? 'Patient saved!' : 'Perfect cascade assembly!'} Time bonus: +${timeBonus} ${emergencyMode ? `Emergency bonus: +${emergencyBonus}` : ''}`,
-      });
+      setTimeout(() => {
+        toast({
+          title: "🎉 Cascade Mastered!",
+          description: `Outstanding work! ${emergencyMode ? 'Patient saved!' : 'Perfect cascade assembly!'} Time bonus: +${timeBonus} ${emergencyMode ? `Emergency bonus: +${emergencyBonus}` : ''}`,
+        });
+      }, 0);
     }
-  };
+  }, [factors, level1Complete, timeElapsed, emergencyMode, toast]);
 
   useEffect(() => {
     checkCompletion();
-  }, [factors]);
+  }, [checkCompletion]);
 
   const resetLevel = () => {
     setFactors(prev => prev.map(factor => ({
@@ -379,21 +409,25 @@ const Level1 = () => {
 
   const startGame = () => {
     setGameStarted(true);
-    toast({
-      title: "🎮 Game Started!",
-      description: "Drag and drop factors to their correct positions in the cascade. Use tooltips for educational content!",
-    });
+    setTimeout(() => {
+      toast({
+        title: "🎮 Game Started!",
+        description: "Drag and drop factors to their correct positions in the cascade. Use tooltips for educational content!",
+      });
+    }, 0);
   };
 
   const startEmergencyMode = () => {
     setEmergencyMode(true);
     setGameStarted(true);
-    setPatientStatus(80); // Start with patient already losing blood
-    toast({
-      title: "🚨 EMERGENCY ACTIVATED!",
-      description: "Patient is bleeding actively! Form the clot quickly to save their life!",
-      variant: "destructive"
-    });
+    setPatientStatus(80);
+    setTimeout(() => {
+      toast({
+        title: "🚨 EMERGENCY ACTIVATED!",
+        description: "Patient is bleeding actively! Form the clot quickly to save their life!",
+        variant: "destructive"
+      });
+    }, 0);
   };
 
   const formatTime = (seconds: number) => {
@@ -406,31 +440,38 @@ const Level1 = () => {
   const placedFactors = factors.filter(factor => factor.isPlaced);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative">
+      <AudioSystem gameState={gameStarted ? "playing" : "menu"} level={1} />
+      
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDYwIDAgTCAwIDAgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] bg-repeat"></div>
+      </div>
+
       {/* Emergency Alert Banner */}
       {emergencyMode && (
-        <div className="container mx-auto mb-4">
-          <Card className="bg-red-600 border-red-500 shadow-2xl animate-pulse">
+        <div className="container mx-auto mb-4 px-4 relative z-10">
+          <Card className="bg-gradient-to-r from-red-600/90 to-red-800/90 border-red-500 shadow-2xl animate-pulse backdrop-blur-lg">
             <CardContent className="p-4">
               <div className="flex items-center justify-between text-white">
                 <div className="flex items-center">
-                  <AlertTriangle className="h-8 w-8 mr-3 animate-bounce" />
+                  <AlertTriangle className="h-8 w-8 mr-3 animate-bounce text-yellow-300" />
                   <div>
-                    <h2 className="text-xl font-bold">EMERGENCY! ACTIVE HEMORRHAGE</h2>
+                    <h2 className="text-xl font-bold tracking-wide">🚨 EMERGENCY! ACTIVE HEMORRHAGE</h2>
                     <p className="text-red-200">Patient is bleeding actively. Form the clot on time to stop hemorrhaging to death!</p>
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center mb-2">
-                    <Heart className="h-6 w-6 mr-2" />
+                    <Heart className="h-6 w-6 mr-2 text-pink-300" />
                     <span className="text-2xl font-bold">{patientStatus}%</span>
                   </div>
-                  <div className="text-sm">Patient Status</div>
-                  <div className={`w-32 h-3 bg-red-900 rounded-full mt-2 overflow-hidden`}>
+                  <div className="text-sm text-red-100">Patient Status</div>
+                  <div className="w-32 h-3 bg-red-900/50 rounded-full mt-2 overflow-hidden border border-red-400/30">
                     <div 
                       className={`h-full transition-all duration-300 ${
-                        patientStatus > 60 ? 'bg-green-500' : 
-                        patientStatus > 30 ? 'bg-yellow-500' : 'bg-red-500'
+                        patientStatus > 60 ? 'bg-gradient-to-r from-green-400 to-green-500' : 
+                        patientStatus > 30 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : 'bg-gradient-to-r from-red-500 to-red-700'
                       }`}
                       style={{ width: `${patientStatus}%` }}
                     ></div>
@@ -442,29 +483,29 @@ const Level1 = () => {
         </div>
       )}
 
-      {/* Enhanced Header */}
-      <div className="container mx-auto mb-6">
-        <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-2xl">
+      {/* Enhanced Header with Glassmorphism */}
+      <div className="container mx-auto mb-6 px-4 relative z-10">
+        <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between text-white">
-              <div>
-                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <div className="flex flex-col lg:flex-row items-center justify-between text-white gap-4">
+              <div className="text-center lg:text-left">
+                <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   Level 1: Coagulation Cascade Commander
                 </h1>
-                <p className="text-blue-200 text-lg">Master the intricate dance of hemostasis through interactive learning</p>
+                <p className="text-blue-200 text-base lg:text-lg">Master the intricate dance of hemostasis through interactive learning</p>
               </div>
-              <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-4 lg:space-x-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-400 animate-pulse">{score}</div>
-                  <div className="text-sm text-gray-300">Score</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-yellow-400 animate-pulse">{score}</div>
+                  <div className="text-xs lg:text-sm text-gray-300">Score</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
-                  <div className="text-sm text-gray-300">Time</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
+                  <div className="text-xs lg:text-sm text-gray-300">Time</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-400">{placedFactors.length}/{factors.length}</div>
-                  <div className="text-sm text-gray-300">Placed</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-blue-400">{placedFactors.length}/{factors.length}</div>
+                  <div className="text-xs lg:text-sm text-gray-300">Placed</div>
                 </div>
               </div>
             </div>
@@ -472,16 +513,16 @@ const Level1 = () => {
         </Card>
       </div>
 
-      <div className="container mx-auto grid lg:grid-cols-4 gap-6">
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10">
         {/* Enhanced Factor Bank */}
-        <div className="lg:col-span-1">
-          <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 h-fit shadow-xl">
+        <div className="lg:col-span-1 order-2 lg:order-1">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl">
             <CardContent className="p-6">
-              <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
-                <Target className="h-6 w-6 mr-2 text-yellow-400" />
+              <h3 className="text-xl lg:text-2xl font-bold text-white mb-4 flex items-center">
+                <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400" />
                 Clotting Factors
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-80 lg:max-h-none overflow-y-auto lg:overflow-visible">
                 {unplacedFactors.map(factor => (
                   <EnhancedFactor
                     key={factor.id}
@@ -495,11 +536,24 @@ const Level1 = () => {
               <div className="mt-6 space-y-3">
                 {!gameStarted && (
                   <>
-                    <Button onClick={startGame} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
+                    <Button 
+                      onClick={() => setShowTutorial(true)} 
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Start Tutorial
+                    </Button>
+                    <Button 
+                      onClick={startGame} 
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+                    >
                       <Play className="h-4 w-4 mr-2" />
                       Start Normal Mode
                     </Button>
-                    <Button onClick={startEmergencyMode} className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 shadow-lg">
+                    <Button 
+                      onClick={startEmergencyMode} 
+                      className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 shadow-lg"
+                    >
                       <AlertTriangle className="h-4 w-4 mr-2" />
                       Emergency Mode
                     </Button>
@@ -507,7 +561,11 @@ const Level1 = () => {
                 )}
 
                 {gameStarted && (
-                  <Button onClick={resetLevel} variant="outline" className="w-full border-white text-white hover:bg-white hover:text-blue-900">
+                  <Button 
+                    onClick={resetLevel} 
+                    variant="outline" 
+                    className="w-full border-white/20 text-white hover:bg-white/10 backdrop-blur-sm"
+                  >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Reset Challenge
                   </Button>
@@ -517,26 +575,26 @@ const Level1 = () => {
           </Card>
 
           {/* Enhanced Pathway Legend */}
-          <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 mt-4 shadow-xl">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 mt-4 shadow-xl">
             <CardContent className="p-4">
               <h4 className="text-white font-bold mb-3 text-lg">Pathway Guide</h4>
               <div className="space-y-3 text-sm">
-                <div className="flex items-center p-2 rounded bg-blue-500/20">
-                  <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded mr-3"></div>
+                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-400/30">
+                  <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded mr-3 flex-shrink-0"></div>
                   <div>
                     <div className="text-white font-semibold">Intrinsic Pathway</div>
                     <div className="text-blue-200 text-xs">Contact activation (XII, XI, IX)</div>
                   </div>
                 </div>
-                <div className="flex items-center p-2 rounded bg-green-500/20">
-                  <div className="w-4 h-4 bg-gradient-to-br from-green-500 to-green-700 rounded mr-3"></div>
+                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-400/30">
+                  <div className="w-4 h-4 bg-gradient-to-br from-green-400 to-green-600 rounded mr-3 flex-shrink-0"></div>
                   <div>
                     <div className="text-white font-semibold">Extrinsic Pathway</div>
                     <div className="text-green-200 text-xs">Tissue factor activation (VII, TF)</div>
                   </div>
                 </div>
-                <div className="flex items-center p-2 rounded bg-purple-500/20">
-                  <div className="w-4 h-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded mr-3"></div>
+                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-600/20 border border-purple-400/30">
+                  <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded mr-3 flex-shrink-0"></div>
                   <div>
                     <div className="text-white font-semibold">Common Pathway</div>
                     <div className="text-purple-200 text-xs">Final clot formation (X, V, II, I)</div>
@@ -548,37 +606,48 @@ const Level1 = () => {
         </div>
 
         {/* Enhanced Cascade Visualization */}
-        <div className="lg:col-span-3">
-          <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-2xl">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-white flex items-center">
-                  <ArrowUp className="h-6 w-6 mr-2 text-blue-400 rotate-180" />
+        <div className="lg:col-span-3 order-1 lg:order-2">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+            <CardContent className="p-4 lg:p-6">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
+                <h3 className="text-xl lg:text-2xl font-bold text-white flex items-center">
+                  <ArrowUp className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-blue-400 rotate-180" />
                   Interactive Coagulation Cascade
                 </h3>
-                <div className="text-white text-sm bg-white/10 px-4 py-2 rounded-full">
+                <div className="text-white text-xs lg:text-sm bg-white/10 px-3 py-2 rounded-full backdrop-blur-sm border border-white/20">
                   Hover over factors for detailed educational content
                 </div>
               </div>
 
-              <AnimatedCascade
-                factors={factors}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-              />
+              <div className="relative min-h-[400px] lg:min-h-[600px]">
+                <AnimatedCascade
+                  factors={factors}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
+      {/* Tutorial Component */}
+      <Tutorial
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        onSkip={() => setShowTutorial(false)}
+        steps={tutorialSteps}
+        currentLevel="level1"
+      />
+
       {/* Completion Dialog */}
       <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <AlertDialogContent className="max-w-2xl">
+        <AlertDialogContent className="max-w-2xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 border border-blue-400/30 backdrop-blur-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-center text-2xl font-bold text-green-600">
+            <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
               🎉 Level 1 Complete! 🎉
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-lg">
+            <AlertDialogDescription className="text-center text-lg text-gray-300">
               {emergencyMode 
                 ? "Outstanding work! You've successfully saved the patient by assembling the complete coagulation cascade under emergency conditions!"
                 : "Congratulations! You've mastered the coagulation cascade and demonstrated excellent understanding of hemostatic mechanisms!"
@@ -588,38 +657,39 @@ const Level1 = () => {
           
           <div className="py-6">
             <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">{score}</div>
-                <div className="text-sm text-gray-600">Final Score</div>
+              <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 p-4 rounded-lg border border-yellow-400/30 backdrop-blur-sm">
+                <div className="text-2xl font-bold text-yellow-400">{score}</div>
+                <div className="text-sm text-gray-300">Final Score</div>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{formatTime(timeElapsed)}</div>
-                <div className="text-sm text-gray-600">Completion Time</div>
+              <div className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 p-4 rounded-lg border border-blue-400/30 backdrop-blur-sm">
+                <div className="text-2xl font-bold text-blue-400">{formatTime(timeElapsed)}</div>
+                <div className="text-sm text-gray-300">Completion Time</div>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{emergencyMode ? 'SAVED' : 'PERFECT'}</div>
-                <div className="text-sm text-gray-600">{emergencyMode ? 'Patient Status' : 'Performance'}</div>
+              <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-4 rounded-lg border border-green-400/30 backdrop-blur-sm">
+                <div className="text-2xl font-bold text-green-400">{emergencyMode ? 'SAVED' : 'PERFECT'}</div>
+                <div className="text-sm text-gray-300">{emergencyMode ? 'Patient Status' : 'Performance'}</div>
               </div>
             </div>
           </div>
 
-          <AlertDialogFooter className="flex justify-center space-x-4">
+          <AlertDialogFooter className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
             <AlertDialogAction 
               onClick={resetLevel}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Replay Level
             </AlertDialogAction>
             <AlertDialogAction 
               onClick={() => navigate('/level2')}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
             >
               <Target className="h-4 w-4 mr-2" />
               Next Level
             </AlertDialogAction>
             <AlertDialogCancel 
               onClick={() => navigate('/')}
+              className="border-white/20 text-white hover:bg-white/10"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Main Menu
