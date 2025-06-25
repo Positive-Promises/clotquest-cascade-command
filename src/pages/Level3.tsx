@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -203,7 +202,7 @@ const Level3 = () => {
   const progressPercentage = (completedSteps / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-blue-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-blue-900 p-4 pb-20">
       <div className="container mx-auto">
         <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -213,24 +212,24 @@ const Level3 = () => {
         {/* Header */}
         <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-2xl mb-6">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between text-white">
-              <div>
-                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-red-400 to-purple-400 bg-clip-text text-transparent">
+            <div className="flex flex-col lg:flex-row items-center justify-between text-white gap-4">
+              <div className="text-center lg:text-left">
+                <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-red-400 to-purple-400 bg-clip-text text-transparent">
                   Level 3: Platelet Plug Formation
                 </h1>
-                <p className="text-purple-200 text-lg">Master primary hemostasis through interactive platelet activation</p>
+                <p className="text-purple-200 text-base lg:text-lg">Master primary hemostasis through interactive platelet activation</p>
               </div>
-              <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-4 lg:space-x-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-400">{score}</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-yellow-400">{score}</div>
                   <div className="text-sm text-gray-300">Score</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
                   <div className="text-sm text-gray-300">Time</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-400">{completedSteps}/{totalSteps}</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-blue-400">{completedSteps}/{totalSteps}</div>
                   <div className="text-sm text-gray-300">Steps</div>
                 </div>
               </div>
@@ -320,7 +319,7 @@ const Level3 = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="relative bg-gradient-to-b from-pink-100 to-red-100 rounded-2xl p-8 min-h-[500px] overflow-hidden border-4 border-red-300">
+                <div className="relative bg-gradient-to-b from-pink-100 to-red-100 rounded-2xl p-8 min-h-[400px] lg:min-h-[500px] overflow-hidden border-4 border-red-300">
                   {/* Vessel wall representation */}
                   <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-pink-200 to-pink-300 opacity-50"></div>
                   <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-pink-200 to-pink-300 opacity-50"></div>
@@ -356,12 +355,12 @@ const Level3 = () => {
                     </div>
                   ))}
 
-                  {/* Educational overlay */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-2xl p-4">
-                    <h4 className="font-bold text-gray-800 mb-2">Primary Hemostasis</h4>
-                    <p className="text-sm text-gray-700">
+                  {/* Educational overlay - moved to prevent overlap */}
+                  <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
+                    <h4 className="font-bold text-gray-800 mb-1 text-sm">Primary Hemostasis</h4>
+                    <p className="text-xs text-gray-700">
                       Click the active steps in sequence to simulate platelet plug formation. 
-                      This is the body's immediate response to vascular injury, forming the initial barrier to bleeding.
+                      This is the body's immediate response to vascular injury.
                     </p>
                   </div>
                 </div>

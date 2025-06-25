@@ -446,7 +446,7 @@ const Level1 = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 light:from-slate-100 light:via-blue-100 light:to-slate-100 relative">
       <AudioSystem gameState={gameStarted ? "playing" : "menu"} level={1} />
       
-      {/* Emergency Light */}
+      {/* Emergency Light - Now smaller and at bottom */}
       <EmergencyLight 
         isEmergency={emergencyMode} 
         isSuccess={level1Complete && emergencyMode} 
@@ -458,41 +458,6 @@ const Level1 = () => {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDYwIDAgTCAwIDAgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] bg-repeat"></div>
       </div>
 
-      {/* Emergency Alert Banner */}
-      {emergencyMode && (
-        <div className="container mx-auto mb-4 px-4 relative z-10">
-          <Card className="bg-gradient-to-r from-red-600/90 to-red-800/90 border-red-500 shadow-2xl animate-pulse backdrop-blur-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between text-white">
-                <div className="flex items-center">
-                  <AlertTriangle className="h-8 w-8 mr-3 animate-bounce text-yellow-300" />
-                  <div>
-                    <h2 className="text-xl font-bold tracking-wide">🚨 EMERGENCY! ACTIVE HEMORRHAGE</h2>
-                    <p className="text-red-200">Patient is bleeding actively. Form the clot on time to stop hemorrhaging to death!</p>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center mb-2">
-                    <Heart className="h-6 w-6 mr-2 text-pink-300" />
-                    <span className="text-2xl font-bold">{patientStatus}%</span>
-                  </div>
-                  <div className="text-sm text-red-100">Patient Status</div>
-                  <div className="w-32 h-3 bg-red-900/50 rounded-full mt-2 overflow-hidden border border-red-400/30">
-                    <div 
-                      className={`h-full transition-all duration-300 ${
-                        patientStatus > 60 ? 'bg-gradient-to-r from-green-400 to-green-500' : 
-                        patientStatus > 30 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : 'bg-gradient-to-r from-red-500 to-red-700'
-                      }`}
-                      style={{ width: `${patientStatus}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
       {/* Enhanced Header with Theme Toggle */}
       <div className="container mx-auto mb-6 px-4 relative z-10">
         <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
@@ -503,6 +468,12 @@ const Level1 = () => {
                   Level 1: Coagulation Cascade Commander
                 </h1>
                 <p className="text-blue-200 dark:text-blue-200 light:text-blue-800 text-base lg:text-lg">Master the intricate dance of hemostasis through interactive learning</p>
+                {emergencyMode && (
+                  <div className="mt-2 flex items-center justify-center lg:justify-start">
+                    <AlertTriangle className="h-4 w-4 mr-2 text-red-400 animate-bounce" />
+                    <span className="text-red-400 font-bold text-sm">Emergency Mode Active - Patient Status: {patientStatus}%</span>
+                  </div>
+                )}
               </div>
               <div className="flex items-center space-x-4 lg:space-x-8">
                 <ThemeToggle />
@@ -524,7 +495,7 @@ const Level1 = () => {
         </Card>
       </div>
 
-      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10">
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10 pb-20">
         {/* Enhanced Sidebar */}
         <div className="lg:col-span-1 order-2 lg:order-1">
           <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl dark:bg-white/5 light:bg-black/5 light:border-black/10">

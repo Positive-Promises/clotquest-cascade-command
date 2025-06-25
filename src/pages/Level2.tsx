@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,55 +71,70 @@ const Level2 = () => {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <Link to="/" className="inline-flex items-center mb-4 text-blue-500 hover:text-blue-700">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Home
-      </Link>
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Lab Experiments Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {experiments.map(experiment => (
-          <Card key={experiment.id} className="bg-white shadow-md rounded-lg overflow-hidden">
-            <CardHeader className="p-4">
-              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                <Beaker className="mr-2 h-5 w-5 text-blue-500" />
-                {experiment.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <p className="text-gray-700 mb-3">{experiment.description}</p>
-              <div className="flex items-center mb-2">
-                <Badge
-                  variant="secondary"
-                  className={`mr-2 ${experiment.status === 'idle' ? 'bg-gray-400 text-white' :
-                    experiment.status === 'running' ? 'bg-blue-500 text-white' :
-                      experiment.status === 'completed' && experiment.outcome === 'success' ? 'bg-green-500 text-white' :
-                        experiment.status === 'failed' ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
-                >
-                  {experiment.status === 'idle' ? 'Idle' : experiment.status === 'running' ? 'Running' : experiment.status === 'completed' ? 'Completed' : 'Failed'}
-                </Badge>
-                {experiment.status === 'completed' && (
-                  <Badge variant="outline" className={experiment.outcome === 'success' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'}>
-                    {experiment.outcome === 'success' ? 'Success' : 'Failure'}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 pb-20">
+      <div className="container mx-auto">
+        <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Home
+        </Link>
+        
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2 text-white">Lab Experiments Dashboard</h1>
+          <p className="text-blue-200">Master platelet aggregation through interactive laboratory simulations</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {experiments.map(experiment => (
+            <Card key={experiment.id} className="bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg font-semibold text-white flex items-center">
+                  <Beaker className="mr-2 h-5 w-5 text-blue-400" />
+                  {experiment.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p className="text-gray-200 mb-3">{experiment.description}</p>
+                <div className="flex items-center mb-2">
+                  <Badge
+                    variant="secondary"
+                    className={`mr-2 ${experiment.status === 'idle' ? 'bg-gray-600 text-white' :
+                      experiment.status === 'running' ? 'bg-blue-600 text-white' :
+                        experiment.status === 'completed' && experiment.outcome === 'success' ? 'bg-green-600 text-white' :
+                          experiment.status === 'failed' ? 'bg-red-600 text-white' : 'bg-gray-400'}`}
+                  >
+                    {experiment.status === 'idle' ? 'Idle' : experiment.status === 'running' ? 'Running' : experiment.status === 'completed' ? 'Completed' : 'Failed'}
                   </Badge>
-                )}
-              </div>
-              <Progress value={experiment.progress} className="mb-4" />
-              <div className="flex justify-between">
-                {experiment.status === 'idle' ? (
-                  <Button onClick={() => startExperiment(experiment.id)}><Microscope className="mr-2 h-4 w-4" />Start</Button>
-                ) : experiment.status === 'running' ? (
-                  <>
-                    <Button variant="secondary" onClick={() => completeExperiment(experiment.id, 'success')}><Heart className="mr-2 h-4 w-4" />Success</Button>
-                    <Button variant="destructive" onClick={() => completeExperiment(experiment.id, 'failure')}><Clock className="mr-2 h-4 w-4" />Failure</Button>
-                  </>
-                ) : (
-                  <Button variant="ghost" onClick={() => resetExperiment(experiment.id)}><Trophy className="mr-2 h-4 w-4" />Reset</Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  {experiment.status === 'completed' && (
+                    <Badge variant="outline" className={experiment.outcome === 'success' ? 'text-green-400 border-green-400' : 'text-red-400 border-red-400'}>
+                      {experiment.outcome === 'success' ? 'Success' : 'Failure'}
+                    </Badge>
+                  )}
+                </div>
+                <Progress value={experiment.progress} className="mb-4" />
+                <div className="flex justify-between">
+                  {experiment.status === 'idle' ? (
+                    <Button onClick={() => startExperiment(experiment.id)} className="bg-blue-600 hover:bg-blue-700">
+                      <Microscope className="mr-2 h-4 w-4" />Start
+                    </Button>
+                  ) : experiment.status === 'running' ? (
+                    <>
+                      <Button variant="secondary" onClick={() => completeExperiment(experiment.id, 'success')} className="bg-green-600 hover:bg-green-700">
+                        <Heart className="mr-2 h-4 w-4" />Success
+                      </Button>
+                      <Button variant="destructive" onClick={() => completeExperiment(experiment.id, 'failure')}>
+                        <Clock className="mr-2 h-4 w-4" />Failure
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="ghost" onClick={() => resetExperiment(experiment.id)} className="text-white hover:bg-white/10">
+                      <Trophy className="mr-2 h-4 w-4" />Reset
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

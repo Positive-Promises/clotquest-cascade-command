@@ -20,18 +20,19 @@ const EmergencyLight: React.FC<EmergencyLightProps> = ({
   const animationClass = isSuccess ? 'animate-pulse' : 'animate-ping';
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center space-x-2">
-      <div className={`w-6 h-6 rounded-full ${lightColor} ${glowColor} shadow-2xl ${animationClass}`}></div>
-      <div className="bg-black/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
-        <div className="flex items-center space-x-2">
+    <div className="fixed bottom-4 right-4 z-40 flex items-center space-x-2">
+      <div className={`w-4 h-4 rounded-full ${lightColor} ${glowColor} shadow-lg ${animationClass}`}></div>
+      <div className="bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md border border-white/20">
+        <div className="flex items-center space-x-1">
           {isSuccess ? (
-            <Heart className="h-4 w-4 text-green-400" />
+            <Heart className="h-3 w-3 text-green-400" />
           ) : (
-            <AlertTriangle className="h-4 w-4 text-red-400" />
+            <AlertTriangle className="h-3 w-3 text-red-400" />
           )}
-          <span className={`text-sm font-bold ${isSuccess ? 'text-green-400' : 'text-red-400'}`}>
-            {isSuccess ? 'PATIENT SAVED!' : 'EMERGENCY'}
+          <span className={`text-xs font-bold ${isSuccess ? 'text-green-400' : 'text-red-400'}`}>
+            {isSuccess ? 'SAVED!' : 'EMERGENCY'}
           </span>
+          <span className="text-white text-xs">{patientStatus}%</span>
         </div>
       </div>
     </div>
