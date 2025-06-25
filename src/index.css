@@ -141,7 +141,55 @@
   }
 }
 
-/* ... keep existing code (components layer with glassmorphism, hover effects, medical theme colors, custom scrollbar) */
+@layer components {
+  /* Glassmorphism effects */
+  .glass {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+
+  /* Hover effects */
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  .hover-glow {
+    @apply transition-shadow duration-300 hover:shadow-xl hover:shadow-blue-500/25;
+  }
+
+  /* Medical theme colors */
+  .medical-red {
+    @apply bg-gradient-to-r from-red-500 to-red-600;
+  }
+
+  .medical-blue {
+    @apply bg-gradient-to-r from-blue-500 to-blue-600;
+  }
+
+  .medical-green {
+    @apply bg-gradient-to-r from-green-500 to-green-600;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+}
 
 @layer utilities {
   /* Text gradients */
@@ -186,7 +234,7 @@
   }
 
   .light .glass-card {
-    @apply bg-black/3 backdrop-blur-xl border border-black/8 shadow-2xl;
+    @apply bg-black/[0.03] backdrop-blur-xl border border-black/[0.08] shadow-2xl;
   }
 
   /* Emergency light animation */

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { ThemeProvider } from '@/components/ThemeProvider';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Flame, Clock, ShoppingCart, TrendingUp, Star } from 'lucide-react';
+import { Flame, Clock, ShoppingCart, TrendingUp, Star, Play } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
