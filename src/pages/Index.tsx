@@ -1,309 +1,298 @@
-
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { 
-  Play, 
-  Beaker, 
-  Target, 
-  Stethoscope,
-  Trophy,
-  BookOpen,
-  Zap,
-  Heart,
-  Brain,
-  Award,
-  HelpCircle,
-  Users
-} from "lucide-react";
-import Tutorial from "@/components/Tutorial";
-import SocialGaming from "@/components/SocialGaming";
-import HowToPlay from "@/components/HowToPlay";
-import AudioSystem from "@/components/AudioSystem";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
+import { ThemeProvider } from '@/components/ThemeProvider';
+import ThemeToggle from '@/components/ThemeToggle';
+import { Flame, Clock, ShoppingCart, TrendingUp, Star } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const tutorialSteps = [
-    {
-      id: 1,
-      title: "Welcome to HemoMaster Academy!",
-      description: "This is your medical education gaming platform. Choose from 4 different levels to master hemostasis and blood coagulation.",
-      position: "bottom" as const
-    },
-    {
-      id: 2,
-      title: "Level Selection",
-      description: "Each level teaches different aspects of hemostasis. Start with Level 1 for beginners or jump to advanced levels if you're experienced.",
-      position: "top" as const
-    },
-    {
-      id: 3,
-      title: "Difficulty Levels",
-      description: "Pay attention to difficulty badges - they indicate the complexity and skills required for each level.",
-      position: "left" as const
-    },
-    {
-      id: 4,
-      title: "Social Features",
-      description: "Log in to track your progress, compete with friends, and see leaderboards!",
-      position: "right" as const
-    },
-    {
-      id: 5,
-      title: "Help & Tutorials",
-      description: "Click 'How to Play' anytime for detailed guides, power-ups info, and scoring details.",
-      position: "top" as const
-    },
-    {
-      id: 6,
-      title: "Ready to Start!",
-      description: "You're all set! Choose your first level and begin mastering hemostasis. Good luck, future medical expert!",
-      position: "bottom" as const
-    }
-  ];
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
 
-  const levels = [
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleGameSelect = (route: string) => {
+    toast({
+      title: "Game Selected!",
+      description: `Navigating to ${route}...`,
+    });
+    navigate(route);
+  };
+
+  const gameCards = [
     {
       id: 1,
       title: "Coagulation Cascade Commander",
-      description: "Master the intricate dance of hemostasis through interactive drag-and-drop learning",
-      icon: <Target className="h-6 w-6 sm:h-8 sm:w-8" />,
+      description: "Master the intricate coagulation cascade through interactive drag-and-drop gameplay. Learn each factor's role in hemostasis.",
+      level: "Level 1",
       difficulty: "Beginner",
-      color: "from-blue-600 to-purple-600",
-      features: ["Interactive cascade building", "Emergency scenarios", "Educational tooltips", "Real-time feedback"],
-      path: "/level1"
+      route: "/level1",
+      completionRate: 78,
+      rating: 4.8,
+      isHot: true,
+      estimatedTime: "15 mins",
+      coursePrice: "$29.99",
+      features: ["Emergency Mode", "Interactive Tutorial", "Real-time Feedback"],
+      gradient: "from-blue-600 via-purple-600 to-pink-600"
     },
     {
-      id: 2,
-      title: "Laboratory Detective",
-      description: "Solve complex diagnostic puzzles through virtual lab experiments and analysis",
-      icon: <Beaker className="h-6 w-6 sm:h-8 sm:w-8" />,
-      difficulty: "Intermediate",
-      color: "from-green-600 to-blue-600",
-      features: ["Virtual experiments", "Lab result analysis", "Diagnostic challenges", "Equipment simulation"],
-      path: "/level2"
+      id: 2, 
+      title: "Platelet Aggregation Master",
+      description: "Explore platelet function and aggregation mechanisms in this challenging puzzle game.",
+      level: "Level 2",
+      difficulty: "Intermediate", 
+      route: "/level2",
+      completionRate: 65,
+      rating: 4.6,
+      isLive: true,
+      estimatedTime: "25 mins",
+      coursePrice: "$39.99",
+      features: ["Advanced Mechanics", "Multiplayer Mode"],
+      gradient: "from-green-500 via-teal-500 to-blue-500"
     },
     {
       id: 3,
-      title: "Platelet Plug Formation",
-      description: "Experience primary hemostasis through interactive platelet activation sequences",
-      icon: <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
-      difficulty: "Intermediate",
-      color: "from-red-600 to-purple-600",
-      features: ["Step-by-step hemostasis", "Vessel injury simulation", "Platelet activation", "Visual feedback"],
-      path: "/level3"
+      title: "Anticoagulation Strategy",
+      description: "Learn anticoagulation therapy through strategic gameplay and clinical scenarios.",
+      level: "Level 3", 
+      difficulty: "Advanced",
+      route: "/level3",
+      completionRate: 52,
+      rating: 4.9,
+      isHot: true,
+      estimatedTime: "35 mins", 
+      coursePrice: "$49.99",
+      features: ["Clinical Cases", "Drug Interactions"],
+      gradient: "from-purple-600 via-pink-600 to-red-600"
     },
     {
       id: 4,
-      title: "Clinical Case Studies",
-      description: "Apply your knowledge to real-world clinical scenarios and diagnostic challenges",
-      icon: <Stethoscope className="h-6 w-6 sm:h-8 sm:w-8" />,
-      difficulty: "Advanced",
-      color: "from-indigo-600 to-purple-600",
-      features: ["Real clinical cases", "Diagnostic reasoning", "Treatment decisions", "Expert explanations"],
-      path: "/level4"
+      title: "Bleeding Disorders Detective",
+      description: "Diagnose and manage bleeding disorders through immersive clinical simulations.",
+      level: "Level 4",
+      difficulty: "Expert",
+      route: "/level4", 
+      completionRate: 41,
+      rating: 4.7,
+      isLive: true,
+      estimatedTime: "45 mins",
+      coursePrice: "$59.99", 
+      features: ["AI Patients", "Diagnostic Tools"],
+      gradient: "from-red-600 via-orange-600 to-yellow-600"
     }
   ];
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
-  const handleSignUp = () => {
-    setIsLoggedIn(true);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-x-hidden">
-      <AudioSystem gameState="menu" level={1} />
-      
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDYwIDAgTCAwIDAgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] bg-repeat"></div>
-      </div>
-      
-      {/* Mobile-optimized Header */}
-      <div className="container mx-auto px-4 py-8 sm:py-16 relative z-10">
-        <div className="text-center mb-8 sm:mb-16">
-          <div className="flex justify-center mb-4 sm:mb-6">
-            <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-2xl animate-pulse-glow">
-              <Trophy className="h-12 w-12 sm:h-16 sm:w-16 text-white" />
+    <ThemeProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 light:from-slate-100 light:via-blue-100 light:to-slate-100">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDYwIDAgTCAwIDAgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] bg-repeat"></div>
+        </div>
+        
+        {/* Hero Section with Theme Toggle */}
+        <div className="container mx-auto px-4 pt-8 pb-16 relative z-10">
+          <div className="flex justify-between items-start mb-8">
+            <div></div>
+            <ThemeToggle />
+          </div>
+          
+          {/* Hero Content */}
+          <div className="text-center md:text-left md:flex md:items-center">
+            <div className="md:w-2/3">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                ClotQuest: Cascade Command
+              </h1>
+              <p className="text-blue-200 dark:text-blue-200 light:text-blue-200 text-lg md:text-xl mb-8 leading-relaxed">
+                Master the art of hemostasis through interactive challenges and simulations.
+                From coagulation cascades to bleeding disorders, become the ultimate blood clot commander!
+              </p>
+              <div className="space-x-4">
+                <Button onClick={() => handleGameSelect('/level1')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
+                  Start Learning
+                </Button>
+                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 backdrop-blur-sm">
+                  Learn More
+                </Button>
+              </div>
             </div>
           </div>
           
-          <h1 className="font-playfair text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent px-2 animate-fade-in">
-            HemoMaster Academy
-          </h1>
-          
-          <p className="font-inter text-lg sm:text-xl lg:text-2xl text-gray-300 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-            Master the complexities of hemostasis and thrombosis through immersive, 
-            interactive learning experiences designed by medical experts.
-          </p>
+          {/* Enhanced Game Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {gameCards.map((game, index) => (
+              <Card key={game.id} className={`group relative overflow-hidden bg-gradient-to-br ${game.gradient} shadow-2xl border-0 hover-scale hover-glow transition-all duration-500 animate-fade-in`}
+                style={{ animationDelay: `${index * 0.1}s` }}>
+                <CardContent className="p-8 relative z-10">
+                  {/* Status Badges */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {game.isHot && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                          <Flame className="h-3 w-3 mr-1" />
+                          HOT
+                        </span>
+                      )}
+                      {game.isLive && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white animate-pulse">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          LIVE
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center text-white/90 text-sm mb-1">
+                        <Clock className="h-4 w-4 mr-1" />
+                        {game.estimatedTime}
+                      </div>
+                      <div className="flex items-center text-yellow-300 text-sm">
+                        <Star className="h-4 w-4 mr-1 fill-current" />
+                        {game.rating}
+                      </div>
+                    </div>
+                  </div>
 
-          {/* Mobile-friendly action buttons */}
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4">
-            <Button
-              onClick={() => setShowHowToPlay(true)}
-              variant="outline"
-              className="w-full sm:w-auto border-blue-400/50 text-blue-300 hover:bg-blue-400/10 backdrop-blur-sm bg-white/5 transition-all duration-300 hover:scale-105"
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              How to Play
-            </Button>
-            
-            <Button
-              onClick={() => setShowTutorial(true)}
-              className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg transition-all duration-300 hover:scale-105"
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Start Tutorial
-            </Button>
+                  {/* Game Info */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-2xl font-bold text-white group-hover:text-yellow-300 transition-colors">
+                        {game.title}
+                      </h3>
+                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold text-white">
+                        {game.level}
+                      </span>
+                    </div>
+                    <p className="text-white/90 mb-4 leading-relaxed">
+                      {game.description}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                        <div className="text-white font-bold text-lg">{game.completionRate}%</div>
+                        <div className="text-white/70 text-sm">Completion Rate</div>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                        <div className="text-white font-bold text-lg">{game.difficulty}</div>
+                        <div className="text-white/70 text-sm">Difficulty</div>
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        {game.features.map((feature, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded text-xs text-white">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={() => handleGameSelect(game.route)}
+                      className="flex-1 bg-white text-gray-900 hover:bg-white/90 font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      PLAY
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="px-4 bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {game.coursePrice}
+                    </Button>
+                  </div>
+                </CardContent>
+
+                {/* Animated Background Elements */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute -top-4 -right-4 w-24 h-24 bg-white rounded-full opacity-10 group-hover:scale-150 transition-transform duration-700"></div>
+                  <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-white rounded-full opacity-5 group-hover:scale-125 transition-transform duration-700"></div>
+                </div>
+              </Card>
+            ))}
           </div>
-          
-          {/* Mobile-optimized badges */}
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 px-4">
-            <Badge variant="outline" className="px-3 py-2 text-blue-300 border-blue-300/50 bg-blue-500/10 backdrop-blur-sm">
-              <Brain className="h-4 w-4 mr-2" />
-              Evidence-Based
-            </Badge>
-            <Badge variant="outline" className="px-3 py-2 text-green-300 border-green-300/50 bg-green-500/10 backdrop-blur-sm">
-              <Zap className="h-4 w-4 mr-2" />
-              Interactive
-            </Badge>
-            <Badge variant="outline" className="px-3 py-2 text-purple-300 border-purple-300/50 bg-purple-500/10 backdrop-blur-sm">
-              <Award className="h-4 w-4 mr-2" />
-              Clinical Excellence
-            </Badge>
-          </div>
-        </div>
 
-        {/* Social Gaming Component */}
-        <div className="mb-8 sm:mb-12 max-w-4xl mx-auto">
-          <SocialGaming 
-            isLoggedIn={isLoggedIn}
-            onLogin={handleLogin}
-            onSignUp={handleSignUp}
-          />
-        </div>
-
-        {/* Mobile-responsive game levels grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto mb-8 sm:mb-16">
-          {levels.map((level) => (
-            <Card 
-              key={level.id} 
-              className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 hover:bg-white/10 group"
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-2 sm:p-3 bg-gradient-to-r ${level.color} rounded-lg shadow-lg group-hover:animate-pulse-glow transition-all duration-300`}>
-                    {level.icon}
-                  </div>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-xs sm:text-sm font-semibold backdrop-blur-sm ${
-                      level.difficulty === 'Beginner' ? 'border-green-400/50 text-green-300 bg-green-500/10' :
-                      level.difficulty === 'Intermediate' ? 'border-yellow-400/50 text-yellow-300 bg-yellow-500/10' :
-                      'border-red-400/50 text-red-300 bg-red-500/10'
-                    }`}
-                  >
-                    {level.difficulty}
-                  </Badge>
-                </div>
-                <CardTitle className="font-playfair text-xl sm:text-2xl text-white mb-2 group-hover:text-blue-300 transition-colors duration-300">
-                  {level.title}
-                </CardTitle>
-                <p className="font-inter text-gray-300 leading-relaxed text-sm sm:text-base group-hover:text-gray-200 transition-colors duration-300">
-                  {level.description}
-                </p>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="mb-6">
-                  <h4 className="text-white font-semibold mb-3 flex items-center text-sm sm:text-base">
-                    <BookOpen className="h-4 w-4 mr-2 text-blue-400" />
-                    Key Features
-                  </h4>
-                  <ul className="space-y-2">
-                    {level.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-gray-300 text-xs sm:text-sm group-hover:text-gray-200 transition-colors duration-300">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-3 flex-shrink-0 group-hover:bg-blue-300 transition-colors duration-300"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <Button 
-                  onClick={() => navigate(level.path)}
-                  className={`w-full bg-gradient-to-r ${level.color} hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}
-                >
-                  <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  Start Level {level.id}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Mobile-optimized educational footer */}
-        <div className="mt-8 sm:mt-16 text-center">
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl max-w-4xl mx-auto">
-            <CardContent className="p-6 sm:p-8">
-              <h3 className="font-playfair text-xl sm:text-2xl font-bold text-white mb-4">
-                Why Choose HemoMaster Academy?
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-                <div className="space-y-3 group">
-                  <div className="p-3 bg-blue-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center border border-blue-400/30 group-hover:animate-pulse-glow transition-all duration-300">
-                    <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
-                  </div>
-                  <h4 className="font-inter text-white font-semibold">Evidence-Based</h4>
-                  <p className="font-inter text-gray-300 text-sm">
-                    All content is based on current medical literature and clinical guidelines
-                  </p>
-                </div>
-                <div className="space-y-3 group">
-                  <div className="p-3 bg-green-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center border border-green-400/30 group-hover:animate-pulse-glow transition-all duration-300">
-                    <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
-                  </div>
-                  <h4 className="font-inter text-white font-semibold">Interactive Learning</h4>
-                  <p className="font-inter text-gray-300 text-sm">
-                    Engage with dynamic simulations and hands-on problem solving
-                  </p>
-                </div>
-                <div className="space-y-3 group">
-                  <div className="p-3 bg-purple-500/20 rounded-full w-16 h-16 mx-auto flex items-center justify-center border border-purple-400/30 group-hover:animate-pulse-glow transition-all duration-300">
-                    <Award className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400" />
-                  </div>
-                  <h4 className="font-inter text-white font-semibold">Clinical Excellence</h4>
-                  <p className="font-inter text-gray-300 text-sm">
-                    Develop skills that directly translate to improved patient care
-                  </p>
-                </div>
+          {/* Features Section */}
+          <section className="py-12">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">Unlock the Secrets of Hemostasis</h2>
+              <p className="text-blue-200 text-lg">Explore advanced features designed to enhance your learning experience.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <TrendingUp className="h-12 w-12 mx-auto text-green-400 mb-3" />
+                <h3 className="text-xl font-semibold text-white mb-2">Real-time Progress Tracking</h3>
+                <p className="text-blue-200">Monitor your learning progress and identify areas for improvement.</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="text-center">
+                <Clock className="h-12 w-12 mx-auto text-yellow-400 mb-3" />
+                <h3 className="text-xl font-semibold text-white mb-2">Adaptive Learning Paths</h3>
+                <p className="text-blue-200">Personalized learning paths that adapt to your skill level and pace.</p>
+              </div>
+              <div className="text-center">
+                <Star className="h-12 w-12 mx-auto text-blue-400 mb-3" />
+                <h3 className="text-xl font-semibold text-white mb-2">Expert-Designed Content</h3>
+                <p className="text-blue-200">Curated content developed by leading hematology experts.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Social Gaming Integration */}
+          <section className="py-12">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">Join the Hemostasis Community</h2>
+              <p className="text-blue-200 text-lg">Connect with fellow learners and compete in collaborative challenges.</p>
+            </div>
+            <div className="flex justify-center">
+              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg">
+                Explore Community Features
+              </Button>
+            </div>
+          </section>
+
+          {/* How to Play Section */}
+          <section className="py-12">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">Ready to Start Your Quest?</h2>
+              <p className="text-blue-200 text-lg">Follow these simple steps to begin your journey.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto bg-blue-500 rounded-full text-white text-2xl font-bold flex items-center justify-center mb-3">1</div>
+                <h3 className="text-xl font-semibold text-white mb-2">Select a Level</h3>
+                <p className="text-blue-200">Choose a level that matches your current knowledge and skill level.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto bg-purple-500 rounded-full text-white text-2xl font-bold flex items-center justify-center mb-3">2</div>
+                <h3 className="text-xl font-semibold text-white mb-2">Complete the Challenges</h3>
+                <p className="text-blue-200">Engage with interactive simulations and solve complex hemostasis puzzles.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto bg-pink-500 rounded-full text-white text-2xl font-bold flex items-center justify-center mb-3">3</div>
+                <h3 className="text-xl font-semibold text-white mb-2">Track Your Progress</h3>
+                <p className="text-blue-200">Monitor your progress and earn rewards as you master each concept.</p>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
-
-      {/* Modals */}
-      <Tutorial
-        isOpen={showTutorial}
-        onClose={() => setShowTutorial(false)}
-        onSkip={() => setShowTutorial(false)}
-        steps={tutorialSteps}
-        currentLevel="index"
-      />
-
-      <HowToPlay
-        isOpen={showHowToPlay}
-        onClose={() => setShowHowToPlay(false)}
-      />
-    </div>
+    </ThemeProvider>
   );
 };
 

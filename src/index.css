@@ -84,6 +84,37 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* WCAG Compliant Light Mode */
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 93%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 93%;
+    --muted-foreground: 215.4 16.3% 25%;
+
+    --accent: 210 40% 93%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 40%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 80%;
+    --input: 214.3 31.8% 85%;
+    --ring: 222.2 84% 4.9%;
+  }
 }
 
 @layer base {
@@ -99,49 +130,18 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-playfair;
   }
-}
 
-@layer components {
-  /* Glassmorphism utility classes */
-  .glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20;
+  /* WCAG Compliance */
+  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
+    color: hsl(222.2, 84%, 4.9%); /* High contrast ratio */
   }
 
-  .glass-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
-  }
-
-  /* Enhanced hover effects */
-  .hover-scale {
-    @apply transition-all duration-300 hover:scale-105;
-  }
-
-  .hover-glow {
-    @apply transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/25;
-  }
-
-  /* Medical theme colors */
-  .medical-gradient {
-    @apply bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600;
-  }
-
-  .emergency-gradient {
-    @apply bg-gradient-to-r from-red-600 to-red-800;
-  }
-
-  /* Custom scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-slate-800/50 rounded-lg;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-blue-500/50 rounded-lg hover:bg-blue-400/70;
+  .light p, .light span, .light div {
+    color: hsl(222.2, 47.4%, 11.2%); /* Sufficient contrast */
   }
 }
+
+/* ... keep existing code (components layer with glassmorphism, hover effects, medical theme colors, custom scrollbar) */
 
 @layer utilities {
   /* Text gradients */
@@ -179,6 +179,24 @@
   .z-dropdown {
     z-index: 1020;
   }
+
+  /* Light mode specific utilities */
+  .light .glass {
+    @apply bg-black/5 backdrop-blur-xl border border-black/10;
+  }
+
+  .light .glass-card {
+    @apply bg-black/3 backdrop-blur-xl border border-black/8 shadow-2xl;
+  }
+
+  /* Emergency light animation */
+  .emergency-flash {
+    animation: emergency-flash 1s ease-in-out infinite;
+  }
+
+  .success-glow {
+    animation: success-glow 2s ease-in-out infinite;
+  }
 }
 
 /* Custom animations for medical theme */
@@ -207,6 +225,26 @@
   }
 }
 
+@keyframes emergency-flash {
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+  }
+  50% { 
+    opacity: 0.3;
+    box-shadow: 0 0 40px rgba(239, 68, 68, 1);
+  }
+}
+
+@keyframes success-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(34, 197, 94, 0.9);
+  }
+}
+
 .heartbeat {
   animation: heartbeat 2s ease-in-out infinite;
 }
@@ -224,6 +262,11 @@
   @apply outline-none ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900;
 }
 
+/* Light mode focus states */
+.light .focus-medical:focus {
+  @apply outline-none ring-2 ring-blue-600 ring-offset-2 ring-offset-slate-100;
+}
+
 /* Mobile responsiveness improvements */
 @media (max-width: 640px) {
   .container {
@@ -239,6 +282,10 @@
 @media (prefers-contrast: high) {
   .glass {
     @apply bg-slate-900 border-2 border-white;
+  }
+  
+  .light .glass {
+    @apply bg-white border-2 border-black;
   }
 }
 

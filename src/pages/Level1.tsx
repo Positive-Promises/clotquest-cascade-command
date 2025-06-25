@@ -8,6 +8,9 @@ import EnhancedFactor from '@/components/EnhancedFactor';
 import AnimatedCascade from '@/components/AnimatedCascade';
 import AudioSystem from '@/components/AudioSystem';
 import Tutorial from '@/components/Tutorial';
+import EmergencyLight from '@/components/EmergencyLight';
+import RatingSystem from '@/components/RatingSystem';
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -440,8 +443,15 @@ const Level1 = () => {
   const placedFactors = factors.filter(factor => factor.isPlaced);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 light:from-slate-100 light:via-blue-100 light:to-slate-100 relative">
       <AudioSystem gameState={gameStarted ? "playing" : "menu"} level={1} />
+      
+      {/* Emergency Light */}
+      <EmergencyLight 
+        isEmergency={emergencyMode} 
+        isSuccess={level1Complete && emergencyMode} 
+        patientStatus={patientStatus} 
+      />
       
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
@@ -483,29 +493,30 @@ const Level1 = () => {
         </div>
       )}
 
-      {/* Enhanced Header with Glassmorphism */}
+      {/* Enhanced Header with Theme Toggle */}
       <div className="container mx-auto mb-6 px-4 relative z-10">
-        <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
           <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row items-center justify-between text-white gap-4">
+            <div className="flex flex-col lg:flex-row items-center justify-between text-white dark:text-white light:text-black gap-4">
               <div className="text-center lg:text-left">
                 <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   Level 1: Coagulation Cascade Commander
                 </h1>
-                <p className="text-blue-200 text-base lg:text-lg">Master the intricate dance of hemostasis through interactive learning</p>
+                <p className="text-blue-200 dark:text-blue-200 light:text-blue-800 text-base lg:text-lg">Master the intricate dance of hemostasis through interactive learning</p>
               </div>
               <div className="flex items-center space-x-4 lg:space-x-8">
+                <ThemeToggle />
                 <div className="text-center">
                   <div className="text-2xl lg:text-3xl font-bold text-yellow-400 animate-pulse">{score}</div>
-                  <div className="text-xs lg:text-sm text-gray-300">Score</div>
+                  <div className="text-xs lg:text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Score</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl lg:text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
-                  <div className="text-xs lg:text-sm text-gray-300">Time</div>
+                  <div className="text-xs lg:text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Time</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl lg:text-3xl font-bold text-blue-400">{placedFactors.length}/{factors.length}</div>
-                  <div className="text-xs lg:text-sm text-gray-300">Placed</div>
+                  <div className="text-xs lg:text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Placed</div>
                 </div>
               </div>
             </div>
@@ -514,26 +525,16 @@ const Level1 = () => {
       </div>
 
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10">
-        {/* Enhanced Factor Bank */}
+        {/* Enhanced Sidebar */}
         <div className="lg:col-span-1 order-2 lg:order-1">
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
             <CardContent className="p-6">
-              <h3 className="text-xl lg:text-2xl font-bold text-white mb-4 flex items-center">
+              <h3 className="text-xl lg:text-2xl font-bold text-white dark:text-white light:text-black mb-4 flex items-center">
                 <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400" />
-                Clotting Factors
+                Game Controls
               </h3>
-              <div className="space-y-4 max-h-80 lg:max-h-none overflow-y-auto lg:overflow-visible">
-                {unplacedFactors.map(factor => (
-                  <EnhancedFactor
-                    key={factor.id}
-                    factor={factor}
-                    onDragStart={handleDragStart}
-                    gameStarted={gameStarted}
-                  />
-                ))}
-              </div>
 
-              <div className="mt-6 space-y-3">
+              <div className="space-y-3">
                 {!gameStarted && (
                   <>
                     <Button 
@@ -575,9 +576,9 @@ const Level1 = () => {
           </Card>
 
           {/* Enhanced Pathway Legend */}
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 mt-4 shadow-xl">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 mt-4 shadow-xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
             <CardContent className="p-4">
-              <h4 className="text-white font-bold mb-3 text-lg">Pathway Guide</h4>
+              <h4 className="text-white dark:text-white light:text-black font-bold mb-3 text-lg">Pathway Guide</h4>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-400/30">
                   <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded mr-3 flex-shrink-0"></div>
@@ -603,28 +604,64 @@ const Level1 = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Rating System */}
+          <RatingSystem gameId="level1" onRatingSubmit={(rating) => console.log('Rating submitted:', rating)} />
         </div>
 
-        {/* Enhanced Cascade Visualization */}
+        {/* Main Game Area */}
         <div className="lg:col-span-3 order-1 lg:order-2">
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+          {/* Cascade Visualization */}
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10 mb-6">
             <CardContent className="p-4 lg:p-6">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
-                <h3 className="text-xl lg:text-2xl font-bold text-white flex items-center">
+                <h3 className="text-xl lg:text-2xl font-bold text-white dark:text-white light:text-black flex items-center">
                   <ArrowUp className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-blue-400 rotate-180" />
                   Interactive Coagulation Cascade
                 </h3>
-                <div className="text-white text-xs lg:text-sm bg-white/10 px-3 py-2 rounded-full backdrop-blur-sm border border-white/20">
+                <div className="text-white dark:text-white light:text-black text-xs lg:text-sm bg-white/10 px-3 py-2 rounded-full backdrop-blur-sm border border-white/20">
                   Hover over factors for detailed educational content
                 </div>
               </div>
 
-              <div className="relative min-h-[400px] lg:min-h-[600px]">
+              <div className="relative min-h-[400px] lg:min-h-[500px]">
                 <AnimatedCascade
                   factors={factors}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Factor Buttons - Now Below Cascade in 2 Rows */}
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
+            <CardContent className="p-4 lg:p-6">
+              <h3 className="text-xl lg:text-2xl font-bold text-white dark:text-white light:text-black mb-4 flex items-center">
+                <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400" />
+                Clotting Factors
+              </h3>
+              
+              {/* Two rows of factors */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-4">
+                {unplacedFactors.slice(0, Math.ceil(unplacedFactors.length / 2)).map(factor => (
+                  <EnhancedFactor
+                    key={factor.id}
+                    factor={factor}
+                    onDragStart={handleDragStart}
+                    gameStarted={gameStarted}
+                  />
+                ))}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {unplacedFactors.slice(Math.ceil(unplacedFactors.length / 2)).map(factor => (
+                  <EnhancedFactor
+                    key={factor.id}
+                    factor={factor}
+                    onDragStart={handleDragStart}
+                    gameStarted={gameStarted}
+                  />
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -645,11 +682,11 @@ const Level1 = () => {
         <AlertDialogContent className="max-w-2xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 border border-blue-400/30 backdrop-blur-xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-              🎉 Level 1 Complete! 🎉
+              🎉 {emergencyMode ? 'PATIENT SAVED!' : 'Level 1 Complete!'} 🎉
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-lg text-gray-300">
               {emergencyMode 
-                ? "Outstanding work! You've successfully saved the patient by assembling the complete coagulation cascade under emergency conditions!"
+                ? "Outstanding work! You've successfully saved the patient by assembling the complete coagulation cascade under emergency conditions! The patient is stable and recovering."
                 : "Congratulations! You've mastered the coagulation cascade and demonstrated excellent understanding of hemostatic mechanisms!"
               }
             </AlertDialogDescription>
