@@ -26,10 +26,18 @@ interface Factor {
 interface EnhancedFactorProps {
   factor: Factor;
   onDragStart: (e: React.DragEvent, factor: Factor) => void;
+  onFactorClick: (factor: Factor) => void;
   gameStarted: boolean;
+  isSelected: boolean;
 }
 
-const EnhancedFactor: React.FC<EnhancedFactorProps> = ({ factor, onDragStart, gameStarted }) => {
+const EnhancedFactor: React.FC<EnhancedFactorProps> = ({ 
+  factor, 
+  onDragStart, 
+  onFactorClick, 
+  gameStarted, 
+  isSelected 
+}) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const pathwayColors = {
@@ -38,23 +46,39 @@ const EnhancedFactor: React.FC<EnhancedFactorProps> = ({ factor, onDragStart, ga
     common: 'from-purple-500 to-purple-700'
   };
 
+  const handleClick = () => {
+    if (gameStarted) {
+      onFactorClick(factor);
+    }
+  };
+
   return (
     <div className="relative">
       <div
         draggable={gameStarted}
         onDragStart={(e) => onDragStart(e, factor)}
+        onClick={handleClick}
         onMouseEnter={() => setShowDetails(true)}
         onMouseLeave={() => setShowDetails(false)}
-        className={`${factor.color} p-4 rounded-xl cursor-move text-white font-medium transition-all duration-300 hover:scale-105 hover:shadow-2xl transform relative overflow-hidden group`}
+        className={`${factor.color} p-4 rounded-xl ${gameStarted ? 'cursor-pointer' : 'cursor-default'} text-white font-medium transition-all duration-300 hover:scale-105 hover:shadow-2xl transform relative overflow-hidden group ${
+          isSelected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-110 animate-pulse' : ''
+        }`}
         style={{
           background: `linear-gradient(135deg, ${pathwayColors[factor.pathway]})`
         }}
       >
-        {/* Animated background particles */}
+        {/* Enhanced animated background particles */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-2 right-2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
           <div className="absolute bottom-3 left-3 w-1 h-1 bg-white rounded-full animate-ping delay-300"></div>
           <div className="absolute top-1/2 left-1/4 w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-700"></div>
+          {isSelected && (
+            <>
+              <div className="absolute top-1 left-1 w-1 h-1 bg-yellow-300 rounded-full animate-ping"></div>
+              <div className="absolute bottom-1 right-1 w-1 h-1 bg-yellow-300 rounded-full animate-ping delay-500"></div>
+              <div className="absolute top-3 left-1/2 w-0.5 h-0.5 bg-yellow-300 rounded-full animate-ping delay-1000"></div>
+            </>
+          )}
         </div>
 
         <div className="relative z-10">
@@ -67,13 +91,34 @@ const EnhancedFactor: React.FC<EnhancedFactorProps> = ({ factor, onDragStart, ga
           <div className="font-bold text-lg mb-1">{factor.name}</div>
           <div className="text-sm opacity-90 leading-tight">{factor.fullName}</div>
           
+          {/* Enhanced selection indicator */}
+          {isSelected && (
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
+              <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
+            </div>
+          )}
+          
           {/* Pulsing activation indicator */}
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-ping opacity-75 group-hover:opacity-100"></div>
+          <div className={`absolute -top-1 -right-1 w-3 h-3 ${isSelected ? 'bg-yellow-300' : 'bg-yellow-300'} rounded-full animate-ping opacity-75 group-hover:opacity-100`}></div>
         </div>
 
-        {/* Enhanced tooltip */}
+        {/* Click indicator */}
+        {gameStarted && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="bg-black/30 backdrop-blur-sm rounded-lg px-2 py-1 text-xs font-bold">
+              {isSelected ? 'SELECTED' : 'CLICK TO SELECT'}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced tooltip with better positioning */}
         {showDetails && (
-          <Card className="absolute z-50 bg-gray-900/95 backdrop-blur-lg text-white border-gray-600 max-w-sm left-full ml-4 top-0 shadow-2xl">
+          <Card className="absolute z-50 bg-gray-900/95 backdrop-blur-lg text-white border-gray-600 max-w-sm shadow-2xl" 
+                style={{
+                  left: 'calc(100% + 1rem)',
+                  top: 0,
+                  transform: 'translateY(-25%)'
+                }}>
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div>

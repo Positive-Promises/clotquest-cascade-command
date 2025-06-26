@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Check, Zap, AlertTriangle } from 'lucide-react';
+import { Check, Zap, AlertTriangle, Target } from 'lucide-react';
 
 interface Factor {
   id: string;
@@ -16,9 +17,17 @@ interface AnimatedCascadeProps {
   factors: Factor[];
   onDrop: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
+  selectedFactor?: Factor | null;
+  onDropZoneClick: (factor: Factor) => void;
 }
 
-const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDragOver }) => {
+const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ 
+  factors, 
+  onDrop, 
+  onDragOver, 
+  selectedFactor, 
+  onDropZoneClick 
+}) => {
   const placedFactors = factors.filter(factor => factor.position);
   const completionPercentage = Math.round((factors.filter(f => f.isPlaced).length / factors.length) * 100);
 
@@ -36,52 +45,69 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDr
         `
       }}
     >
-      {/* Animated background elements */}
+      {/* Enhanced animated background elements with more particles */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-32 h-32 border border-blue-300 rounded-full animate-pulse"></div>
         <div className="absolute top-20 right-20 w-24 h-24 border border-green-300 rounded-full animate-pulse delay-300"></div>
         <div className="absolute bottom-20 left-1/3 w-20 h-20 border border-purple-300 rounded-full animate-pulse delay-700"></div>
+        
+        {/* Additional floating elements */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 bg-blue-400/20 rounded-full animate-bounce"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${1 + Math.random() * 2}s`
+            }}
+          />
+        ))}
       </div>
 
-      {/* Pathway labels with enhanced styling */}
+      {/* Enhanced pathway labels */}
       <div className="absolute top-6 left-6">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg">
-          <Zap className="inline h-5 w-5 mr-2" />
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
+          <Zap className="inline h-5 w-5 mr-2 animate-pulse" />
           Intrinsic Pathway
         </div>
       </div>
       
       <div className="absolute top-6 right-6">
-        <div className="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg">
-          <AlertTriangle className="inline h-5 w-5 mr-2" />
+        <div className="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
+          <AlertTriangle className="inline h-5 w-5 mr-2 animate-pulse" />
           Extrinsic Pathway
         </div>
       </div>
       
       <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2">
-        <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg">
+        <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
           Common Pathway
         </div>
       </div>
 
-      {/* Progress indicator */}
+      {/* Enhanced progress indicator */}
       <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
-        <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border">
+        <div className="bg-white/95 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border transform hover:scale-105 transition-transform">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-800">{completionPercentage}%</div>
+            <div className="text-2xl font-bold text-gray-800 animate-pulse">{completionPercentage}%</div>
             <div className="text-sm text-gray-600">Complete</div>
           </div>
         </div>
       </div>
 
-      {/* Enhanced drop zones */}
+      {/* Enhanced drop zones with click functionality */}
       {factors.map(factor => (
         <div
           key={`zone-${factor.id}`}
-          className={`absolute w-24 h-20 border-3 border-dashed rounded-xl flex items-center justify-center transition-all duration-300 ${
+          onClick={() => onDropZoneClick(factor)}
+          className={`absolute w-24 h-20 border-3 border-dashed rounded-xl flex items-center justify-center transition-all duration-300 cursor-pointer ${
             factor.isPlaced 
-              ? 'border-green-400 bg-green-100/50 shadow-lg' 
-              : 'border-gray-400 bg-white/30 hover:bg-white/50 hover:border-blue-400'
+              ? 'border-green-400 bg-green-100/50 shadow-lg scale-110' 
+              : selectedFactor?.id === factor.id
+                ? 'border-yellow-400 bg-yellow-100/50 shadow-lg scale-105 animate-pulse'
+                : 'border-gray-400 bg-white/30 hover:bg-white/50 hover:border-blue-400 hover:scale-105'
           }`}
           style={{
             left: factor.correctPosition.x - 48,
@@ -91,7 +117,12 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDr
           {!factor.isPlaced && (
             <div className="text-xs text-gray-600 text-center p-2 leading-tight">
               <div className="font-semibold">{factor.name}</div>
-              <div className="opacity-70">Drop here</div>
+              <div className="opacity-70">
+                {selectedFactor?.id === factor.id ? '👆 Click here!' : 'Drop/Click here'}
+              </div>
+              {selectedFactor?.id === factor.id && (
+                <Target className="h-4 w-4 mx-auto mt-1 text-yellow-600 animate-bounce" />
+              )}
             </div>
           )}
           {factor.isPlaced && (
@@ -102,12 +133,12 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDr
         </div>
       ))}
 
-      {/* Placed factors with enhanced visuals */}
+      {/* Placed factors with enhanced spring effects */}
       {placedFactors.map(factor => (
         <div
           key={`placed-${factor.id}`}
           className={`absolute w-24 h-20 ${factor.color} rounded-xl flex items-center justify-center text-white font-bold shadow-2xl transition-all duration-500 transform ${
-            factor.isPlaced ? 'ring-4 ring-green-400 ring-opacity-60 scale-110' : 'hover:scale-105'
+            factor.isPlaced ? 'ring-4 ring-green-400 ring-opacity-60 scale-110 animate-bounce' : 'hover:scale-105'
           }`}
           style={{
             left: factor.position!.x - 48,
@@ -125,13 +156,26 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDr
                   <Check className="h-3 w-3 text-white" />
                 </div>
                 <div className="absolute inset-0 bg-white/20 rounded-xl animate-ping"></div>
+                
+                {/* Celebration particles */}
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-ping"
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                      animationDelay: `${Math.random() * 1}s`
+                    }}
+                  />
+                ))}
               </>
             )}
           </div>
         </div>
       ))}
 
-      {/* Enhanced pathway arrows with animation */}
+      {/* Enhanced pathway arrows with more dynamic animation */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <defs>
           <marker id="arrowhead" markerWidth="12" markerHeight="9" refX="12" refY="4.5" orient="auto">
@@ -139,27 +183,35 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDr
           </marker>
           <linearGradient id="pathwayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{stopColor: '#3b82f6', stopOpacity: 0.8}} />
-            <stop offset="100%" style={{stopColor: '#8b5cf6', stopOpacity: 0.8}} />
+            <stop offset="50%" style={{stopColor: '#8b5cf6', stopOpacity: 0.9}} />
+            <stop offset="100%" style={{stopColor: '#3b82f6', stopOpacity: 0.8}} />
           </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge> 
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
         
-        {/* Animated intrinsic pathway arrows */}
-        <path d="M150 90 L150 120" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
-        <path d="M150 160 L150 190" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
-        <path d="M150 230 L200 270" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
+        {/* Animated intrinsic pathway arrows with glow */}
+        <path d="M150 90 L150 120" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M150 160 L150 190" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M150 230 L200 270" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
         
-        {/* Animated extrinsic pathway arrows */}
-        <path d="M350 90 L350 120" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
-        <path d="M350 160 L300 270" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
+        {/* Animated extrinsic pathway arrows with glow */}
+        <path d="M350 90 L350 120" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M350 160 L300 270" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
         
-        {/* Animated common pathway arrows */}
-        <path d="M250 320 L230 350" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
-        <path d="M250 390 L250 420" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
-        <path d="M250 460 L250 490" stroke="#dc2626" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" />
+        {/* Animated common pathway arrows with glow */}
+        <path d="M250 320 L230 350" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M250 390 L250 420" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M250 460 L250 490" stroke="#dc2626" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
       </svg>
 
-      {/* Enhanced patient visualization */}
-      <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-lg rounded-2xl p-6 max-w-sm shadow-2xl border border-gray-200">
+      {/* Enhanced patient visualization with more interactivity */}
+      <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-lg rounded-2xl p-6 max-w-sm shadow-2xl border border-gray-200 transform hover:scale-105 transition-transform">
         <div className="flex items-center mb-3">
           <div className="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></div>
           <div className="font-bold text-gray-800">Patient Status</div>
@@ -169,13 +221,13 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({ factors, onDrop, onDr
           The coagulation cascade must be properly activated to form a stable clot and prevent hemorrhage.
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-blue-100 p-2 rounded">
+          <div className="bg-blue-100 p-2 rounded transform hover:scale-105 transition-transform">
             <div className="font-semibold text-blue-800">Blood Loss</div>
-            <div className="text-blue-600">{Math.max(0, 100 - completionPercentage)}%</div>
+            <div className="text-blue-600 font-bold">{Math.max(0, 100 - completionPercentage)}%</div>
           </div>
-          <div className="bg-green-100 p-2 rounded">
+          <div className="bg-green-100 p-2 rounded transform hover:scale-105 transition-transform">
             <div className="font-semibold text-green-800">Clot Formation</div>
-            <div className="text-green-600">{completionPercentage}%</div>
+            <div className="text-green-600 font-bold">{completionPercentage}%</div>
           </div>
         </div>
       </div>

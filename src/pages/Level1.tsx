@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUp, Check, Target, BookOpen, Clock, Play, RotateCcw, AlertTriangle, Heart } from 'lucide-react';
+import { ArrowUp, Check, Target, BookOpen, Clock, Play, RotateCcw, AlertTriangle, Heart, X, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedFactor from '@/components/EnhancedFactor';
 import AnimatedCascade from '@/components/AnimatedCascade';
@@ -53,19 +53,21 @@ const Level1 = () => {
   const [patientStatus, setPatientStatus] = useState(100);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [selectedFactor, setSelectedFactor] = useState<Factor | null>(null);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   // Tutorial steps for Level 1
   const tutorialSteps = [
     {
       id: 1,
       title: "Welcome to Coagulation Cascade Commander!",
-      description: "This level teaches you the complete coagulation cascade. Drag factors from the left panel to their correct positions.",
+      description: "This level teaches you the complete coagulation cascade. Click on factors to select them, then click on their target positions.",
       position: "bottom" as const
     },
     {
       id: 2,
       title: "Factor Bank",
-      description: "These are your clotting factors. Each has detailed medical information when you hover over them.",
+      description: "Click on any factor to select it. You can also drag and drop them to their correct positions.",
       position: "right" as const
     },
     {
@@ -77,7 +79,7 @@ const Level1 = () => {
     {
       id: 4,
       title: "Cascade Visualization",
-      description: "Drag factors here to their correct positions. Look for the pathway colors to guide you.",
+      description: "Click on selected factors' target positions or drag them here. Look for the pathway colors to guide you.",
       position: "left" as const
     },
     {
@@ -337,6 +339,46 @@ const Level1 = () => {
     });
   }, [toast]);
 
+  // Enhanced click-and-add functionality
+  const handleFactorClick = (factor: Factor) => {
+    if (!gameStarted) return;
+    
+    if (selectedFactor?.id === factor.id) {
+      setSelectedFactor(null);
+    } else {
+      setSelectedFactor(factor);
+      toast({
+        title: "Factor Selected! 🎯",
+        description: `${factor.name} selected. Click on its target position to place it.`,
+      });
+    }
+  };
+
+  const handleDropZoneClick = (targetFactor: Factor) => {
+    if (!selectedFactor || !gameStarted) return;
+    
+    if (selectedFactor.id === targetFactor.id) {
+      setFactors(prev => prev.map(factor => {
+        if (factor.id === selectedFactor.id) {
+          setScore(prev => prev + 100);
+          if (emergencyMode) {
+            setPatientStatus(prev => Math.min(100, prev + 10));
+          }
+          setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
+          return { ...factor, position: factor.correctPosition, isPlaced: true };
+        }
+        return factor;
+      }));
+      setSelectedFactor(null);
+    } else {
+      toast({
+        title: "Wrong Position! ❌",
+        description: `${selectedFactor.name} doesn't belong here. Try again!`,
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleDragStart = (e: React.DragEvent, factor: Factor) => {
     e.dataTransfer.setData('factorId', factor.id);
   };
@@ -358,7 +400,6 @@ const Level1 = () => {
           if (emergencyMode) {
             setPatientStatus(prev => Math.min(100, prev + 10));
           }
-          // Use callback to avoid render phase state update
           setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
           return { ...factor, position: factor.correctPosition, isPlaced: true };
         } else {
@@ -407,6 +448,7 @@ const Level1 = () => {
     setEmergencyMode(false);
     setPatientStatus(100);
     setShowCompletionDialog(false);
+    setSelectedFactor(null);
     setGameStarted(true);
   };
 
@@ -415,7 +457,7 @@ const Level1 = () => {
     setTimeout(() => {
       toast({
         title: "🎮 Game Started!",
-        description: "Drag and drop factors to their correct positions in the cascade. Use tooltips for educational content!",
+        description: "Click on factors to select them, then click on their target positions. You can also drag and drop!",
       });
     }, 0);
   };
@@ -443,28 +485,41 @@ const Level1 = () => {
   const placedFactors = factors.filter(factor => factor.isPlaced);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 light:from-slate-100 light:via-blue-100 light:to-slate-100 relative">
-      <AudioSystem gameState={gameStarted ? "playing" : "menu"} level={1} />
-      
-      {/* Emergency Light - Now smaller and at bottom */}
-      <EmergencyLight 
-        isEmergency={emergencyMode} 
-        isSuccess={level1Complete && emergencyMode} 
-        patientStatus={patientStatus} 
-      />
-      
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDYwIDAgTCAwIDAgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] bg-repeat"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 light:from-slate-100 light:via-blue-100 light:to-slate-100 relative overflow-hidden">
+      {/* Floating particles animation */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 bg-blue-400/30 rounded-full animate-bounce"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${2 + Math.random() * 2}s`
+            }}
+          />
+        ))}
       </div>
 
-      {/* Enhanced Header with Theme Toggle */}
-      <div className="container mx-auto mb-6 px-4 relative z-10">
-        <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
+      <AudioSystem gameState={gameStarted ? "playing" : "menu"} level={1} />
+      
+      {/* Exit Button */}
+      <Button
+        onClick={() => setShowExitDialog(true)}
+        className="fixed top-4 left-4 z-50 bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30"
+      >
+        <LogOut className="h-4 w-4 mr-2" />
+        Exit Game
+      </Button>
+
+      {/* Enhanced Header with spring animation */}
+      <div className="container mx-auto mb-6 px-4 relative z-10 animate-in slide-in-from-top-4 duration-1000">
+        <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10 transform hover:scale-[1.02] transition-transform duration-300">
           <CardContent className="p-6">
             <div className="flex flex-col lg:flex-row items-center justify-between text-white dark:text-white light:text-black gap-4">
               <div className="text-center lg:text-left">
-                <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
                   Level 1: Coagulation Cascade Commander
                 </h1>
                 <p className="text-blue-200 dark:text-blue-200 light:text-blue-800 text-base lg:text-lg">Master the intricate dance of hemostasis through interactive learning</p>
@@ -477,15 +532,15 @@ const Level1 = () => {
               </div>
               <div className="flex items-center space-x-4 lg:space-x-8">
                 <ThemeToggle />
-                <div className="text-center">
+                <div className="text-center transform hover:scale-110 transition-transform">
                   <div className="text-2xl lg:text-3xl font-bold text-yellow-400 animate-pulse">{score}</div>
                   <div className="text-xs lg:text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Score</div>
                 </div>
-                <div className="text-center">
+                <div className="text-center transform hover:scale-110 transition-transform">
                   <div className="text-2xl lg:text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
                   <div className="text-xs lg:text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Time</div>
                 </div>
-                <div className="text-center">
+                <div className="text-center transform hover:scale-110 transition-transform">
                   <div className="text-2xl lg:text-3xl font-bold text-blue-400">{placedFactors.length}/{factors.length}</div>
                   <div className="text-xs lg:text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Placed</div>
                 </div>
@@ -495,13 +550,13 @@ const Level1 = () => {
         </Card>
       </div>
 
-      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10 pb-20">
-        {/* Enhanced Sidebar */}
-        <div className="lg:col-span-1 order-2 lg:order-1">
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10 pb-32">
+        {/* Enhanced Sidebar with spring effects */}
+        <div className="lg:col-span-1 order-2 lg:order-1 animate-in slide-in-from-left-4 duration-1000 delay-300">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl dark:bg-white/5 light:bg-black/5 light:border-black/10 transform hover:scale-[1.02] transition-all duration-300">
             <CardContent className="p-6">
               <h3 className="text-xl lg:text-2xl font-bold text-white dark:text-white light:text-black mb-4 flex items-center">
-                <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400" />
+                <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400 animate-spin" />
                 Game Controls
               </h3>
 
@@ -510,21 +565,21 @@ const Level1 = () => {
                   <>
                     <Button 
                       onClick={() => setShowTutorial(true)} 
-                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                       <BookOpen className="h-4 w-4 mr-2" />
                       Start Tutorial
                     </Button>
                     <Button 
                       onClick={startGame} 
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                       <Play className="h-4 w-4 mr-2" />
                       Start Normal Mode
                     </Button>
                     <Button 
                       onClick={startEmergencyMode} 
-                      className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 shadow-lg"
+                      className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 shadow-lg transform hover:scale-105 transition-all duration-200 animate-pulse"
                     >
                       <AlertTriangle className="h-4 w-4 mr-2" />
                       Emergency Mode
@@ -536,7 +591,7 @@ const Level1 = () => {
                   <Button 
                     onClick={resetLevel} 
                     variant="outline" 
-                    className="w-full border-white/20 text-white hover:bg-white/10 backdrop-blur-sm"
+                    className="w-full border-white/20 text-white hover:bg-white/10 backdrop-blur-sm transform hover:scale-105 transition-all duration-200"
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Reset Challenge
@@ -551,22 +606,22 @@ const Level1 = () => {
             <CardContent className="p-4">
               <h4 className="text-white dark:text-white light:text-black font-bold mb-3 text-lg">Pathway Guide</h4>
               <div className="space-y-3 text-sm">
-                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-400/30">
-                  <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded mr-3 flex-shrink-0"></div>
+                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-400/30 transform hover:scale-105 transition-transform">
+                  <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded mr-3 flex-shrink-0 animate-pulse"></div>
                   <div>
                     <div className="text-white font-semibold">Intrinsic Pathway</div>
                     <div className="text-blue-200 text-xs">Contact activation (XII, XI, IX)</div>
                   </div>
                 </div>
-                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-400/30">
-                  <div className="w-4 h-4 bg-gradient-to-br from-green-400 to-green-600 rounded mr-3 flex-shrink-0"></div>
+                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-400/30 transform hover:scale-105 transition-transform">
+                  <div className="w-4 h-4 bg-gradient-to-br from-green-400 to-green-600 rounded mr-3 flex-shrink-0 animate-pulse"></div>
                   <div>
                     <div className="text-white font-semibold">Extrinsic Pathway</div>
                     <div className="text-green-200 text-xs">Tissue factor activation (VII, TF)</div>
                   </div>
                 </div>
-                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-600/20 border border-purple-400/30">
-                  <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded mr-3 flex-shrink-0"></div>
+                <div className="flex items-center p-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-600/20 border border-purple-400/30 transform hover:scale-105 transition-transform">
+                  <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded mr-3 flex-shrink-0 animate-pulse"></div>
                   <div>
                     <div className="text-white font-semibold">Common Pathway</div>
                     <div className="text-purple-200 text-xs">Final clot formation (X, V, II, I)</div>
@@ -580,18 +635,18 @@ const Level1 = () => {
           <RatingSystem gameId="level1" onRatingSubmit={(rating) => console.log('Rating submitted:', rating)} />
         </div>
 
-        {/* Main Game Area */}
-        <div className="lg:col-span-3 order-1 lg:order-2">
+        {/* Main Game Area with enhanced animations */}
+        <div className="lg:col-span-3 order-1 lg:order-2 animate-in slide-in-from-right-4 duration-1000 delay-500">
           {/* Cascade Visualization */}
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10 mb-6">
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10 mb-6 transform hover:scale-[1.01] transition-all duration-300">
             <CardContent className="p-4 lg:p-6">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
                 <h3 className="text-xl lg:text-2xl font-bold text-white dark:text-white light:text-black flex items-center">
-                  <ArrowUp className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-blue-400 rotate-180" />
+                  <ArrowUp className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-blue-400 rotate-180 animate-bounce" />
                   Interactive Coagulation Cascade
                 </h3>
-                <div className="text-white dark:text-white light:text-black text-xs lg:text-sm bg-white/10 px-3 py-2 rounded-full backdrop-blur-sm border border-white/20">
-                  Hover over factors for detailed educational content
+                <div className="text-white dark:text-white light:text-black text-xs lg:text-sm bg-white/10 px-3 py-2 rounded-full backdrop-blur-sm border border-white/20 animate-pulse">
+                  {selectedFactor ? `${selectedFactor.name} selected - Click target position!` : 'Click factors to select, then click target positions'}
                 </div>
               </div>
 
@@ -600,44 +655,94 @@ const Level1 = () => {
                   factors={factors}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
+                  selectedFactor={selectedFactor}
+                  onDropZoneClick={handleDropZoneClick}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Factor Buttons - Now Below Cascade in 2 Rows */}
-          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10">
+          {/* Enhanced Factor Buttons with physics effects */}
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl dark:bg-white/5 light:bg-black/5 light:border-black/10 transform hover:scale-[1.01] transition-all duration-300">
             <CardContent className="p-4 lg:p-6">
               <h3 className="text-xl lg:text-2xl font-bold text-white dark:text-white light:text-black mb-4 flex items-center">
-                <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400" />
+                <Target className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-yellow-400 animate-pulse" />
                 Clotting Factors
               </h3>
               
-              {/* Two rows of factors */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-4">
-                {unplacedFactors.slice(0, Math.ceil(unplacedFactors.length / 2)).map(factor => (
-                  <EnhancedFactor
-                    key={factor.id}
-                    factor={factor}
-                    onDragStart={handleDragStart}
-                    gameStarted={gameStarted}
-                  />
+                {unplacedFactors.slice(0, Math.ceil(unplacedFactors.length / 2)).map((factor, index) => (
+                  <div key={factor.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
+                    <EnhancedFactor
+                      factor={factor}
+                      onDragStart={handleDragStart}
+                      onFactorClick={handleFactorClick}
+                      gameStarted={gameStarted}
+                      isSelected={selectedFactor?.id === factor.id}
+                    />
+                  </div>
                 ))}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {unplacedFactors.slice(Math.ceil(unplacedFactors.length / 2)).map(factor => (
-                  <EnhancedFactor
-                    key={factor.id}
-                    factor={factor}
-                    onDragStart={handleDragStart}
-                    gameStarted={gameStarted}
-                  />
+                {unplacedFactors.slice(Math.ceil(unplacedFactors.length / 2)).map((factor, index) => (
+                  <div key={factor.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${(index + Math.ceil(unplacedFactors.length / 2)) * 100}ms` }}>
+                    <EnhancedFactor
+                      factor={factor}
+                      onDragStart={handleDragStart}
+                      onFactorClick={handleFactorClick}
+                      gameStarted={gameStarted}
+                      isSelected={selectedFactor?.id === factor.id}
+                    />
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Patient Status - Moved to bottom right */}
+      <div className="fixed bottom-20 right-4 z-40">
+        <Card className="bg-black/80 backdrop-blur-lg border border-white/20 shadow-2xl max-w-xs">
+          <CardContent className="p-4">
+            <div className="flex items-center mb-2">
+              <Heart className={`h-4 w-4 mr-2 ${emergencyMode ? 'text-red-400 animate-pulse' : 'text-pink-400'}`} />
+              <span className="text-white font-bold text-sm">Patient Status</span>
+            </div>
+            {emergencyMode && (
+              <div className="mb-2">
+                <div className="flex justify-between text-xs text-white mb-1">
+                  <span>Vitals</span>
+                  <span>{patientStatus}%</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-500 ${
+                      patientStatus > 60 ? 'bg-green-500' : 
+                      patientStatus > 30 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${patientStatus}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="text-xs text-gray-300">
+              {emergencyMode ? 
+                (patientStatus > 60 ? 'Stable condition' : 
+                 patientStatus > 30 ? 'Critical condition' : 'Life threatening') :
+                'Training simulation active'
+              }
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Emergency Light */}
+      <EmergencyLight 
+        isEmergency={emergencyMode} 
+        isSuccess={level1Complete && emergencyMode} 
+        patientStatus={patientStatus} 
+      />
 
       {/* Tutorial Component */}
       <Tutorial
@@ -647,6 +752,32 @@ const Level1 = () => {
         steps={tutorialSteps}
         currentLevel="level1"
       />
+
+      {/* Exit Dialog */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 border border-red-400/30 backdrop-blur-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-2xl font-bold text-red-400">
+              Exit Game?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-lg text-gray-300">
+              Are you sure you want to exit? Your current progress will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex justify-center space-x-4">
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => navigate('/')}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Exit Game
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Completion Dialog */}
       <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
