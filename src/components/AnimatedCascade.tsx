@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, Zap, AlertTriangle, Target, Scissors } from 'lucide-react';
+import { Check, Zap, AlertTriangle, Target, Scissors, Shield, Activity } from 'lucide-react';
 
 interface Factor {
   id: string;
@@ -35,166 +35,169 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
 
   return (
     <div
-      className="relative bg-gradient-to-b from-blue-50 via-purple-50 to-red-50 rounded-2xl p-8 min-h-[800px] border-4 border-dashed border-gray-300 overflow-hidden mt-16"
+      className="relative w-full rounded-2xl border-2 border-dashed border-gray-300/50 overflow-hidden"
       onDrop={onDrop}
       onDragOver={onDragOver}
       style={{
+        minHeight: '900px',
+        marginTop: '10%',
         background: `
-          radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 60% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 90% 70%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
-          linear-gradient(135deg, #f0f9ff 0%, #faf5ff 50%, #fef2f2 70%, #fff7ed 100%)
+          radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+          radial-gradient(circle at 85% 25%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+          radial-gradient(circle at 50% 60%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+          radial-gradient(circle at 85% 75%, rgba(249, 115, 22, 0.08) 0%, transparent 40%),
+          radial-gradient(circle at 15% 75%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+          linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.95) 30%, rgba(238, 242, 255, 0.95) 60%, rgba(254, 242, 242, 0.95) 80%, rgba(255, 247, 237, 0.95) 100%)
         `
       }}
     >
-      {/* Enhanced animated background elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-32 h-32 border border-blue-300 rounded-full animate-pulse"></div>
-        <div className="absolute top-20 right-20 w-24 h-24 border border-green-300 rounded-full animate-pulse delay-300"></div>
-        <div className="absolute bottom-40 left-1/3 w-20 h-20 border border-purple-300 rounded-full animate-pulse delay-700"></div>
-        <div className="absolute bottom-20 right-1/4 w-16 h-16 border border-orange-300 rounded-full animate-pulse delay-1000"></div>
-        
-        {/* Additional floating elements */}
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-blue-400/20 rounded-full animate-bounce"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${1 + Math.random() * 2}s`
-            }}
-          />
-        ))}
+      {/* Professional Medical Background Elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-16 left-16 w-48 h-48 border border-blue-400 rounded-full animate-pulse"></div>
+        <div className="absolute top-24 right-24 w-32 h-32 border border-green-400 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute bottom-48 left-1/3 w-24 h-24 border border-purple-400 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-32 right-1/4 w-20 h-20 border border-orange-400 rounded-full animate-pulse delay-1500"></div>
+        <div className="absolute bottom-48 right-16 w-28 h-28 border border-cyan-400 rounded-full animate-pulse delay-2000"></div>
       </div>
 
-      {/* Enhanced pathway labels */}
-      <div className="absolute top-2 left-6">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          <Zap className="inline h-5 w-5 mr-2 animate-pulse" />
-          Intrinsic Pathway
-        </div>
-      </div>
-      
-      <div className="absolute top-2 right-6">
-        <div className="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          <AlertTriangle className="inline h-5 w-5 mr-2 animate-pulse" />
-          Extrinsic Pathway
-        </div>
-      </div>
-      
-      <div className="absolute bottom-80 left-1/2 transform -translate-x-1/2">
-        <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          Common Pathway
-        </div>
-      </div>
-
-      {/* Fibrinolysis pathway label */}
-      <div className="absolute bottom-40 right-6">
-        <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          <Scissors className="inline h-5 w-5 mr-2 animate-pulse" />
-          Fibrinolysis
-        </div>
-      </div>
-
-      {/* Regulatory systems label */}
-      <div className="absolute top-40 left-2">
-        <div className="bg-gradient-to-r from-cyan-600 to-cyan-800 text-white px-3 py-2 rounded-full font-bold text-sm shadow-lg transform hover:scale-105 transition-transform rotate-90">
-          Natural Anticoagulants
-        </div>
-      </div>
-
-      {/* Progress indicator */}
-      <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
-        <div className="bg-white/95 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border transform hover:scale-105 transition-transform">
+      {/* Professional Header Section */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl border border-slate-600">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-800 animate-pulse">{completionPercentage}%</div>
-            <div className="text-sm text-gray-600">Complete</div>
+            <div className="text-3xl font-bold mb-1 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              {completionPercentage}%
+            </div>
+            <div className="text-sm text-slate-300 font-medium">Cascade Complete</div>
+            <div className="w-32 h-2 bg-slate-700 rounded-full mt-2 overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-out"
+                style={{ width: `${completionPercentage}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Drop zones for all factors */}
+      {/* Enhanced Professional Pathway Labels */}
+      <div className="absolute top-12 left-8 z-10">
+        <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-blue-400/30">
+          <Zap className="inline h-6 w-6 mr-3 animate-pulse" />
+          <span className="text-blue-100">Intrinsic Pathway</span>
+          <div className="text-xs text-blue-200 mt-1 font-normal">Contact Activation</div>
+        </div>
+      </div>
+      
+      <div className="absolute top-12 right-8 z-10">
+        <div className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-green-400/30">
+          <AlertTriangle className="inline h-6 w-6 mr-3 animate-pulse" />
+          <span className="text-green-100">Extrinsic Pathway</span>
+          <div className="text-xs text-green-200 mt-1 font-normal">Tissue Factor</div>
+        </div>
+      </div>
+      
+      <div className="absolute top-80 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white px-8 py-4 rounded-2xl font-bold text-xl shadow-2xl transform hover:scale-105 transition-all duration-300 border border-purple-400/30">
+          <Target className="inline h-6 w-6 mr-3 animate-pulse" />
+          <span className="text-purple-100">Common Pathway</span>
+          <div className="text-sm text-purple-200 mt-1 font-normal">Final Coagulation</div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-32 right-8 z-10">
+        <div className="bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 text-white px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-orange-400/30">
+          <Scissors className="inline h-6 w-6 mr-3 animate-pulse" />
+          <span className="text-orange-100">Fibrinolysis</span>
+          <div className="text-xs text-orange-200 mt-1 font-normal">Clot Dissolution</div>
+        </div>
+      </div>
+
+      <div className="absolute top-64 left-4 z-10">
+        <div className="bg-gradient-to-br from-cyan-600 via-cyan-700 to-cyan-800 text-white px-4 py-3 rounded-2xl font-bold text-sm shadow-2xl transform hover:scale-105 transition-all duration-300 border border-cyan-400/30 rotate-90 origin-center">
+          <Shield className="inline h-5 w-5 mr-2 animate-pulse" />
+          <span className="text-cyan-100">Natural Anticoagulants</span>
+        </div>
+      </div>
+
+      {/* Enhanced Drop Zones with Professional Styling */}
       {factors.map(factor => (
         <div
           key={`zone-${factor.id}`}
           onClick={() => onDropZoneClick(factor)}
-          className={`absolute w-24 h-20 border-3 border-dashed rounded-xl flex items-center justify-center transition-all duration-300 cursor-pointer ${
+          className={`absolute w-28 h-24 border-3 border-dashed rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer transform hover:scale-105 ${
             factor.isPlaced 
-              ? 'border-green-400 bg-green-100/50 shadow-lg scale-110' 
+              ? 'border-emerald-500 bg-emerald-50/80 shadow-xl scale-110 ring-4 ring-emerald-200' 
               : selectedFactor?.id === factor.id
-                ? 'border-yellow-400 bg-yellow-100/50 shadow-lg scale-105 animate-pulse'
+                ? 'border-amber-500 bg-amber-50/80 shadow-xl scale-110 animate-pulse ring-4 ring-amber-200'
                 : factor.pathway === 'fibrinolysis'
-                  ? 'border-orange-400 bg-orange-100/30 hover:bg-orange-100/50 hover:border-orange-500 hover:scale-105'
+                  ? 'border-orange-400 bg-orange-50/60 hover:bg-orange-50/80 hover:border-orange-500 hover:shadow-lg'
                   : factor.pathway === 'regulatory'
-                    ? 'border-cyan-400 bg-cyan-100/30 hover:bg-cyan-100/50 hover:border-cyan-500 hover:scale-105'
-                    : 'border-gray-400 bg-white/30 hover:bg-white/50 hover:border-blue-400 hover:scale-105'
+                    ? 'border-cyan-400 bg-cyan-50/60 hover:bg-cyan-50/80 hover:border-cyan-500 hover:shadow-lg'
+                    : 'border-slate-400 bg-white/60 hover:bg-white/80 hover:border-blue-400 hover:shadow-lg'
           }`}
           style={{
-            left: factor.correctPosition.x - 48,
-            top: factor.correctPosition.y - 40
+            left: factor.correctPosition.x - 56,
+            top: factor.correctPosition.y - 48
           }}
         >
           {!factor.isPlaced && (
-            <div className="text-xs text-gray-600 text-center p-2 leading-tight">
-              <div className="opacity-70">
-                {selectedFactor?.id === factor.id ? '👆 Place here!' : 'Drop here'}
+            <div className="text-center p-2 leading-tight">
+              <div className="text-xs font-medium text-slate-600 mb-1">
+                {selectedFactor?.id === factor.id ? 'Place Here!' : 'Drop Zone'}
               </div>
               {selectedFactor?.id === factor.id && (
-                <Target className="h-4 w-4 mx-auto mt-1 text-yellow-600 animate-bounce" />
+                <Target className="h-5 w-5 mx-auto text-amber-600 animate-bounce" />
               )}
             </div>
           )}
           {factor.isPlaced && (
-            <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 animate-bounce">
+            <div className="absolute -top-3 -right-3 bg-emerald-500 rounded-full p-2 animate-bounce shadow-lg">
               <Check className="h-4 w-4 text-white" />
             </div>
           )}
         </div>
       ))}
 
-      {/* Placed factors with enhanced effects */}
+      {/* Professional Placed Factors */}
       {placedFactors.map(factor => (
         <div
           key={`placed-${factor.id}`}
-          className={`absolute w-24 h-20 ${factor.color} rounded-xl flex items-center justify-center text-white font-bold shadow-2xl transition-all duration-500 transform ${
-            factor.isPlaced ? 'ring-4 ring-green-400 ring-opacity-60 scale-110 animate-bounce' : 'hover:scale-105'
+          className={`absolute w-28 h-24 rounded-2xl flex items-center justify-center text-white font-bold shadow-2xl transition-all duration-500 transform ${
+            factor.isPlaced ? 'ring-4 ring-emerald-400 ring-opacity-60 scale-110 animate-bounce' : 'hover:scale-105'
           }`}
           style={{
-            left: factor.position!.x - 48,
-            top: factor.position!.y - 40,
+            left: factor.position!.x - 56,
+            top: factor.position!.y - 48,
             background: factor.pathway === 'fibrinolysis' 
-              ? `linear-gradient(135deg, orange, darkorange)`
+              ? `linear-gradient(135deg, #f97316, #ea580c, #dc2626)`
               : factor.pathway === 'regulatory'
-                ? `linear-gradient(135deg, cyan, darkcyan)`
+                ? `linear-gradient(135deg, #06b6d4, #0891b2, #0e7490)`
                 : factor.isPlaced 
-                  ? `linear-gradient(135deg, ${factor.color.replace('bg-', '').split('-')[0]}-500, ${factor.color.replace('bg-', '').split('-')[0]}-700)`
+                  ? `linear-gradient(135deg, #3b82f6, #1d4ed8, #1e40af)`
                   : undefined
           }}
         >
           <div className="text-center relative">
-            <div className="text-sm leading-tight">{factor.name}</div>
+            <div className="text-sm font-bold leading-tight drop-shadow-lg">{factor.name}</div>
             {factor.cofactorFor && (
-              <div className="text-xs opacity-75">+{factor.cofactorFor}</div>
+              <div className="text-xs opacity-90 font-medium">Co: {factor.cofactorFor}</div>
             )}
             {factor.isPlaced && (
               <>
-                <div className="absolute -top-3 -right-3 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center animate-pulse">
-                  <Check className="h-3 w-3 text-white" />
+                <div className="absolute -top-4 -right-4 w-7 h-7 bg-emerald-400 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                  <Check className="h-4 w-4 text-white" />
                 </div>
-                <div className="absolute inset-0 bg-white/20 rounded-xl animate-ping"></div>
+                <div className="absolute inset-0 bg-white/20 rounded-2xl animate-ping"></div>
                 
-                {/* Celebration particles */}
-                {[...Array(8)].map((_, i) => (
+                {/* Medical Excellence Particles */}
+                {[...Array(12)].map((_, i) => (
                   <div
                     key={i}
-                    className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-ping"
+                    className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full animate-ping"
                     style={{
                       left: `${Math.random() * 100}%`,
                       top: `${Math.random() * 100}%`,
-                      animationDelay: `${Math.random() * 1}s`
+                      animationDelay: `${Math.random() * 2}s`,
+                      animationDuration: `${1 + Math.random()}s`
                     }}
                   />
                 ))}
@@ -204,23 +207,30 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
         </div>
       ))}
 
-      {/* Enhanced pathway arrows with more complex routing */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+      {/* Enhanced Professional Pathway Arrows */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
         <defs>
-          <marker id="arrowhead" markerWidth="12" markerHeight="9" refX="12" refY="4.5" orient="auto">
-            <polygon points="0 0, 12 4.5, 0 9" fill="#374151" />
+          <marker id="arrowhead" markerWidth="14" markerHeight="10" refX="14" refY="5" orient="auto">
+            <polygon points="0 0, 14 5, 0 10" fill="#1e293b" />
           </marker>
-          <linearGradient id="pathwayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{stopColor: '#3b82f6', stopOpacity: 0.8}} />
-            <stop offset="50%" style={{stopColor: '#8b5cf6', stopOpacity: 0.9}} />
-            <stop offset="100%" style={{stopColor: '#3b82f6', stopOpacity: 0.8}} />
+          <linearGradient id="intrinsicGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{stopColor: '#3b82f6', stopOpacity: 0.9}} />
+            <stop offset="100%" style={{stopColor: '#1d4ed8', stopOpacity: 0.9}} />
+          </linearGradient>
+          <linearGradient id="extrinsicGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{stopColor: '#10b981', stopOpacity: 0.9}} />
+            <stop offset="100%" style={{stopColor: '#047857', stopOpacity: 0.9}} />
+          </linearGradient>
+          <linearGradient id="commonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{stopColor: '#8b5cf6', stopOpacity: 0.9}} />
+            <stop offset="100%" style={{stopColor: '#6d28d9', stopOpacity: 0.9}} />
           </linearGradient>
           <linearGradient id="fibrinolysisGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{stopColor: '#f97316', stopOpacity: 0.8}} />
+            <stop offset="0%" style={{stopColor: '#f97316', stopOpacity: 0.9}} />
             <stop offset="100%" style={{stopColor: '#ea580c', stopOpacity: 0.9}} />
           </linearGradient>
           <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
             <feMerge> 
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -228,38 +238,27 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
           </filter>
         </defs>
         
-        {/* Intrinsic pathway arrows */}
-        <path d="M150 90 L150 120" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M150 160 L150 190" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M150 230 L200 270" stroke="url(#pathwayGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        {/* Professional Pathway Arrows */}
+        <path d="M180 120 L180 160" stroke="url(#intrinsicGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M180 200 L180 240" stroke="url(#intrinsicGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M180 280 L230 320" stroke="url(#intrinsicGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
         
-        {/* Factor VIII cofactor connection */}
-        <path d="M100 240 L150 220" stroke="#60a5fa" strokeWidth="2" strokeDasharray="5,5" className="animate-pulse" />
+        <path d="M420 120 L420 160" stroke="url(#extrinsicGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M420 200 L370 320" stroke="url(#extrinsicGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
         
-        {/* Extrinsic pathway arrows */}
-        <path d="M350 90 L350 120" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M350 160 L300 270" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M300 380 L280 420" stroke="url(#commonGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M300 460 L300 500" stroke="url(#commonGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M300 540 L300 580" stroke="#dc2626" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M300 620 L300 660" stroke="#dc2626" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
         
-        {/* Common pathway arrows */}
-        <path d="M250 320 L230 350" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M250 390 L250 420" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M250 460 L250 490" stroke="#dc2626" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M250 530 L250 550" stroke="#dc2626" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M480 540 L530 580" stroke="url(#fibrinolysisGradient)" strokeWidth="5" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
+        <path d="M530 620 L430 660" stroke="url(#fibrinolysisGradient)" strokeWidth="4" strokeDasharray="10,5" className="animate-pulse" />
         
-        {/* Factor XIII cross-linking */}
-        <path d="M250 580 L300 590" stroke="#b91c1c" strokeWidth="3" markerEnd="url(#arrowhead)" className="animate-pulse" />
+        <path d="M120 480 L250 460" stroke="#06b6d4" strokeWidth="3" strokeDasharray="6,4" className="animate-pulse" />
+        <path d="M80 420 L200 400" stroke="#06b6d4" strokeWidth="3" strokeDasharray="6,4" className="animate-pulse" />
         
-        {/* Fibrinolysis pathway arrows */}
-        <path d="M400 450 L450 500" stroke="url(#fibrinolysisGradient)" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
-        <path d="M450 530 L350 570" stroke="url(#fibrinolysisGradient)" strokeWidth="3" strokeDasharray="8,4" className="animate-pulse" />
-        
-        {/* Regulatory system inhibition arrows */}
-        <path d="M100 400 L200 380" stroke="#06b6d4" strokeWidth="2" strokeDasharray="3,3" className="animate-pulse" />
-        <path d="M50 350 L150 320" stroke="#06b6d4" strokeWidth="2" strokeDasharray="3,3" className="animate-pulse" />
-        
-        {/* Thrombin feedback loops */}
-        <path d="M280 420 Q320 380 200 340" stroke="#7c3aed" strokeWidth="2" strokeDasharray="5,5" fill="none" className="animate-pulse" />
-        <path d="M280 420 Q320 300 120 230" stroke="#7c3aed" strokeWidth="2" strokeDasharray="5,5" fill="none" className="animate-pulse" />
+        <path d="M330 460 Q380 420 250 380" stroke="#7c3aed" strokeWidth="3" strokeDasharray="8,6" fill="none" className="animate-pulse" />
+        <path d="M330 460 Q380 340 150 280" stroke="#7c3aed" strokeWidth="3" strokeDasharray="8,6" fill="none" className="animate-pulse" />
       </svg>
     </div>
   );

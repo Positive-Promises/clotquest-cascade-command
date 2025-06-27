@@ -159,17 +159,30 @@ const Level1 = () => {
     
     if (selectedFactor?.id === factor.id) {
       setSelectedFactor(null);
+      toast({
+        title: "Factor Deselected",
+        description: "Click on a factor to select it for placement.",
+      });
     } else {
       setSelectedFactor(factor);
       toast({
         title: "Factor Selected! 🎯",
-        description: `${factor.name} selected. Click on its target position to place it.`,
+        description: `${factor.name} selected. Click on its target position in the cascade to place it.`,
       });
     }
   };
 
   const handleDropZoneClick = (targetFactor: Factor) => {
-    if (!selectedFactor || !gameStarted) return;
+    if (!selectedFactor || !gameStarted) {
+      if (!selectedFactor) {
+        toast({
+          title: "Select a Factor First",
+          description: "Click on a factor below to select it, then click on its target position.",
+          variant: "destructive"
+        });
+      }
+      return;
+    }
     
     if (selectedFactor.id === targetFactor.id) {
       setFactors(prev => prev.map(factor => {
