@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { RotateCcw, Target, BookOpen } from 'lucide-react';
+import { RotateCcw, Target, BookOpen, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AudioSystem from '@/components/AudioSystem';
 import Tutorial from '@/components/Tutorial';
@@ -533,15 +534,6 @@ const Level1 = () => {
       </div>
 
       <AudioSystem gameState={gameStarted ? "playing" : "menu"} level={1} />
-      
-      {/* Exit Button */}
-      <Button
-        onClick={() => setShowExitDialog(true)}
-        className="fixed top-4 left-4 z-50 bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30"
-      >
-        <LogOut className="h-4 w-4 mr-2" />
-        Exit Game
-      </Button>
 
       <GameHeader
         score={score}
