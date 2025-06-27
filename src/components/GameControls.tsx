@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Target, BookOpen, Play, AlertTriangle, RotateCcw } from 'lucide-react';
+import { Target, BookOpen, Play, AlertTriangle, RotateCcw, Lightbulb, RefreshCw } from 'lucide-react';
 
 interface GameControlsProps {
   gameStarted: boolean;
@@ -10,6 +10,9 @@ interface GameControlsProps {
   onStartGame: () => void;
   onStartEmergencyMode: () => void;
   onResetLevel: () => void;
+  onShowHint: () => void;
+  onTryAgain: () => void;
+  hasUnplacedFactors: boolean;
 }
 
 const GameControls: React.FC<GameControlsProps> = ({
@@ -17,7 +20,10 @@ const GameControls: React.FC<GameControlsProps> = ({
   onShowTutorial,
   onStartGame,
   onStartEmergencyMode,
-  onResetLevel
+  onResetLevel,
+  onShowHint,
+  onTryAgain,
+  hasUnplacedFactors
 }) => {
   return (
     <Card className="bg-white/5 backdrop-blur-xl border border-white/10 h-fit shadow-xl dark:bg-white/5 light:bg-black/5 light:border-black/10 transform hover:scale-[1.02] transition-all duration-300">
@@ -55,14 +61,31 @@ const GameControls: React.FC<GameControlsProps> = ({
           )}
 
           {gameStarted && (
-            <Button 
-              onClick={onResetLevel} 
-              variant="outline" 
-              className="w-full border-white/20 text-white hover:bg-white/10 backdrop-blur-sm transform hover:scale-105 transition-all duration-200"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Reset Challenge
-            </Button>
+            <>
+              <Button 
+                onClick={onShowHint} 
+                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg transform hover:scale-105 transition-all duration-200"
+                disabled={!hasUnplacedFactors}
+              >
+                <Lightbulb className="h-4 w-4 mr-2" />
+                Need a Hint?
+              </Button>
+              <Button 
+                onClick={onTryAgain} 
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg transform hover:scale-105 transition-all duration-200"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+              <Button 
+                onClick={onResetLevel} 
+                variant="outline" 
+                className="w-full border-white/20 text-white hover:bg-white/10 backdrop-blur-sm transform hover:scale-105 transition-all duration-200"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset Challenge
+              </Button>
+            </>
           )}
         </div>
       </CardContent>

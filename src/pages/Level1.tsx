@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, RotateCcw, Target, BookOpen } from 'lucide-react';
+import { RotateCcw, Target, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AudioSystem from '@/components/AudioSystem';
 import Tutorial from '@/components/Tutorial';
@@ -11,6 +11,8 @@ import GameHeader from '@/components/GameHeader';
 import GameControls from '@/components/GameControls';
 import PathwayLegend from '@/components/PathwayLegend';
 import GameCascadeArea from '@/components/GameCascadeArea';
+import MedicalInfoPopup from '@/components/MedicalInfoPopup';
+import HintSystem from '@/components/HintSystem';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +57,9 @@ const Level1 = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [selectedFactor, setSelectedFactor] = useState<Factor | null>(null);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showMedicalInfo, setShowMedicalInfo] = useState(false);
+  const [currentMedicalFactor, setCurrentMedicalFactor] = useState<Factor | null>(null);
+  const [showHint, setShowHint] = useState(false);
 
   // Tutorial steps for Level 1
   const tutorialSteps = [
@@ -365,6 +370,11 @@ const Level1 = () => {
             setPatientStatus(prev => Math.min(100, prev + 10));
           }
           setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
+          
+          // Show medical info popup
+          setCurrentMedicalFactor(factor);
+          setShowMedicalInfo(true);
+          
           return { ...factor, position: factor.correctPosition, isPlaced: true };
         }
         return factor;
@@ -401,6 +411,11 @@ const Level1 = () => {
             setPatientStatus(prev => Math.min(100, prev + 10));
           }
           setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
+          
+          // Show medical info popup
+          setCurrentMedicalFactor(factor);
+          setShowMedicalInfo(true);
+          
           return { ...factor, position: factor.correctPosition, isPlaced: true };
         } else {
           setTimeout(() => showErrorToast(factor), 0);
@@ -425,7 +440,7 @@ const Level1 = () => {
       setShowCompletionDialog(true);
       setTimeout(() => {
         toast({
-          title: "🎉 Cascade Mastered!",
+          title: "🎉 Congratulations! You saved the patient from bleeding to death!",
           description: `Outstanding work! ${emergencyMode ? 'Patient saved!' : 'Perfect cascade assembly!'} Time bonus: +${timeBonus} ${emergencyMode ? `Emergency bonus: +${emergencyBonus}` : ''}`,
         });
       }, 0);
@@ -450,6 +465,21 @@ const Level1 = () => {
     setShowCompletionDialog(false);
     setSelectedFactor(null);
     setGameStarted(true);
+  };
+
+  const tryAgain = () => {
+    // Reset incorrectly placed factors
+    setFactors(prev => prev.map(factor => {
+      if (!factor.isPlaced && factor.position) {
+        return { ...factor, position: null };
+      }
+      return factor;
+    }));
+    setSelectedFactor(null);
+    toast({
+      title: "Try Again! 🔄",
+      description: "Incorrectly placed factors have been reset. You can do this!",
+    });
   };
 
   const startGame = () => {
@@ -482,6 +512,7 @@ const Level1 = () => {
   };
 
   const placedFactors = factors.filter(factor => factor.isPlaced);
+  const unplacedFactors = factors.filter(factor => !factor.isPlaced);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 light:from-slate-100 light:via-blue-100 light:to-slate-100 relative overflow-hidden">
@@ -519,6 +550,7 @@ const Level1 = () => {
         totalFactorsCount={factors.length}
         emergencyMode={emergencyMode}
         patientStatus={patientStatus}
+        onExitGame={() => setShowExitDialog(true)}
       />
 
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10 pb-32">
@@ -530,6 +562,9 @@ const Level1 = () => {
             onStartGame={startGame}
             onStartEmergencyMode={startEmergencyMode}
             onResetLevel={resetLevel}
+            onShowHint={() => setShowHint(true)}
+            onTryAgain={tryAgain}
+            hasUnplacedFactors={unplacedFactors.length > 0}
           />
 
           <PathwayLegend />
@@ -563,6 +598,18 @@ const Level1 = () => {
         currentLevel="level1"
       />
 
+      <MedicalInfoPopup
+        factor={currentMedicalFactor}
+        isOpen={showMedicalInfo}
+        onClose={() => setShowMedicalInfo(false)}
+      />
+
+      <HintSystem
+        availableFactors={unplacedFactors}
+        isOpen={showHint}
+        onClose={() => setShowHint(false)}
+      />
+
       {/* Exit Dialog */}
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 border border-red-400/30 backdrop-blur-xl">
@@ -582,7 +629,6 @@ const Level1 = () => {
               onClick={() => navigate('/')}
               className="bg-red-600 hover:bg-red-700"
             >
-              <LogOut className="h-4 w-4 mr-2" />
               Exit Game
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -594,12 +640,12 @@ const Level1 = () => {
         <AlertDialogContent className="max-w-2xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 border border-blue-400/30 backdrop-blur-xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-              🎉 {emergencyMode ? 'PATIENT SAVED!' : 'Level 1 Complete!'} 🎉
+              🎉 {emergencyMode ? 'PATIENT SAVED!' : 'Congratulations! You saved the patient from bleeding to death!'} 🎉
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-lg text-gray-300">
               {emergencyMode 
                 ? "Outstanding work! You've successfully saved the patient by assembling the complete coagulation cascade under emergency conditions! The patient is stable and recovering."
-                : "Congratulations! You've mastered the coagulation cascade and demonstrated excellent understanding of hemostatic mechanisms!"
+                : "Congratulations! You've mastered the coagulation cascade and demonstrated excellent understanding of hemostatic mechanisms! The patient's bleeding has been controlled and they are now stable."
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -634,14 +680,14 @@ const Level1 = () => {
               className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
             >
               <Target className="h-4 w-4 mr-2" />
-              Next Level
+              Continue to Level 2
             </AlertDialogAction>
             <AlertDialogCancel 
               onClick={() => navigate('/')}
               className="border-white/20 text-white hover:bg-white/10"
             >
               <BookOpen className="h-4 w-4 mr-2" />
-              Main Menu
+              Exit to Main Menu
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>

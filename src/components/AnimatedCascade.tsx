@@ -33,7 +33,7 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
 
   return (
     <div
-      className="relative bg-gradient-to-b from-blue-50 via-purple-50 to-red-50 rounded-2xl p-8 min-h-[700px] border-4 border-dashed border-gray-300 overflow-hidden"
+      className="relative bg-gradient-to-b from-blue-50 via-purple-50 to-red-50 rounded-2xl p-8 min-h-[700px] border-4 border-dashed border-gray-300 overflow-hidden mt-16"
       onDrop={onDrop}
       onDragOver={onDragOver}
       style={{
@@ -66,29 +66,29 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
         ))}
       </div>
 
-      {/* Enhanced pathway labels */}
-      <div className="absolute top-6 left-6">
+      {/* Enhanced pathway labels with better positioning */}
+      <div className="absolute top-2 left-6">
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
           <Zap className="inline h-5 w-5 mr-2 animate-pulse" />
           Intrinsic Pathway
         </div>
       </div>
       
-      <div className="absolute top-6 right-6">
+      <div className="absolute top-2 right-6">
         <div className="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
           <AlertTriangle className="inline h-5 w-5 mr-2 animate-pulse" />
           Extrinsic Pathway
         </div>
       </div>
       
-      <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2">
+      <div className="absolute bottom-48 left-1/2 transform -translate-x-1/2">
         <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
           Common Pathway
         </div>
       </div>
 
       {/* Enhanced progress indicator */}
-      <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
         <div className="bg-white/95 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border transform hover:scale-105 transition-transform">
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-800 animate-pulse">{completionPercentage}%</div>
@@ -97,7 +97,7 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
         </div>
       </div>
 
-      {/* Enhanced drop zones with click functionality */}
+      {/* Enhanced drop zones without factor names */}
       {factors.map(factor => (
         <div
           key={`zone-${factor.id}`}
@@ -116,9 +116,8 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
         >
           {!factor.isPlaced && (
             <div className="text-xs text-gray-600 text-center p-2 leading-tight">
-              <div className="font-semibold">{factor.name}</div>
               <div className="opacity-70">
-                {selectedFactor?.id === factor.id ? '👆 Click here!' : 'Drop/Click here'}
+                {selectedFactor?.id === factor.id ? '👆 Place here!' : 'Drop here'}
               </div>
               {selectedFactor?.id === factor.id && (
                 <Target className="h-4 w-4 mx-auto mt-1 text-yellow-600 animate-bounce" />
@@ -209,28 +208,6 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
         <path d="M250 390 L250 420" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
         <path d="M250 460 L250 490" stroke="#dc2626" strokeWidth="4" markerEnd="url(#arrowhead)" className="animate-pulse" filter="url(#glow)" />
       </svg>
-
-      {/* Enhanced patient visualization with more interactivity */}
-      <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-lg rounded-2xl p-6 max-w-sm shadow-2xl border border-gray-200 transform hover:scale-105 transition-transform">
-        <div className="flex items-center mb-3">
-          <div className="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-          <div className="font-bold text-gray-800">Patient Status</div>
-        </div>
-        <div className="text-sm text-gray-700 mb-3 leading-relaxed">
-          A patient with a deep laceration requires immediate hemostasis. 
-          The coagulation cascade must be properly activated to form a stable clot and prevent hemorrhage.
-        </div>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-blue-100 p-2 rounded transform hover:scale-105 transition-transform">
-            <div className="font-semibold text-blue-800">Blood Loss</div>
-            <div className="text-blue-600 font-bold">{Math.max(0, 100 - completionPercentage)}%</div>
-          </div>
-          <div className="bg-green-100 p-2 rounded transform hover:scale-105 transition-transform">
-            <div className="font-semibold text-green-800">Clot Formation</div>
-            <div className="text-green-600 font-bold">{completionPercentage}%</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
