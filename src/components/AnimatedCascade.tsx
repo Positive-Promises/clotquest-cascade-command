@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Check, Zap, AlertTriangle, Target, Scissors, Shield } from 'lucide-react';
 import { Factor } from '@/types/cascadeTypes';
@@ -22,14 +21,14 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
   const completionPercentage = Math.round((factors.filter(f => f.isPlaced).length / factors.length) * 100);
 
   return (
-    <div className="w-full px-4 lg:px-8">
+    <div className="w-full px-2 lg:px-4">
       <div
         className="relative w-full rounded-2xl border-2 border-dashed border-gray-300/50 overflow-hidden mx-auto"
         onDrop={onDrop}
         onDragOver={onDragOver}
         style={{
           minHeight: '800px',
-          marginTop: '40%',
+          marginTop: '25%', // Moved up by 10% (was 35%, now 25%)
           maxWidth: '100%',
           background: `
             radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
@@ -50,15 +49,15 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
           <div className="absolute bottom-48 right-20 w-28 h-28 border border-cyan-400 rounded-full animate-pulse delay-2000"></div>
         </div>
 
-        {/* Professional Completion Header */}
-        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-30">
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl border border-slate-600">
+        {/* Professional Completion Header - Moved up by 25% */}
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-30">
+          <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl border border-slate-600">
             <div className="text-center">
-              <div className="text-3xl font-bold mb-1 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <div className="text-2xl font-bold mb-1 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 {completionPercentage}%
               </div>
-              <div className="text-sm text-slate-300 font-medium">Cascade Complete</div>
-              <div className="w-32 h-2 bg-slate-700 rounded-full mt-2 overflow-hidden">
+              <div className="text-xs text-slate-300 font-medium">Cascade Complete</div>
+              <div className="w-24 h-1.5 bg-slate-700 rounded-full mt-1 overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-out"
                   style={{ width: `${completionPercentage}%` }}
@@ -68,42 +67,43 @@ const AnimatedCascade: React.FC<AnimatedCascadeProps> = ({
           </div>
         </div>
 
-        {/* Enhanced Professional Pathway Labels - Repositioned */}
-        <div className="absolute top-20 left-8 z-20">
-          <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-blue-400/30">
-            <Zap className="inline h-6 w-6 mr-3 animate-pulse" />
+        {/* Enhanced Professional Pathway Labels - Moved up by 25% */}
+        <div className="absolute top-12 left-4 z-20">
+          <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-2xl transform hover:scale-105 transition-all duration-300 border border-blue-400/30">
+            <Zap className="inline h-4 w-4 mr-2 animate-pulse" />
             <span className="text-blue-100">Intrinsic Pathway</span>
-            <div className="text-xs text-blue-200 mt-1 font-normal">Contact Activation</div>
+            <div className="text-xs text-blue-200 mt-0.5 font-normal">Contact Activation</div>
           </div>
         </div>
         
-        <div className="absolute top-20 right-8 z-20">
-          <div className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-green-400/30">
-            <AlertTriangle className="inline h-6 w-6 mr-3 animate-pulse" />
+        <div className="absolute top-12 right-4 z-20">
+          <div className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-2xl transform hover:scale-105 transition-all duration-300 border border-green-400/30">
+            <AlertTriangle className="inline h-4 w-4 mr-2 animate-pulse" />
             <span className="text-green-100">Extrinsic Pathway</span>
-            <div className="text-xs text-green-200 mt-1 font-normal">Tissue Factor</div>
+            <div className="text-xs text-green-200 mt-0.5 font-normal">Tissue Factor</div>
           </div>
         </div>
         
-        <div className="absolute top-80 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white px-8 py-4 rounded-2xl font-bold text-xl shadow-2xl transform hover:scale-105 transition-all duration-300 border border-purple-400/30">
-            <Target className="inline h-6 w-6 mr-3 animate-pulse" />
+        <div className="absolute top-64 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-purple-400/30">
+            <Target className="inline h-5 w-5 mr-2 animate-pulse" />
             <span className="text-purple-100">Common Pathway</span>
-            <div className="text-sm text-purple-200 mt-1 font-normal">Final Coagulation</div>
+            <div className="text-xs text-purple-200 mt-1 font-normal">Final Coagulation</div>
           </div>
         </div>
 
-        <div className="absolute bottom-40 right-12 z-20">
-          <div className="bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 text-white px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl transform hover:scale-105 transition-all duration-300 border border-orange-400/30">
-            <Scissors className="inline h-6 w-6 mr-3 animate-pulse" />
+        <div className="absolute bottom-32 right-8 z-20">
+          <div className="bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-2xl transform hover:scale-105 transition-all duration-300 border border-orange-400/30">
+            <Scissors className="inline h-4 w-4 mr-2 animate-pulse" />
             <span className="text-orange-100">Fibrinolysis</span>
-            <div className="text-xs text-orange-200 mt-1 font-normal">Clot Dissolution</div>
+            <div className="text-xs text-orange-200 mt-0.5 font-normal">Clot Dissolution</div>
           </div>
         </div>
 
-        <div className="absolute top-72 left-8 z-20">
-          <div className="bg-gradient-to-br from-cyan-600 via-cyan-700 to-cyan-800 text-white px-4 py-3 rounded-2xl font-bold text-sm shadow-2xl transform hover:scale-105 transition-all duration-300 border border-cyan-400/30">
-            <Shield className="inline h-5 w-5 mr-2 animate-pulse" />
+        {/* Natural Anticoagulants - Moved down by 10% */}
+        <div className="absolute top-80 left-4 z-20">
+          <div className="bg-gradient-to-br from-cyan-600 via-cyan-700 to-cyan-800 text-white px-3 py-2 rounded-xl font-bold text-xs shadow-2xl transform hover:scale-105 transition-all duration-300 border border-cyan-400/30">
+            <Shield className="inline h-4 w-4 mr-1 animate-pulse" />
             <span className="text-cyan-100">Natural Anticoagulants</span>
           </div>
         </div>

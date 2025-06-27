@@ -44,8 +44,8 @@ const GameCascadeArea: React.FC<GameCascadeAreaProps> = ({
             </div>
           </div>
 
-          {/* Professional Medical Cascade - Enhanced Full-Width Layout */}
-          <div className="relative w-full">
+          {/* Professional Medical Cascade - Enhanced Full-Width Layout with no margins */}
+          <div className="relative w-full -mx-2 lg:-mx-4">
             <AnimatedCascade
               factors={factors}
               onDrop={onDrop}
