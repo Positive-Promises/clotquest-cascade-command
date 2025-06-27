@@ -13,6 +13,8 @@ import PathwayLegend from '@/components/PathwayLegend';
 import GameCascadeArea from '@/components/GameCascadeArea';
 import MedicalInfoPopup from '@/components/MedicalInfoPopup';
 import HintSystem from '@/components/HintSystem';
+import { Factor } from '@/types/cascadeTypes';
+import { level1Factors } from '@/data/cascadeFactors';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,31 +25,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-interface Factor {
-  id: string;
-  name: string;
-  fullName: string;
-  pathway: 'intrinsic' | 'extrinsic' | 'common' | 'fibrinolysis' | 'regulatory';
-  position: { x: number; y: number } | null;
-  description: string;
-  color: string;
-  isPlaced: boolean;
-  correctPosition: { x: number; y: number };
-  clinicalRelevance: string;
-  deficiencyDisorder: string;
-  normalRange: string;
-  antagonisticAgents: string[];
-  cofactorFor?: string;
-  activatedBy?: string;
-  referenceLinks: Array<{
-    title: string;
-    url: string;
-    type: 'pubmed' | 'textbook' | 'video';
-  }>;
-}
-
-import { level1Factors } from '@/data/cascadeFactors';
 
 const Level1 = () => {
   const navigate = useNavigate();
@@ -366,35 +343,41 @@ const Level1 = () => {
         onExitGame={() => setShowExitDialog(true)}
       />
 
-      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 px-4 relative z-10 pb-32">
-        {/* Enhanced Sidebar */}
-        <div className="lg:col-span-1 order-2 lg:order-1 animate-in slide-in-from-left-4 duration-1000 delay-300">
-          <GameControls
-            gameStarted={gameStarted}
-            onShowTutorial={() => setShowTutorial(true)}
-            onStartGame={startGame}
-            onStartEmergencyMode={startEmergencyMode}
-            onResetLevel={resetLevel}
-            onShowHint={() => setShowHint(true)}
-            onTryAgain={tryAgain}
-            hasUnplacedFactors={unplacedFactors.length > 0}
-          />
+      {/* Professional Full-Width Layout */}
+      <div className="container mx-auto px-4 relative z-10 pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Enhanced Sidebar - Responsive */}
+          <div className="lg:col-span-1 order-2 lg:order-1 animate-in slide-in-from-left-4 duration-1000 delay-300">
+            <GameControls
+              gameStarted={gameStarted}
+              onShowTutorial={() => setShowTutorial(true)}
+              onStartGame={startGame}
+              onStartEmergencyMode={startEmergencyMode}
+              onResetLevel={resetLevel}
+              onShowHint={() => setShowHint(true)}
+              onTryAgain={tryAgain}
+              hasUnplacedFactors={unplacedFactors.length > 0}
+            />
 
-          <PathwayLegend />
+            <PathwayLegend />
 
-          <RatingSystem gameId="level1" onRatingSubmit={(rating) => console.log('Rating submitted:', rating)} />
+            <RatingSystem gameId="level1" onRatingSubmit={(rating) => console.log('Rating submitted:', rating)} />
+          </div>
+
+          {/* Main Cascade Area - Full Width */}
+          <div className="lg:col-span-4 order-1 lg:order-2">
+            <GameCascadeArea
+              factors={factors}
+              selectedFactor={selectedFactor}
+              gameStarted={gameStarted}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDropZoneClick={handleDropZoneClick}
+              onDragStart={handleDragStart}
+              onFactorClick={handleFactorClick}
+            />
+          </div>
         </div>
-
-        <GameCascadeArea
-          factors={factors}
-          selectedFactor={selectedFactor}
-          gameStarted={gameStarted}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDropZoneClick={handleDropZoneClick}
-          onDragStart={handleDragStart}
-          onFactorClick={handleFactorClick}
-        />
       </div>
 
       <EmergencyLight 

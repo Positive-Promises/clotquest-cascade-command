@@ -3,25 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, BookOpen, Video, Info } from 'lucide-react';
-
-interface Factor {
-  id: string;
-  name: string;
-  fullName: string;
-  pathway: 'intrinsic' | 'extrinsic' | 'common';
-  description: string;
-  color: string;
-  isPlaced: boolean;
-  clinicalRelevance: string;
-  deficiencyDisorder: string;
-  normalRange: string;
-  videoLink?: string;
-  referenceLinks: Array<{
-    title: string;
-    url: string;
-    type: 'pubmed' | 'textbook' | 'video';
-  }>;
-}
+import { Factor } from '@/types/cascadeTypes';
 
 interface EnhancedFactorProps {
   factor: Factor;
@@ -43,7 +25,9 @@ const EnhancedFactor: React.FC<EnhancedFactorProps> = ({
   const pathwayColors = {
     intrinsic: 'from-blue-500 to-blue-700',
     extrinsic: 'from-green-500 to-green-700',
-    common: 'from-purple-500 to-purple-700'
+    common: 'from-purple-500 to-purple-700',
+    fibrinolysis: 'from-orange-500 to-orange-700',
+    regulatory: 'from-cyan-500 to-cyan-700'
   };
 
   const handleClick = () => {
@@ -139,6 +123,18 @@ const EnhancedFactor: React.FC<EnhancedFactorProps> = ({
                 <div>
                   <h5 className="font-semibold text-green-300 text-sm mb-1">Normal Range</h5>
                   <p className="text-xs text-gray-300">{factor.normalRange}</p>
+                </div>
+
+                {/* Antagonistic Agents */}
+                <div>
+                  <h5 className="font-semibold text-red-300 text-sm mb-1">Antagonistic Agents</h5>
+                  <div className="space-y-1">
+                    {factor.antagonisticAgents.slice(0, 3).map((agent, index) => (
+                      <div key={index} className="text-xs text-red-200 bg-red-900/30 rounded px-2 py-1">
+                        {agent}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Reference links */}

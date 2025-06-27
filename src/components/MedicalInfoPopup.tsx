@@ -3,25 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, BookOpen, ExternalLink, Shield, Zap, AlertCircle } from 'lucide-react';
-
-interface Factor {
-  id: string;
-  name: string;
-  fullName: string;
-  pathway: 'intrinsic' | 'extrinsic' | 'common' | 'fibrinolysis' | 'regulatory';
-  description: string;
-  clinicalRelevance: string;
-  deficiencyDisorder: string;
-  normalRange: string;
-  antagonisticAgents: string[];
-  cofactorFor?: string;
-  activatedBy?: string;
-  referenceLinks: Array<{
-    title: string;
-    url: string;
-    type: 'pubmed' | 'textbook' | 'video';
-  }>;
-}
+import { Factor } from '@/types/cascadeTypes';
 
 interface MedicalInfoPopupProps {
   factor: Factor | null;

@@ -1,26 +1,5 @@
 
-export interface Factor {
-  id: string;
-  name: string;
-  fullName: string;
-  pathway: 'intrinsic' | 'extrinsic' | 'common' | 'fibrinolysis' | 'regulatory';
-  position: { x: number; y: number } | null;
-  description: string;
-  color: string;
-  isPlaced: boolean;
-  correctPosition: { x: number; y: number };
-  clinicalRelevance: string;
-  deficiencyDisorder: string;
-  normalRange: string;
-  antagonisticAgents: string[];
-  cofactorFor?: string;
-  activatedBy?: string;
-  referenceLinks: Array<{
-    title: string;
-    url: string;
-    type: 'pubmed' | 'textbook' | 'video';
-  }>;
-}
+import { Factor } from '@/types/cascadeTypes';
 
 export const level1Factors: Factor[] = [
   {
@@ -32,7 +11,7 @@ export const level1Factors: Factor[] = [
     description: 'Initiates the intrinsic pathway when activated by contact with negatively charged surfaces like collagen or glass',
     color: 'bg-blue-500',
     isPlaced: false,
-    correctPosition: { x: 150, y: 50 },
+    correctPosition: { x: 180, y: 140 },
     clinicalRelevance: 'Deficiency rarely causes bleeding but prolongs aPTT. Important in laboratory activation of coagulation cascade.',
     deficiencyDisorder: 'Factor XII deficiency (usually asymptomatic)',
     normalRange: '50-150% of pooled normal plasma',
@@ -54,7 +33,7 @@ export const level1Factors: Factor[] = [
     description: 'Activated by Factor XIIa and also by thrombin in a positive feedback loop. Activates Factor IX.',
     color: 'bg-blue-600',
     isPlaced: false,
-    correctPosition: { x: 150, y: 120 },
+    correctPosition: { x: 180, y: 200 },
     clinicalRelevance: 'Deficiency causes mild to moderate bleeding, especially after trauma or surgery. Common in Ashkenazi Jewish population.',
     deficiencyDisorder: 'Hemophilia C (Factor XI deficiency)',
     normalRange: '50-150% of pooled normal plasma',
@@ -76,7 +55,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent factor, key component of the intrinsic pathway. Forms tenase complex with Factor VIIIa.',
     color: 'bg-blue-700',
     isPlaced: false,
-    correctPosition: { x: 150, y: 190 },
+    correctPosition: { x: 180, y: 260 },
     clinicalRelevance: 'Deficiency causes Hemophilia B, an X-linked bleeding disorder affecting males primarily.',
     deficiencyDisorder: 'Hemophilia B (Christmas Disease)',
     normalRange: '50-150% of pooled normal plasma',
@@ -98,7 +77,7 @@ export const level1Factors: Factor[] = [
     description: 'Essential cofactor for Factor IXa in the tenase complex. Activated by thrombin and Factor Xa.',
     color: 'bg-blue-800',
     isPlaced: false,
-    correctPosition: { x: 100, y: 240 },
+    correctPosition: { x: 130, y: 310 },
     clinicalRelevance: 'Deficiency causes Hemophilia A, the most common severe bleeding disorder.',
     deficiencyDisorder: 'Hemophilia A (Classic Hemophilia)',
     normalRange: '50-150% of pooled normal plasma',
@@ -122,7 +101,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent factor activated by tissue factor. Initiates extrinsic pathway after tissue injury.',
     color: 'bg-green-500',
     isPlaced: false,
-    correctPosition: { x: 350, y: 120 },
+    correctPosition: { x: 420, y: 200 },
     clinicalRelevance: 'First factor to decrease with warfarin therapy. Deficiency causes bleeding similar to hemophilia.',
     deficiencyDisorder: 'Factor VII deficiency (rare autosomal recessive)',
     normalRange: '50-150% of pooled normal plasma',
@@ -144,7 +123,7 @@ export const level1Factors: Factor[] = [
     description: 'Membrane-bound glycoprotein released by damaged tissue. Forms complex with Factor VII to initiate coagulation.',
     color: 'bg-green-600',
     isPlaced: false,
-    correctPosition: { x: 350, y: 50 },
+    correctPosition: { x: 420, y: 140 },
     clinicalRelevance: 'Primary initiator of hemostasis. Expression increased in inflammation, cancer, and atherosclerosis.',
     deficiencyDisorder: 'No hereditary deficiency described (incompatible with life)',
     normalRange: 'Not routinely measured in clinical practice',
@@ -166,7 +145,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent factor, convergence point of intrinsic and extrinsic pathways. Forms prothrombinase complex.',
     color: 'bg-purple-500',
     isPlaced: false,
-    correctPosition: { x: 250, y: 280 },
+    correctPosition: { x: 300, y: 360 },
     clinicalRelevance: 'Critical convergence point. Deficiency causes moderate to severe bleeding disorder.',
     deficiencyDisorder: 'Factor X deficiency (rare autosomal recessive)',
     normalRange: '50-150% of pooled normal plasma',
@@ -188,7 +167,7 @@ export const level1Factors: Factor[] = [
     description: 'Non-enzymatic cofactor for Factor Xa in the prothrombinase complex. Essential for thrombin generation.',
     color: 'bg-purple-600',
     isPlaced: false,
-    correctPosition: { x: 200, y: 350 },
+    correctPosition: { x: 250, y: 430 },
     clinicalRelevance: 'Factor V Leiden mutation causes activated protein C resistance and thrombophilia.',
     deficiencyDisorder: 'Factor V deficiency (parahemophilia) or Factor V Leiden (thrombophilia)',
     normalRange: '50-150% of pooled normal plasma',
@@ -212,7 +191,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent zymogen converted to thrombin by prothrombinase complex. Central enzyme of hemostasis.',
     color: 'bg-purple-700',
     isPlaced: false,
-    correctPosition: { x: 250, y: 420 },
+    correctPosition: { x: 300, y: 500 },
     clinicalRelevance: 'Thrombin has multiple functions: converts fibrinogen to fibrin, activates factors V, VIII, XI, and XIII.',
     deficiencyDisorder: 'Prothrombin deficiency (very rare) or Prothrombin G20210A mutation (thrombophilia)',
     normalRange: '80-120% of pooled normal plasma',
@@ -234,7 +213,7 @@ export const level1Factors: Factor[] = [
     description: 'Soluble plasma protein converted to insoluble fibrin by thrombin. Forms the structural basis of blood clots.',
     color: 'bg-red-500',
     isPlaced: false,
-    correctPosition: { x: 250, y: 490 },
+    correctPosition: { x: 300, y: 570 },
     clinicalRelevance: 'Acute phase reactant. Low levels cause bleeding; high levels increase thrombotic risk.',
     deficiencyDisorder: 'Afibrinogenemia, hypofibrinogenemia, or dysfibrinogenemia',
     normalRange: '200-400 mg/dL (2.0-4.0 g/L)',
@@ -256,7 +235,7 @@ export const level1Factors: Factor[] = [
     description: 'Insoluble protein polymer formed from fibrinogen by thrombin action. Forms the mesh structure of blood clots.',
     color: 'bg-red-600',
     isPlaced: false,
-    correctPosition: { x: 250, y: 550 },
+    correctPosition: { x: 300, y: 630 },
     clinicalRelevance: 'Final product of coagulation cascade. Forms stable hemostatic plug with platelets.',
     deficiencyDisorder: 'Dysfibrinogenemia can affect fibrin polymerization',
     normalRange: 'Not directly measured; assessed through fibrinogen levels',
@@ -279,7 +258,7 @@ export const level1Factors: Factor[] = [
     description: 'Transglutaminase enzyme that cross-links fibrin polymers, stabilizing the clot structure.',
     color: 'bg-red-700',
     isPlaced: false,
-    correctPosition: { x: 300, y: 590 },
+    correctPosition: { x: 350, y: 670 },
     clinicalRelevance: 'Essential for clot stability. Deficiency causes delayed bleeding and poor wound healing.',
     deficiencyDisorder: 'Factor XIII deficiency (rare, causes delayed bleeding)',
     normalRange: '70-140% of pooled normal plasma',
@@ -293,7 +272,6 @@ export const level1Factors: Factor[] = [
       }
     ]
   },
-  // Fibrinolysis System
   {
     id: 'plasminogen',
     name: 'Plasminogen',
@@ -303,7 +281,7 @@ export const level1Factors: Factor[] = [
     description: 'Zymogen that is converted to plasmin, the primary fibrinolytic enzyme.',
     color: 'bg-orange-500',
     isPlaced: false,
-    correctPosition: { x: 450, y: 500 },
+    correctPosition: { x: 500, y: 580 },
     clinicalRelevance: 'Key component of fibrinolytic system. Deficiency causes thrombotic complications.',
     deficiencyDisorder: 'Plasminogen deficiency (ligneous conjunctivitis syndrome)',
     normalRange: '75-150% of pooled normal plasma',
@@ -326,7 +304,7 @@ export const level1Factors: Factor[] = [
     description: 'Serine protease that converts plasminogen to plasmin, initiating fibrinolysis.',
     color: 'bg-orange-600',
     isPlaced: false,
-    correctPosition: { x: 400, y: 450 },
+    correctPosition: { x: 450, y: 530 },
     clinicalRelevance: 'Primary endogenous fibrinolytic activator. Used therapeutically for stroke and MI.',
     deficiencyDisorder: 'tPA deficiency (rare, causes thrombotic tendency)',
     normalRange: '1-12 ng/mL',
@@ -339,7 +317,6 @@ export const level1Factors: Factor[] = [
       }
     ]
   },
-  // Regulatory Factors
   {
     id: 'antithrombin',
     name: 'Antithrombin III',
@@ -349,7 +326,7 @@ export const level1Factors: Factor[] = [
     description: 'Primary natural anticoagulant that inhibits thrombin and Factor Xa. Enhanced by heparin.',
     color: 'bg-cyan-500',
     isPlaced: false,
-    correctPosition: { x: 100, y: 400 },
+    correctPosition: { x: 100, y: 480 },
     clinicalRelevance: 'Major natural anticoagulant. Deficiency causes thrombophilia and heparin resistance.',
     deficiencyDisorder: 'Antithrombin deficiency (hereditary thrombophilia)',
     normalRange: '80-120% of pooled normal plasma',
@@ -371,7 +348,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent anticoagulant protein that inactivates Factors Va and VIIIa.',
     color: 'bg-cyan-600',
     isPlaced: false,
-    correctPosition: { x: 50, y: 350 },
+    correctPosition: { x: 50, y: 430 },
     clinicalRelevance: 'Natural anticoagulant. Deficiency causes thrombophilia. Resistance causes Factor V Leiden.',
     deficiencyDisorder: 'Protein C deficiency (hereditary thrombophilia)',
     normalRange: '70-140% of pooled normal plasma',
