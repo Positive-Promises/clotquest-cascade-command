@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +28,7 @@ interface Factor {
   id: string;
   name: string;
   fullName: string;
-  pathway: 'intrinsic' | 'extrinsic' | 'common';
+  pathway: 'intrinsic' | 'extrinsic' | 'common' | 'fibrinolysis' | 'regulatory';
   position: { x: number; y: number } | null;
   description: string;
   color: string;
@@ -38,12 +37,17 @@ interface Factor {
   clinicalRelevance: string;
   deficiencyDisorder: string;
   normalRange: string;
+  antagonisticAgents: string[];
+  cofactorFor?: string;
+  activatedBy?: string;
   referenceLinks: Array<{
     title: string;
     url: string;
     type: 'pubmed' | 'textbook' | 'video';
   }>;
 }
+
+import { level1Factors } from '@/data/cascadeFactors';
 
 const Level1 = () => {
   const navigate = useNavigate();
@@ -62,237 +66,41 @@ const Level1 = () => {
   const [currentMedicalFactor, setCurrentMedicalFactor] = useState<Factor | null>(null);
   const [showHint, setShowHint] = useState(false);
 
-  // Tutorial steps for Level 1
+  // Tutorial steps for Level1
   const tutorialSteps = [
     {
       id: 1,
-      title: "Welcome to Coagulation Cascade Commander!",
-      description: "This level teaches you the complete coagulation cascade. Click on factors to select them, then click on their target positions.",
+      title: "Welcome to Enhanced Coagulation Cascade!",
+      description: "Master the complete coagulation cascade including cofactors, fibrinolysis, and regulatory systems. Use click-and-add or drag-and-drop!",
       position: "bottom" as const
     },
     {
       id: 2,
-      title: "Factor Bank",
-      description: "Click on any factor to select it. You can also drag and drop them to their correct positions.",
+      title: "Enhanced Factor Bank",
+      description: "Now includes cofactors (Factor VIII), regulatory proteins, and fibrinolysis components. Each factor shows detailed antagonistic agents.",
       position: "right" as const
     },
     {
       id: 3,
-      title: "Emergency Mode",
-      description: "Try Emergency Mode for a thrilling challenge - save a bleeding patient by forming the clot quickly!",
-      position: "top" as const
-    },
-    {
-      id: 4,
-      title: "Cascade Visualization",
-      description: "Click on selected factors' target positions or drag them here. Look for the pathway colors to guide you.",
+      title: "Multiple Pathways",
+      description: "See the intrinsic, extrinsic, common pathways PLUS fibrinolysis and natural anticoagulant systems working together.",
       position: "left" as const
     },
     {
-      id: 5,
-      title: "Educational Content",
-      description: "Hover over any factor for detailed medical information, clinical relevance, and research links.",
+      id: 4,
+      title: "Medical Information",
+      description: "Each correct placement reveals detailed information including antagonistic agents, cofactor relationships, and clinical relevance.",
       position: "top" as const
     },
     {
-      id: 6,
-      title: "Ready to Start!",
-      description: "You're ready to master the coagulation cascade! Click 'Start Normal Mode' to begin your journey.",
+      id: 5,
+      title: "Ready for the Challenge!",
+      description: "Experience the complete hemostatic system with enhanced educational content!",
       position: "bottom" as const
     }
   ];
 
-  const [factors, setFactors] = useState<Factor[]>([
-    {
-      id: 'f12',
-      name: 'Factor XII',
-      fullName: 'Hageman Factor (Contact Factor)',
-      pathway: 'intrinsic',
-      position: null,
-      description: 'Initiates the intrinsic pathway when activated by contact with negatively charged surfaces like collagen or glass',
-      color: 'bg-blue-500',
-      isPlaced: false,
-      correctPosition: { x: 150, y: 50 },
-      clinicalRelevance: 'Deficiency rarely causes bleeding but prolongs aPTT. Important in laboratory activation of coagulation cascade.',
-      deficiencyDisorder: 'Factor XII deficiency (usually asymptomatic)',
-      normalRange: '50-150% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Factor XII and Contact Activation',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/25861491/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'f11',
-      name: 'Factor XI',
-      fullName: 'Plasma Thromboplastin Antecedent',
-      pathway: 'intrinsic',
-      position: null,
-      description: 'Activated by Factor XIIa and also by thrombin in a positive feedback loop. Activates Factor IX.',
-      color: 'bg-blue-600',
-      isPlaced: false,
-      correctPosition: { x: 150, y: 120 },
-      clinicalRelevance: 'Deficiency causes mild to moderate bleeding, especially after trauma or surgery. Common in Ashkenazi Jewish population.',
-      deficiencyDisorder: 'Hemophilia C (Factor XI deficiency)',
-      normalRange: '50-150% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Factor XI Deficiency',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/29920516/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'f9',
-      name: 'Factor IX',
-      fullName: 'Christmas Factor',
-      pathway: 'intrinsic',
-      position: null,
-      description: 'Vitamin K-dependent factor, key component of the intrinsic pathway. Forms tenase complex with Factor VIIIa.',
-      color: 'bg-blue-700',
-      isPlaced: false,
-      correctPosition: { x: 150, y: 190 },
-      clinicalRelevance: 'Deficiency causes Hemophilia B, an X-linked bleeding disorder affecting males primarily.',
-      deficiencyDisorder: 'Hemophilia B (Christmas Disease)',
-      normalRange: '50-150% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Hemophilia B: Christmas Disease',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/30620421/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'f7',
-      name: 'Factor VII',
-      fullName: 'Proconvertin (Stable Factor)',
-      pathway: 'extrinsic',
-      position: null,
-      description: 'Vitamin K-dependent factor activated by tissue factor. Initiates extrinsic pathway after tissue injury.',
-      color: 'bg-green-500',
-      isPlaced: false,
-      correctPosition: { x: 350, y: 120 },
-      clinicalRelevance: 'First factor to decrease with warfarin therapy. Deficiency causes bleeding similar to hemophilia.',
-      deficiencyDisorder: 'Factor VII deficiency (rare autosomal recessive)',
-      normalRange: '50-150% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Factor VII Deficiency',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/28301907/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'tf',
-      name: 'Tissue Factor',
-      fullName: 'Factor III (Thromboplastin)',
-      pathway: 'extrinsic',
-      position: null,
-      description: 'Membrane-bound glycoprotein released by damaged tissue. Forms complex with Factor VII to initiate coagulation.',
-      color: 'bg-green-600',
-      isPlaced: false,
-      correctPosition: { x: 350, y: 50 },
-      clinicalRelevance: 'Primary initiator of hemostasis. Expression increased in inflammation, cancer, and atherosclerosis.',
-      deficiencyDisorder: 'No hereditary deficiency described (incompatible with life)',
-      normalRange: 'Not routinely measured in clinical practice',
-      referenceLinks: [
-        {
-          title: 'Tissue Factor in Hemostasis',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/31648335/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'f10',
-      name: 'Factor X',
-      fullName: 'Stuart-Prower Factor',
-      pathway: 'common',
-      position: null,
-      description: 'Vitamin K-dependent factor, convergence point of intrinsic and extrinsic pathways. Forms prothrombinase complex.',
-      color: 'bg-purple-500',
-      isPlaced: false,
-      correctPosition: { x: 250, y: 280 },
-      clinicalRelevance: 'Critical convergence point. Deficiency causes moderate to severe bleeding disorder.',
-      deficiencyDisorder: 'Factor X deficiency (rare autosomal recessive)',
-      normalRange: '50-150% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Factor X Structure and Function',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/26990094/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'f5',
-      name: 'Factor V',
-      fullName: 'Proaccelerin (Labile Factor)',
-      pathway: 'common',
-      position: null,
-      description: 'Non-enzymatic cofactor for Factor Xa in the prothrombinase complex. Essential for thrombin generation.',
-      color: 'bg-purple-600',
-      isPlaced: false,
-      correctPosition: { x: 200, y: 350 },
-      clinicalRelevance: 'Factor V Leiden mutation causes activated protein C resistance and thrombophilia.',
-      deficiencyDisorder: 'Factor V deficiency (parahemophilia) or Factor V Leiden (thrombophilia)',
-      normalRange: '50-150% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Factor V Leiden and Thrombosis',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/29923465/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'f2',
-      name: 'Factor II',
-      fullName: 'Prothrombin',
-      pathway: 'common',
-      position: null,
-      description: 'Vitamin K-dependent zymogen converted to thrombin by prothrombinase complex. Central enzyme of hemostasis.',
-      color: 'bg-purple-700',
-      isPlaced: false,
-      correctPosition: { x: 250, y: 420 },
-      clinicalRelevance: 'Thrombin has multiple functions: converts fibrinogen to fibrin, activates factors V, VIII, XI, and XIII.',
-      deficiencyDisorder: 'Prothrombin deficiency (very rare) or Prothrombin G20210A mutation (thrombophilia)',
-      normalRange: '80-120% of pooled normal plasma',
-      referenceLinks: [
-        {
-          title: 'Thrombin Generation and Function',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/25854643/',
-          type: 'pubmed'
-        }
-      ]
-    },
-    {
-      id: 'fibrinogen',
-      name: 'Fibrinogen',
-      fullName: 'Factor I',
-      pathway: 'common',
-      position: null,
-      description: 'Soluble plasma protein converted to insoluble fibrin by thrombin. Forms the structural basis of blood clots.',
-      color: 'bg-red-500',
-      isPlaced: false,
-      correctPosition: { x: 250, y: 490 },
-      clinicalRelevance: 'Acute phase reactant. Low levels cause bleeding; high levels increase thrombotic risk.',
-      deficiencyDisorder: 'Afibrinogenemia, hypofibrinogenemia, or dysfibrinogenemia',
-      normalRange: '200-400 mg/dL (2.0-4.0 g/L)',
-      referenceLinks: [
-        {
-          title: 'Fibrinogen Disorders',
-          url: 'https://pubmed.ncbi.nlm.nih.gov/29436322/',
-          type: 'pubmed'
-        }
-      ]
-    }
-  ]);
+  const [factors, setFactors] = useState<Factor[]>(level1Factors.map(factor => ({ ...factor })));
 
   // Emergency mode timer
   useEffect(() => {
@@ -372,7 +180,7 @@ const Level1 = () => {
           }
           setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
           
-          // Show medical info popup
+          // Show medical info popup with enhanced information
           setCurrentMedicalFactor(factor);
           setShowMedicalInfo(true);
           
@@ -413,7 +221,7 @@ const Level1 = () => {
           }
           setTimeout(() => showSuccessToast(factor, emergencyMode), 0);
           
-          // Show medical info popup
+          // Show medical info popup with enhanced information
           setCurrentMedicalFactor(factor);
           setShowMedicalInfo(true);
           
