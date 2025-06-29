@@ -1,18 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { 
   ArrowLeft, 
   Play, 
   RotateCcw, 
   Stethoscope,
   Pill,
-  Syringe,
   Activity,
   AlertTriangle,
   CheckCircle,
@@ -25,11 +20,14 @@ import {
   Target,
   LogOut,
   Home,
-  UserCheck,
   ChevronDown,
   ChevronRight,
   Eye,
-  EyeOff
+  EyeOff,
+  Lightbulb,
+  DollarSign,
+  X,
+  Zap
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -89,7 +87,9 @@ interface Patient {
     factorIX?: number;
     vwf?: number;
   };
-  diagnosis: string;
+  correctDiagnosis: string;
+  necessaryTests: string[];
+  necessaryTreatments: string[];
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
@@ -102,6 +102,7 @@ interface DiagnosticTest {
   description: string;
   indication: string;
   normalRange: string;
+  isNecessaryFor: string[];
 }
 
 interface Treatment {
@@ -115,6 +116,7 @@ interface Treatment {
   monitoring: string[];
   cost: number;
   indication: string;
+  isNecessaryFor: string[];
 }
 
 interface Diagnosis {
@@ -125,31 +127,53 @@ interface Diagnosis {
   keyFeatures: string[];
   diagnosticCriteria: string[];
   treatment: string[];
+  isCorrectFor: string[];
+}
+
+interface GameSession {
+  totalPatients: number;
+  currentPatientIndex: number;
+  startingBudget: number;
+  remainingBudget: number;
+  hintsUsed: number;
+  lifelinesUsed: number;
+  eliminationsUsed: { tests: number; diagnoses: number; treatments: number };
+  completedCases: number;
+  totalScore: number;
 }
 
 const Level4 = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [score, setScore] = useState(0);
-  const [timeElapsed, setTimeElapsed] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [level4Complete, setLevel4Complete] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
-  const [currentPatientIndex, setCurrentPatientIndex] = useState(0);
   const [selectedTests, setSelectedTests] = useState<DiagnosticTest[]>([]);
   const [testResults, setTestResults] = useState<{[key: string]: any}>({});
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<Diagnosis | null>(null);
   const [selectedTreatments, setSelectedTreatments] = useState<Treatment[]>([]);
-  const [patientResponse, setPatientResponse] = useState<string>('stable');
-  const [gamePhase, setGamePhase] = useState<'assessment' | 'testing' | 'diagnosis' | 'treatment' | 'monitoring'>('assessment');
   const [revealedSections, setRevealedSections] = useState<{[key: string]: boolean}>({});
-  const [currency, setCurrency] = useState(2000);
-  const [treatmentCompleted, setTreatmentCompleted] = useState(false);
+  const [eliminatedOptions, setEliminatedOptions] = useState<{
+    tests: string[];
+    diagnoses: string[];
+    treatments: string[];
+  }>({ tests: [], diagnoses: [], treatments: [] });
+  
+  const [gameSession, setGameSession] = useState<GameSession>({
+    totalPatients: 5,
+    currentPatientIndex: 0,
+    startingBudget: 3500, // Calculated to be exactly enough for all 5 cases if played optimally
+    remainingBudget: 3500,
+    hintsUsed: 0,
+    lifelinesUsed: 0,
+    eliminationsUsed: { tests: 0, diagnoses: 0, treatments: 0 },
+    completedCases: 0,
+    totalScore: 0
+  });
 
   const patients: Patient[] = [
-    // 1. von Willebrand Disease
     {
       id: '1',
       name: 'Sarah Mitchell',
@@ -174,11 +198,12 @@ const Level4 = () => {
         extremities: 'No edema, multiple bruises noted',
         neurological: 'Alert and oriented, no focal deficits'
       },
-      labValues: { pt: 12.8, aptt: 45.2, inr: 1.1, plateletCount: 245000, hemoglobin: 10.2, hematocrit: 32.1, wbc: 6800, fibrinogen: 320, dDimer: 0.3 },
-      diagnosis: 'von Willebrand Disease Type 1',
+      labValues: { pt: 12.8, aptt: 54.2, inr: 1.1, plateletCount: 245000, hemoglobin: 10.2, hematocrit: 32.1, wbc: 6800, fibrinogen: 320, dDimer: 0.3 },
+      correctDiagnosis: 'von Willebrand Disease Type 1',
+      necessaryTests: ['bleeding_time', 'vwf_antigen', 'factor_viii'],
+      necessaryTreatments: ['ddavp'],
       difficulty: 'medium'
     },
-    
     {
       id: '2',
       name: 'Michael Chen',
@@ -204,10 +229,11 @@ const Level4 = () => {
         neurological: 'Alert and oriented'
       },
       labValues: { pt: 12.5, aptt: 85.3, inr: 1.0, plateletCount: 325000, hemoglobin: 11.8, hematocrit: 35.2, wbc: 7200, fibrinogen: 380, dDimer: 0.2, factorVIII: 2 },
-      diagnosis: 'Severe Hemophilia A',
+      correctDiagnosis: 'Severe Hemophilia A',
+      necessaryTests: ['factor_viii'],
+      necessaryTreatments: ['factor_viii_concentrate'],
       difficulty: 'medium'
     },
-
     {
       id: '3',
       name: 'Robert Johnson',
@@ -233,10 +259,11 @@ const Level4 = () => {
         neurological: 'Alert and oriented'
       },
       labValues: { pt: 13.5, aptt: 28.2, inr: 1.2, plateletCount: 380000, hemoglobin: 13.8, hematocrit: 41.2, wbc: 11200, fibrinogen: 450, dDimer: 2.8 },
-      diagnosis: 'DVT with Pulmonary Embolism',
+      correctDiagnosis: 'DVT with Pulmonary Embolism',
+      necessaryTests: ['duplex_ultrasound', 'ct_angiogram'],
+      necessaryTreatments: ['rivaroxaban'],
       difficulty: 'hard'
     },
-
     {
       id: '4',
       name: 'Maria Rodriguez',
@@ -262,128 +289,13 @@ const Level4 = () => {
         neurological: 'Confused, oriented to person only'
       },
       labValues: { pt: 22.5, aptt: 65.8, inr: 2.8, plateletCount: 45000, hemoglobin: 7.2, hematocrit: 21.8, wbc: 18500, fibrinogen: 85, dDimer: 8.5 },
-      diagnosis: 'Disseminated Intravascular Coagulation (DIC)',
+      correctDiagnosis: 'Disseminated Intravascular Coagulation (DIC)',
+      necessaryTests: ['fibrin_degradation_products', 'antithrombin_iii'],
+      necessaryTreatments: ['fresh_frozen_plasma', 'platelets'],
       difficulty: 'hard'
     },
-
     {
       id: '5',
-      name: 'David Williams',
-      age: 68,
-      weight: 78,
-      gender: 'Male',
-      chiefComplaint: 'Sudden onset left-sided weakness and speech difficulty',
-      presentIllness: 'Patient developed acute onset left hemiparesis and aphasia 2 hours ago. No head trauma. Currently on warfarin for atrial fibrillation.',
-      pastMedicalHistory: ['Atrial fibrillation', 'Hypertension', 'Diabetes mellitus'],
-      medications: ['Warfarin 5mg daily', 'Metformin', 'Lisinopril'],
-      allergies: ['Sulfa drugs'],
-      familyHistory: 'Mother had stroke at age 75',
-      socialHistory: 'Retired, lives with spouse',
-      symptoms: ['Left-sided weakness', 'Speech difficulty', 'Facial droop'],
-      physicalExam: {
-        vitals: { bloodPressure: '165/95', heartRate: 88, temperature: 36.7, respiratoryRate: 16, oxygenSat: 97 },
-        generalAppearance: 'Alert but unable to speak clearly',
-        skin: 'No bleeding or bruising',
-        cardiovascular: 'Irregularly irregular rhythm',
-        respiratory: 'Clear bilaterally',
-        abdomen: 'Soft, non-tender',
-        extremities: 'Left arm and leg weakness',
-        neurological: 'Left hemiparesis, expressive aphasia, NIHSS 12'
-      },
-      labValues: { pt: 25.8, aptt: 32.5, inr: 3.2, plateletCount: 285000, hemoglobin: 14.2, hematocrit: 42.5, wbc: 8900, fibrinogen: 420, dDimer: 0.8 },
-      diagnosis: 'Acute Ischemic Stroke with Supratherapeutic Anticoagulation',
-      difficulty: 'hard'
-    },
-
-    {
-      id: '6',
-      name: 'Patricia Davis',
-      age: 74,
-      weight: 68,
-      gender: 'Female',
-      chiefComplaint: 'Palpitations and shortness of breath',
-      presentIllness: 'Patient reports irregular heartbeat and increasing shortness of breath over past week. No chest pain.',
-      pastMedicalHistory: ['Hypertension', 'Heart failure with preserved EF'],
-      medications: ['Metoprolol', 'Furosemide', 'Lisinopril'],
-      allergies: ['NKDA'],
-      familyHistory: 'Father had atrial fibrillation',
-      socialHistory: 'Non-smoker, no alcohol',
-      symptoms: ['Palpitations', 'Shortness of breath', 'Fatigue', 'Lower extremity edema'],
-      physicalExam: {
-        vitals: { bloodPressure: '145/85', heartRate: 110, temperature: 36.6, respiratoryRate: 20, oxygenSat: 94 },
-        generalAppearance: 'Elderly female in mild distress',
-        skin: 'Cool extremities, no cyanosis',
-        cardiovascular: 'Irregularly irregular rhythm, S3 gallop',
-        respiratory: 'Bilateral basilar crackles',
-        abdomen: 'Soft, non-tender',
-        extremities: '2+ bilateral lower extremity edema',
-        neurological: 'Alert and oriented'
-      },
-      labValues: { pt: 12.2, aptt: 28.5, inr: 1.0, plateletCount: 245000, hemoglobin: 12.8, hematocrit: 38.5, wbc: 7800, fibrinogen: 385, dDimer: 1.2 },
-      diagnosis: 'Atrial Fibrillation with Heart Failure',
-      difficulty: 'medium'
-    },
-
-    {
-      id: '7',
-      name: 'Joshua Thompson',
-      age: 2,
-      weight: 12,
-      gender: 'Male',
-      chiefComplaint: 'Bleeding after circumcision',
-      presentIllness: 'Infant underwent circumcision 6 hours ago. Parents report persistent bleeding from surgical site despite pressure.',
-      pastMedicalHistory: ['Healthy newborn', 'Normal delivery'],
-      medications: ['None'],
-      allergies: ['Unknown'],
-      familyHistory: 'No known bleeding disorders in family',
-      socialHistory: 'Full-term infant, breastfeeding well',
-      symptoms: ['Persistent bleeding from circumcision site', 'Fussiness'],
-      physicalExam: {
-        vitals: { bloodPressure: '85/45', heartRate: 145, temperature: 36.8, respiratoryRate: 35, oxygenSat: 99 },
-        generalAppearance: 'Fussy but consolable infant',
-        skin: 'Pallor noted, active bleeding from surgical site',
-        cardiovascular: 'Tachycardic but regular rhythm',
-        respiratory: 'Clear bilaterally',
-        abdomen: 'Soft, non-distended',
-        extremities: 'Good perfusion',
-        neurological: 'Appropriate for age'
-      },
-      labValues: { pt: 15.5, aptt: 58.2, inr: 1.3, plateletCount: 385000, hemoglobin: 9.8, hematocrit: 29.5, wbc: 12500, fibrinogen: 250, dDimer: 0.1 },
-      diagnosis: 'Possible Hemophilia or von Willebrand Disease',
-      difficulty: 'medium'
-    },
-
-    {
-      id: '8',
-      name: 'James Wilson',
-      age: 32,
-      weight: 85,
-      gender: 'Male',
-      chiefComplaint: 'Motor vehicle accident with massive blood loss',
-      presentIllness: 'Patient involved in high-speed motor vehicle collision. Presents with multiple trauma and evidence of significant blood loss.',
-      pastMedicalHistory: ['No significant medical history'],
-      medications: ['None regularly'],
-      allergies: ['NKDA'],
-      familyHistory: 'Non-contributory',
-      socialHistory: 'Construction worker, occasional alcohol use',
-      symptoms: ['Abdominal pain', 'Dizziness', 'Weakness', 'Nausea'],
-      physicalExam: {
-        vitals: { bloodPressure: '75/45', heartRate: 135, temperature: 35.8, respiratoryRate: 30, oxygenSat: 90 },
-        generalAppearance: 'Critically injured male in severe distress',
-        skin: 'Pale, cool, diaphoretic',
-        cardiovascular: 'Tachycardic, weak pulses',
-        respiratory: 'Decreased breath sounds on right',
-        abdomen: 'Distended, tender, possible internal bleeding',
-        extremities: 'Multiple lacerations, weak pulses',
-        neurological: 'Confused, Glasgow Coma Scale 12'
-      },
-      labValues: { pt: 18.5, aptt: 45.8, inr: 1.8, plateletCount: 185000, hemoglobin: 5.2, hematocrit: 15.8, wbc: 15800, fibrinogen: 120, dDimer: 4.2 },
-      diagnosis: 'Hemorrhagic Shock with Coagulopathy of Trauma',
-      difficulty: 'hard'
-    },
-
-    {
-      id: '9',
       name: 'Emma Martinez',
       age: 8,
       weight: 28,
@@ -407,65 +319,9 @@ const Level4 = () => {
         neurological: 'Alert and oriented'
       },
       labValues: { pt: 12.0, aptt: 28.5, inr: 1.0, plateletCount: 8000, hemoglobin: 11.8, hematocrit: 35.2, wbc: 6500, fibrinogen: 320, dDimer: 0.2 },
-      diagnosis: 'Immune Thrombocytopenic Purpura (ITP)',
-      difficulty: 'medium'
-    },
-
-    {
-      id: '10',
-      name: 'Frank Anderson',
-      age: 65,
-      weight: 75,
-      gender: 'Male',
-      chiefComplaint: 'Massive rectal bleeding',
-      presentIllness: 'Patient presents with sudden onset of large volume bright red blood per rectum. Associated with dizziness and weakness.',
-      pastMedicalHistory: ['Peptic ulcer disease', 'NSAID use', 'Hypertension'],
-      medications: ['Ibuprofen 800mg TID', 'Omeprazole', 'Amlodipine'],
-      allergies: ['NKDA'],
-      familyHistory: 'Father had peptic ulcer disease',
-      socialHistory: 'Heavy NSAID use for arthritis, social drinker',
-      symptoms: ['Massive rectal bleeding', 'Dizziness', 'Weakness', 'Abdominal pain'],
-      physicalExam: {
-        vitals: { bloodPressure: '88/55', heartRate: 125, temperature: 36.2, respiratoryRate: 24, oxygenSat: 95 },
-        generalAppearance: 'Pale, diaphoretic male in distress',
-        skin: 'Pale, cool, clammy',
-        cardiovascular: 'Tachycardic, weak pulses',
-        respiratory: 'Clear bilaterally',
-        abdomen: 'Epigastric tenderness, active bowel sounds',
-        extremities: 'Cool, weak pulses',
-        neurological: 'Alert but anxious'
-      },
-      labValues: { pt: 16.8, aptt: 38.5, inr: 1.5, plateletCount: 285000, hemoglobin: 6.2, hematocrit: 18.8, wbc: 12500, fibrinogen: 180, dDimer: 1.8 },
-      diagnosis: 'Upper GI Bleeding with Coagulopathy',
-      difficulty: 'hard'
-    },
-
-    {
-      id: '11',
-      name: 'Betty Johnson',
-      age: 72,
-      weight: 62,
-      gender: 'Female',
-      chiefComplaint: 'Blood in stool and weight loss',
-      presentIllness: 'Patient reports 3-month history of intermittent blood in stool, changed bowel habits, and 15-pound weight loss.',
-      pastMedicalHistory: ['Hypertension', 'Osteoarthritis'],
-      medications: ['Lisinopril', 'Acetaminophen'],
-      allergies: ['Aspirin'],
-      familyHistory: 'Sister had colon cancer at age 68',
-      socialHistory: 'Non-smoker, minimal alcohol use',
-      symptoms: ['Blood in stool', 'Weight loss', 'Changed bowel habits', 'Fatigue'],
-      physicalExam: {
-        vitals: { bloodPressure: '125/78', heartRate: 95, temperature: 36.8, respiratoryRate: 18, oxygenSat: 96 },
-        generalAppearance: 'Elderly female appearing stated age, mild distress',
-        skin: 'Pale, no jaundice',
-        cardiovascular: 'Regular rate and rhythm',
-        respiratory: 'Clear bilaterally',
-        abdomen: 'Soft, left lower quadrant mass palpable',
-        extremities: 'No edema',
-        neurological: 'Alert and oriented'
-      },
-      labValues: { pt: 13.2, aptt: 30.5, inr: 1.1, plateletCount: 485000, hemoglobin: 8.8, hematocrit: 26.5, wbc: 9200, fibrinogen: 450, dDimer: 2.1 },
-      diagnosis: 'Colon Cancer with Iron Deficiency Anemia',
+      correctDiagnosis: 'Immune Thrombocytopenic Purpura (ITP)',
+      necessaryTests: ['bleeding_time'],
+      necessaryTreatments: ['prednisone'],
       difficulty: 'medium'
     }
   ];
@@ -475,41 +331,45 @@ const Level4 = () => {
       id: 'bleeding_time',
       name: 'Bleeding Time',
       category: 'basic',
-      cost: 25,
+      cost: 150,
       timeToResult: 30,
       description: 'Measures primary hemostasis and platelet function',
       indication: 'Suspected platelet dysfunction or von Willebrand disease',
-      normalRange: '2-7 minutes'
+      normalRange: '2-7 minutes',
+      isNecessaryFor: ['1', '5']
     },
     {
       id: 'factor_viii',
       name: 'Factor VIII Activity',
       category: 'specialized',
-      cost: 150,
+      cost: 300,
       timeToResult: 120,
       description: 'Measures Factor VIII clotting activity',
       indication: 'Suspected Hemophilia A or von Willebrand disease',
-      normalRange: '50-150%'
+      normalRange: '50-150%',
+      isNecessaryFor: ['1', '2']
     },
     {
       id: 'vwf_antigen',
       name: 'von Willebrand Factor Antigen',
       category: 'specialized',
-      cost: 120,
+      cost: 250,
       timeToResult: 180,
       description: 'Quantitative measurement of vWF protein',
       indication: 'Suspected von Willebrand disease',
-      normalRange: '60-140%'
+      normalRange: '60-140%',
+      isNecessaryFor: ['1']
     },
     {
       id: 'duplex_ultrasound',
       name: 'Venous Duplex Ultrasound',
       category: 'imaging',
-      cost: 300,
+      cost: 400,
       timeToResult: 60,
       description: 'Non-invasive imaging to detect deep vein thrombosis',
       indication: 'Suspected DVT',
-      normalRange: 'No evidence of thrombosis'
+      normalRange: 'No evidence of thrombosis',
+      isNecessaryFor: ['3']
     },
     {
       id: 'ct_angiogram',
@@ -519,27 +379,53 @@ const Level4 = () => {
       timeToResult: 90,
       description: 'Imaging to detect pulmonary embolism',
       indication: 'Suspected pulmonary embolism',
-      normalRange: 'No filling defects'
+      normalRange: 'No filling defects',
+      isNecessaryFor: ['3']
     },
     {
       id: 'fibrin_degradation_products',
       name: 'Fibrin Degradation Products',
       category: 'specialized',
-      cost: 85,
+      cost: 200,
       timeToResult: 45,
       description: 'Measures breakdown products of fibrin',
       indication: 'Suspected DIC or excessive fibrinolysis',
-      normalRange: '<10 mg/L'
+      normalRange: '<10 mg/L',
+      isNecessaryFor: ['4']
     },
     {
       id: 'antithrombin_iii',
       name: 'Antithrombin III',
       category: 'specialized',
-      cost: 95,
+      cost: 180,
       timeToResult: 120,
       description: 'Natural anticoagulant protein',
+      indication: 'Thrombophilia screening or DIC',
+      normalRange: '80-120%',
+      isNecessaryFor: ['4']
+    },
+    // Unnecessary tests to create challenge
+    {
+      id: 'protein_c',
+      name: 'Protein C Activity',
+      category: 'specialized',
+      cost: 200,
+      timeToResult: 120,
+      description: 'Natural anticoagulant assessment',
       indication: 'Thrombophilia screening',
-      normalRange: '80-120%'
+      normalRange: '70-130%',
+      isNecessaryFor: []
+    },
+    {
+      id: 'lupus_anticoagulant',
+      name: 'Lupus Anticoagulant',
+      category: 'specialized',
+      cost: 180,
+      timeToResult: 180,
+      description: 'Antiphospholipid syndrome screening',
+      indication: 'Recurrent thrombosis',
+      normalRange: 'Negative',
+      isNecessaryFor: []
     }
   ];
 
@@ -554,10 +440,11 @@ const Level4 = () => {
       sideEffects: ['Hyponatremia', 'Headache', 'Facial flushing'],
       monitoring: ['Sodium levels', 'Fluid balance', 'Bleeding assessment'],
       cost: 200,
-      indication: 'Mild bleeding disorders, vWD Type 1'
+      indication: 'Mild bleeding disorders, vWD Type 1',
+      isNecessaryFor: ['1']
     },
     {
-      id: 'factor_viii',
+      id: 'factor_viii_concentrate',
       name: 'Factor VIII Concentrate',
       type: 'blood_product',
       mechanism: 'Direct factor replacement',
@@ -565,8 +452,9 @@ const Level4 = () => {
       contraindications: ['Known inhibitors (relative)'],
       sideEffects: ['Allergic reactions', 'Inhibitor development', 'Thrombosis'],
       monitoring: ['Factor VIII levels', 'Inhibitor screen', 'Clinical response'],
-      cost: 2000,
-      indication: 'Hemophilia A, severe bleeding'
+      cost: 800,
+      indication: 'Hemophilia A, severe bleeding',
+      isNecessaryFor: ['2']
     },
     {
       id: 'rivaroxaban',
@@ -577,20 +465,9 @@ const Level4 = () => {
       contraindications: ['Active bleeding', 'Severe renal impairment', 'Pregnancy'],
       sideEffects: ['Bleeding', 'GI upset', 'Fatigue'],
       monitoring: ['CBC', 'Renal function', 'Bleeding assessment'],
-      cost: 300,
-      indication: 'DVT/PE treatment and prevention'
-    },
-    {
-      id: 'vitamin_k',
-      name: 'Vitamin K',
-      type: 'reversal',
-      mechanism: 'Reverses warfarin anticoagulation',
-      dosage: '1-10mg IV/PO based on INR',
-      contraindications: ['Hypersensitivity'],
-      sideEffects: ['Pain at injection site', 'Rare anaphylaxis'],
-      monitoring: ['INR', 'PT', 'Clinical response'],
-      cost: 50,
-      indication: 'Warfarin reversal'
+      cost: 400,
+      indication: 'DVT/PE treatment and prevention',
+      isNecessaryFor: ['3']
     },
     {
       id: 'fresh_frozen_plasma',
@@ -601,8 +478,9 @@ const Level4 = () => {
       contraindications: ['Volume overload', 'IgA deficiency'],
       sideEffects: ['Transfusion reactions', 'Volume overload', 'Infection risk'],
       monitoring: ['Coagulation studies', 'Vital signs', 'Transfusion reactions'],
-      cost: 400,
-      indication: 'Multiple factor deficiencies, massive bleeding'
+      cost: 500,
+      indication: 'Multiple factor deficiencies, DIC',
+      isNecessaryFor: ['4']
     },
     {
       id: 'platelets',
@@ -614,7 +492,8 @@ const Level4 = () => {
       sideEffects: ['Transfusion reactions', 'Alloimmunization', 'Infection risk'],
       monitoring: ['Platelet count', 'Bleeding assessment', 'Transfusion reactions'],
       cost: 600,
-      indication: 'Severe thrombocytopenia with bleeding'
+      indication: 'Severe thrombocytopenia with bleeding',
+      isNecessaryFor: ['4']
     },
     {
       id: 'prednisone',
@@ -625,8 +504,23 @@ const Level4 = () => {
       contraindications: ['Active infection', 'Live vaccines'],
       sideEffects: ['Hyperglycemia', 'Hypertension', 'Growth suppression'],
       monitoring: ['Platelet count', 'Blood glucose', 'Blood pressure'],
-      cost: 25,
-      indication: 'Immune thrombocytopenic purpura'
+      cost: 50,
+      indication: 'Immune thrombocytopenic purpura',
+      isNecessaryFor: ['5']
+    },
+    // Unnecessary treatments
+    {
+      id: 'warfarin',
+      name: 'Warfarin',
+      type: 'anticoagulant',
+      mechanism: 'Vitamin K antagonist',
+      dosage: '2-10mg daily based on INR',
+      contraindications: ['Pregnancy', 'Active bleeding'],
+      sideEffects: ['Bleeding', 'Skin necrosis', 'Teratogenicity'],
+      monitoring: ['INR', 'PT', 'Bleeding assessment'],
+      cost: 30,
+      indication: 'Long-term anticoagulation',
+      isNecessaryFor: []
     }
   ];
 
@@ -638,7 +532,8 @@ const Level4 = () => {
       description: 'Mild bleeding disorder due to quantitative vWF deficiency',
       keyFeatures: ['Mucocutaneous bleeding', 'Family history', 'Prolonged aPTT', 'Low vWF levels'],
       diagnosticCriteria: ['vWF antigen <50%', 'vWF activity <50%', 'Bleeding symptoms'],
-      treatment: ['DDAVP', 'Tranexamic acid', 'vWF concentrates']
+      treatment: ['DDAVP', 'Tranexamic acid', 'vWF concentrates'],
+      isCorrectFor: ['1']
     },
     {
       id: 'hemophilia_a',
@@ -647,7 +542,8 @@ const Level4 = () => {
       description: 'X-linked bleeding disorder due to Factor VIII deficiency',
       keyFeatures: ['Joint bleeding', 'Muscle hematomas', 'Prolonged aPTT', 'Family history'],
       diagnosticCriteria: ['Factor VIII <50%', 'Prolonged aPTT', 'Normal PT and platelets'],
-      treatment: ['Factor VIII concentrates', 'DDAVP', 'Antifibrinolytics']
+      treatment: ['Factor VIII concentrates', 'DDAVP', 'Antifibrinolytics'],
+      isCorrectFor: ['2']
     },
     {
       id: 'dic',
@@ -656,7 +552,8 @@ const Level4 = () => {
       description: 'Systemic activation of coagulation with consumption of factors',
       keyFeatures: ['Bleeding and thrombosis', 'Low platelets', 'Low fibrinogen', 'High D-dimer'],
       diagnosticCriteria: ['Low platelets', 'Prolonged PT/aPTT', 'Low fibrinogen', 'High D-dimer'],
-      treatment: ['Treat underlying cause', 'Fresh frozen plasma', 'Platelets', 'Supportive care']
+      treatment: ['Treat underlying cause', 'Fresh frozen plasma', 'Platelets', 'Supportive care'],
+      isCorrectFor: ['4']
     },
     {
       id: 'itp',
@@ -665,7 +562,8 @@ const Level4 = () => {
       description: 'Autoimmune destruction of platelets',
       keyFeatures: ['Isolated thrombocytopenia', 'Mucocutaneous bleeding', 'Normal bone marrow'],
       diagnosticCriteria: ['Platelet count <100,000', 'Normal PT/aPTT', 'Exclusion of other causes'],
-      treatment: ['Corticosteroids', 'IVIG', 'Platelet transfusion if bleeding']
+      treatment: ['Corticosteroids', 'IVIG', 'Platelet transfusion if bleeding'],
+      isCorrectFor: ['5']
     },
     {
       id: 'dvt_pe',
@@ -674,69 +572,141 @@ const Level4 = () => {
       description: 'Venous thromboembolism with pulmonary complications',
       keyFeatures: ['Leg swelling', 'Shortness of breath', 'Elevated D-dimer', 'Imaging confirmation'],
       diagnosticCriteria: ['Duplex ultrasound positive', 'CT angiogram positive', 'Clinical probability'],
-      treatment: ['Anticoagulation', 'Thrombolysis', 'Supportive care']
+      treatment: ['Anticoagulation', 'Thrombolysis', 'Supportive care'],
+      isCorrectFor: ['3']
+    },
+    // Wrong diagnoses
+    {
+      id: 'antiphospholipid_syndrome',
+      name: 'Antiphospholipid Syndrome',
+      category: 'thrombotic_disorder',
+      description: 'Autoimmune disorder causing thrombosis',
+      keyFeatures: ['Recurrent thrombosis', 'Pregnancy complications', 'Positive antibodies'],
+      diagnosticCriteria: ['Clinical criteria', 'Laboratory criteria', 'Positive antibodies'],
+      treatment: ['Anticoagulation', 'Low-dose aspirin'],
+      isCorrectFor: []
     }
   ];
-
-  useEffect(() => {
-    if (gameStarted) {
-      const timer = setInterval(() => {
-        setTimeElapsed(prev => prev + 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [gameStarted]);
 
   const startGame = () => {
     setGameStarted(true);
     setCurrentPatient(patients[0]);
-    setGamePhase('assessment');
+    setGameSession(prev => ({ ...prev, currentPatientIndex: 0 }));
     toast({
-      title: "🩺 Diagnosis & Treatment Tactician Started!",
-      description: "Assess the patient, order appropriate tests, make a diagnosis, and develop a treatment plan!",
+      title: "🩺 Financial Logic Challenge Started!",
+      description: `You have ${gameSession.startingBudget} QUID to diagnose and treat ${gameSession.totalPatients} patients. Spend wisely!`,
     });
   };
 
-  const nextCase = () => {
-    const nextIndex = (currentPatientIndex + 1) % patients.length;
-    setCurrentPatientIndex(nextIndex);
-    setCurrentPatient(patients[nextIndex]);
-    setSelectedTests([]);
-    setTestResults({});
-    setSelectedDiagnosis(null);
-    setSelectedTreatments([]);
-    setGamePhase('assessment');
-    setRevealedSections({});
-    setTreatmentCompleted(false);
-    setScore(prev => prev + 100);
-    toast({
-      title: "New Case Study! 📋",
-      description: `Now treating ${patients[nextIndex].name}. +100 points for case completion!`,
-    });
-  };
-
-  const dischargePatient = () => {
-    if (selectedDiagnosis && selectedTreatments.length > 0 && treatmentCompleted) {
-      setScore(prev => prev + 500);
+  const useHint = () => {
+    if (gameSession.hintsUsed >= 1) {
       toast({
-        title: "Patient Discharged! 🏠",
-        description: `${currentPatient?.name} successfully treated and discharged! +500 points`,
+        title: "Hint Already Used! 💡",
+        description: "You can only use one hint per game session.",
+        variant: "destructive",
       });
-      nextCase();
+      return;
+    }
+
+    if (!currentPatient) return;
+
+    const necessaryTest = availableTests.find(test => 
+      currentPatient.necessaryTests.includes(test.id) && 
+      !selectedTests.some(t => t.id === test.id)
+    );
+
+    if (necessaryTest) {
+      toast({
+        title: "💡 Hint Used!",
+        description: `Consider ordering: ${necessaryTest.name} - ${necessaryTest.indication}`,
+      });
     } else {
       toast({
-        title: "Cannot Discharge Patient ❌",
-        description: "Complete diagnosis and treatment plan before discharge.",
+        title: "💡 Hint Used!",
+        description: `You've ordered the necessary tests. Focus on the correct diagnosis: ${currentPatient.correctDiagnosis}`,
+      });
+    }
+
+    setGameSession(prev => ({ ...prev, hintsUsed: prev.hintsUsed + 1 }));
+  };
+
+  const useLifeline = () => {
+    if (gameSession.lifelinesUsed >= 1) {
+      toast({
+        title: "Lifeline Already Used! 💰",
+        description: "You can only use one lifeline per game session.",
         variant: "destructive",
+      });
+      return;
+    }
+
+    setGameSession(prev => ({ 
+      ...prev, 
+      lifelinesUsed: prev.lifelinesUsed + 1,
+      remainingBudget: prev.remainingBudget + 500
+    }));
+
+    toast({
+      title: "💰 Lifeline Used!",
+      description: "You received 500 QUID emergency funding!",
+    });
+  };
+
+  const eliminateWrongOption = (type: 'tests' | 'diagnoses' | 'treatments') => {
+    if (gameSession.eliminationsUsed[type] >= 1) {
+      toast({
+        title: "Elimination Already Used! ❌",
+        description: `You can only eliminate one wrong ${type.slice(0, -1)} per game session.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!currentPatient) return;
+
+    let wrongOptions: string[] = [];
+    
+    if (type === 'tests') {
+      wrongOptions = availableTests
+        .filter(test => !currentPatient.necessaryTests.includes(test.id))
+        .map(test => test.id);
+    } else if (type === 'diagnoses') {
+      wrongOptions = availableDiagnoses
+        .filter(diagnosis => !diagnosis.isCorrectFor.includes(currentPatient.id))
+        .map(diagnosis => diagnosis.id);
+    } else if (type === 'treatments') {
+      wrongOptions = availableTreatments
+        .filter(treatment => !currentPatient.necessaryTreatments.includes(treatment.id))
+        .map(treatment => treatment.id);
+    }
+
+    if (wrongOptions.length > 0) {
+      const randomWrongOption = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+      setEliminatedOptions(prev => ({
+        ...prev,
+        [type]: [...prev[type], randomWrongOption]
+      }));
+
+      setGameSession(prev => ({
+        ...prev,
+        eliminationsUsed: {
+          ...prev.eliminationsUsed,
+          [type]: prev.eliminationsUsed[type] + 1
+        }
+      }));
+
+      toast({
+        title: "❌ Wrong Option Eliminated!",
+        description: `One incorrect ${type.slice(0, -1)} has been eliminated.`,
       });
     }
   };
 
   const orderTest = (test: DiagnosticTest) => {
-    if (currency < test.cost) {
+    if (gameSession.remainingBudget < test.cost) {
       toast({
         title: "Insufficient Funds! 💰",
-        description: `You need ${test.cost} QUID but only have ${currency} QUID.`,
+        description: `You need ${test.cost} QUID but only have ${gameSession.remainingBudget} QUID.`,
         variant: "destructive",
       });
       return;
@@ -752,19 +722,25 @@ const Level4 = () => {
     }
 
     setSelectedTests(prev => [...prev, test]);
-    setCurrency(prev => prev - test.cost);
-    setScore(prev => prev + 50);
+    setGameSession(prev => ({ 
+      ...prev, 
+      remainingBudget: prev.remainingBudget - test.cost,
+      totalScore: currentPatient?.necessaryTests.includes(test.id) ? 
+        prev.totalScore + 100 : prev.totalScore - 50
+    }));
     
+    const isNecessary = currentPatient?.necessaryTests.includes(test.id);
     toast({
-      title: "Test Ordered! 📋",
-      description: `${test.name} ordered. Cost: ${test.cost} QUID. +50 points`,
+      title: isNecessary ? "Correct Test Ordered! ✅" : "Unnecessary Test! ⚠️",
+      description: `${test.name} ordered. Cost: ${test.cost} QUID. ${isNecessary ? '+100 points' : '-50 points'}`,
+      variant: isNecessary ? "default" : "destructive"
     });
 
     setTimeout(() => {
       const result = generateTestResults(test, currentPatient);
       setTestResults(prev => ({ ...prev, [test.id]: result }));
       toast({
-        title: "Results Available! ✅",
+        title: "Results Available! 📊",
         description: `${test.name} results are ready for interpretation.`,
       });
     }, test.timeToResult * 10);
@@ -774,49 +750,56 @@ const Level4 = () => {
     if (!patient) return null;
 
     const resultsByPatient: { [key: string]: { [key: string]: string } } = {
-      '1': { // von Willebrand Disease
+      '1': {
         'bleeding_time': '12 minutes (prolonged)',
         'vwf_antigen': '28% (low)',
         'factor_viii': '45% (low)'
       },
-      '2': { // Hemophilia A
+      '2': {
         'factor_viii': '2% (critically low)',
         'bleeding_time': '4 minutes (normal)'
       },
-      '3': { // DVT/PE
+      '3': {
         'duplex_ultrasound': 'Extensive DVT in left femoral and popliteal veins',
         'ct_angiogram': 'Bilateral subsegmental pulmonary emboli'
       },
-      '4': { // DIC
+      '4': {
         'fibrin_degradation_products': '45 mg/L (critically high)',
         'antithrombin_iii': '35% (low)'
+      },
+      '5': {
+        'bleeding_time': '15 minutes (prolonged)'
       }
     };
 
     return resultsByPatient[patient.id]?.[test.id] || 'Normal';
   };
 
-  const toggleSection = (section: string) => {
-    setRevealedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
   const selectDiagnosis = (diagnosis: Diagnosis) => {
+    if (!currentPatient) return;
+    
     setSelectedDiagnosis(diagnosis);
-    setScore(prev => prev + 150);
+    const isCorrect = diagnosis.isCorrectFor.includes(currentPatient.id);
+    
+    setGameSession(prev => ({ 
+      ...prev, 
+      totalScore: isCorrect ? prev.totalScore + 200 : prev.totalScore - 100
+    }));
+    
     toast({
-      title: "Diagnosis Selected! 🎯",
-      description: `${diagnosis.name} added to differential. +150 points`,
+      title: isCorrect ? "Correct Diagnosis! 🎯" : "Incorrect Diagnosis! ❌",
+      description: `${diagnosis.name} selected. ${isCorrect ? '+200 points' : '-100 points'}`,
+      variant: isCorrect ? "default" : "destructive"
     });
   };
 
   const selectTreatment = (treatment: Treatment) => {
-    if (currency < treatment.cost) {
+    if (!currentPatient) return;
+
+    if (gameSession.remainingBudget < treatment.cost) {
       toast({
         title: "Insufficient Funds! 💰",
-        description: `You need ${treatment.cost} QUID but only have ${currency} QUID.`,
+        description: `You need ${treatment.cost} QUID but only have ${gameSession.remainingBudget} QUID.`,
         variant: "destructive",
       });
       return;
@@ -832,38 +815,80 @@ const Level4 = () => {
     }
 
     setSelectedTreatments(prev => [...prev, treatment]);
-    setCurrency(prev => prev - treatment.cost);
-    setScore(prev => prev + 100);
-    setTreatmentCompleted(true);
+    const isNecessary = currentPatient.necessaryTreatments.includes(treatment.id);
+    
+    setGameSession(prev => ({ 
+      ...prev, 
+      remainingBudget: prev.remainingBudget - treatment.cost,
+      totalScore: isNecessary ? prev.totalScore + 150 : prev.totalScore - 75
+    }));
     
     toast({
-      title: "Treatment Selected! 💊",
-      description: `${treatment.name} added to treatment plan. +100 points`,
+      title: isNecessary ? "Correct Treatment! 💊" : "Unnecessary Treatment! ⚠️",
+      description: `${treatment.name} selected. Cost: ${treatment.cost} QUID. ${isNecessary ? '+150 points' : '-75 points'}`,
+      variant: isNecessary ? "default" : "destructive"
     });
   };
 
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  const nextCase = () => {
+    const nextIndex = gameSession.currentPatientIndex + 1;
+    
+    if (nextIndex >= patients.length) {
+      // Game completed
+      setLevel4Complete(true);
+      setShowCompletionDialog(true);
+      return;
+    }
 
-  const resetLevel = () => {
-    setScore(0);
-    setCurrency(2000);
-    setTimeElapsed(0);
-    setCurrentPatientIndex(0);
-    setCurrentPatient(patients[0]);
+    setCurrentPatient(patients[nextIndex]);
+    setGameSession(prev => ({ 
+      ...prev, 
+      currentPatientIndex: nextIndex,
+      completedCases: prev.completedCases + 1
+    }));
+    
+    // Reset case-specific states
     setSelectedTests([]);
     setTestResults({});
     setSelectedDiagnosis(null);
     setSelectedTreatments([]);
-    setGamePhase('assessment');
     setRevealedSections({});
+    
+    toast({
+      title: "New Case Study! 📋",
+      description: `Now treating ${patients[nextIndex].name}. Case ${nextIndex + 1} of ${gameSession.totalPatients}`,
+    });
+  };
+
+  const toggleSection = (section: string) => {
+    setRevealedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const resetLevel = () => {
+    setGameStarted(false);
     setLevel4Complete(false);
     setShowCompletionDialog(false);
-    setTreatmentCompleted(false);
-    setGameStarted(true);
+    setCurrentPatient(null);
+    setSelectedTests([]);
+    setTestResults({});
+    setSelectedDiagnosis(null);
+    setSelectedTreatments([]);
+    setRevealedSections({});
+    setEliminatedOptions({ tests: [], diagnoses: [], treatments: [] });
+    setGameSession({
+      totalPatients: 5,
+      currentPatientIndex: 0,
+      startingBudget: 3500,
+      remainingBudget: 3500,
+      hintsUsed: 0,
+      lifelinesUsed: 0,
+      eliminationsUsed: { tests: 0, diagnoses: 0, treatments: 0 },
+      completedCases: 0,
+      totalScore: 0
+    });
   };
 
   return (
@@ -879,22 +904,24 @@ const Level4 = () => {
           <div className="flex flex-col lg:flex-row items-center justify-between text-white gap-4">
             <div className="text-center lg:text-left">
               <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                Level 4: Diagnosis & Treatment Tactician
+                Level 4: Financial Logic Challenge
               </h1>
-              <p className="text-purple-200 text-base lg:text-lg">Master diagnostic reasoning and therapeutic decision-making</p>
+              <p className="text-purple-200 text-base lg:text-lg">Master resource management in medical diagnosis</p>
             </div>
             <div className="flex items-center space-x-4 lg:space-x-8">
               <div className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-yellow-400">{score}</div>
+                <div className="text-2xl lg:text-3xl font-bold text-yellow-400">{gameSession.totalScore}</div>
                 <div className="text-sm text-gray-300">Score</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-green-400">{currency}</div>
+                <div className="text-2xl lg:text-3xl font-bold text-green-400">{gameSession.remainingBudget}</div>
                 <div className="text-sm text-gray-300">QUID</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-blue-400">{formatTime(timeElapsed)}</div>
-                <div className="text-sm text-gray-300">Time</div>
+                <div className="text-2xl lg:text-3xl font-bold text-blue-400">
+                  {gameSession.currentPatientIndex + 1}/{gameSession.totalPatients}
+                </div>
+                <div className="text-sm text-gray-300">Cases</div>
               </div>
             </div>
           </div>
@@ -903,17 +930,84 @@ const Level4 = () => {
         {!gameStarted ? (
           <div className="text-center">
             <GlassmorphicCard intensity="medium" className="p-12">
-              <Stethoscope className="h-24 w-24 text-purple-400 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Clinical Practice?</h2>
-              <p className="text-white/70 mb-8 text-lg">Master the art of diagnosis and treatment through comprehensive case studies!</p>
+              <Calculator className="h-24 w-24 text-purple-400 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-white mb-4">Financial Logic Challenge</h2>
+              <p className="text-white/70 mb-8 text-lg">
+                You have exactly 3500 QUID to diagnose and treat 5 patients. Choose wisely - unnecessary tests and treatments will drain your budget!
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-blue-500/20 p-4 rounded-lg backdrop-blur-sm">
+                  <Lightbulb className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
+                  <h3 className="text-white font-bold">Hint</h3>
+                  <p className="text-white/70 text-sm">Get a clue about necessary tests (1x per game)</p>
+                </div>
+                <div className="bg-green-500/20 p-4 rounded-lg backdrop-blur-sm">
+                  <DollarSign className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                  <h3 className="text-white font-bold">Lifeline</h3>
+                  <p className="text-white/70 text-sm">Emergency 500 QUID funding (1x per game)</p>
+                </div>
+                <div className="bg-red-500/20 p-4 rounded-lg backdrop-blur-sm">
+                  <X className="h-8 w-8 text-red-400 mx-auto mb-2" />
+                  <h3 className="text-white font-bold">Eliminate</h3>
+                  <p className="text-white/70 text-sm">Remove wrong options (1x per category)</p>
+                </div>
+              </div>
               <Button onClick={startGame} size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg transform hover:scale-105 transition-all duration-200">
                 <Play className="h-6 w-6 mr-3" />
-                Start Clinical Cases
+                Start Challenge
               </Button>
             </GlassmorphicCard>
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Game Controls */}
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button 
+                onClick={useHint}
+                disabled={gameSession.hintsUsed >= 1}
+                className="bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 transform hover:scale-105 transition-all duration-200"
+              >
+                <Lightbulb className="h-4 w-4 mr-2" />
+                Hint ({1 - gameSession.hintsUsed} left)
+              </Button>
+              
+              <Button 
+                onClick={useLifeline}
+                disabled={gameSession.lifelinesUsed >= 1}
+                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 transform hover:scale-105 transition-all duration-200"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Lifeline 500 QUID ({1 - gameSession.lifelinesUsed} left)
+              </Button>
+              
+              <Button 
+                onClick={() => eliminateWrongOption('tests')}
+                disabled={gameSession.eliminationsUsed.tests >= 1}
+                className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transform hover:scale-105 transition-all duration-200"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Eliminate Test ({1 - gameSession.eliminationsUsed.tests} left)
+              </Button>
+              
+              <Button 
+                onClick={() => eliminateWrongOption('diagnoses')}
+                disabled={gameSession.eliminationsUsed.diagnoses >= 1}
+                className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transform hover:scale-105 transition-all duration-200"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Eliminate Diagnosis ({1 - gameSession.eliminationsUsed.diagnoses} left)
+              </Button>
+              
+              <Button 
+                onClick={() => eliminateWrongOption('treatments')}
+                disabled={gameSession.eliminationsUsed.treatments >= 1}
+                className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 transform hover:scale-105 transition-all duration-200"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Eliminate Treatment ({1 - gameSession.eliminationsUsed.treatments} left)
+              </Button>
+            </div>
+
             {/* Control Buttons */}
             <div className="flex flex-wrap gap-4 justify-center">
               <Button 
@@ -933,13 +1027,13 @@ const Level4 = () => {
               </Button>
               
               <Button 
-                onClick={dischargePatient}
+                onClick={nextCase}
                 className={`transform hover:scale-105 transition-all duration-200 ${
-                  treatmentCompleted && selectedDiagnosis && selectedTreatments.length > 0
+                  selectedDiagnosis && selectedTreatments.length > 0
                     ? 'bg-green-600 hover:bg-green-700'
                     : 'bg-gray-600 cursor-not-allowed'
                 }`}
-                disabled={!treatmentCompleted || !selectedDiagnosis || selectedTreatments.length === 0}
+                disabled={!selectedDiagnosis || selectedTreatments.length === 0}
               >
                 <Home className="h-4 w-4 mr-2" />
                 Discharge Patient Home
@@ -1030,7 +1124,9 @@ const Level4 = () => {
                     
                     {revealedSections['tests'] && (
                       <div className="mt-4 space-y-3">
-                        {availableTests.slice(0, 4).map((test) => (
+                        {availableTests
+                          .filter(test => !eliminatedOptions.tests.includes(test.id))
+                          .map((test) => (
                           <div key={test.id} className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-200">
                             <div className="flex justify-between items-center mb-2">
                               <h4 className="text-white font-bold text-sm">{test.name}</h4>
@@ -1082,7 +1178,9 @@ const Level4 = () => {
                     
                     {revealedSections['diagnosis'] && (
                       <div className="mt-4 space-y-3">
-                        {availableDiagnoses.slice(0, 5).map((diagnosis) => (
+                        {availableDiagnoses
+                          .filter(diagnosis => !eliminatedOptions.diagnoses.includes(diagnosis.id))
+                          .map((diagnosis) => (
                           <div 
                             key={diagnosis.id} 
                             className={`bg-white/5 p-3 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 transform hover:scale-105 ${
@@ -1126,7 +1224,9 @@ const Level4 = () => {
                     
                     {revealedSections['treatment'] && (
                       <div className="mt-4 space-y-3">
-                        {availableTreatments.slice(0, 4).map((treatment) => (
+                        {availableTreatments
+                          .filter(treatment => !eliminatedOptions.treatments.includes(treatment.id))
+                          .map((treatment) => (
                           <div key={treatment.id} className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-200">
                             <div className="flex justify-between items-center mb-2">
                               <h4 className="text-white font-bold text-sm">{treatment.name}</h4>
@@ -1175,6 +1275,53 @@ const Level4 = () => {
               <LogOut className="h-4 w-4 mr-2" />
               Exit Game
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Completion Dialog */}
+      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <AlertDialogContent className="max-w-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-2xl font-bold text-blue-600">
+              🏆 Challenge Complete! 🏆
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-lg">
+              Excellent financial management! You've successfully completed the diagnostic challenge!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-6">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{gameSession.totalScore}</div>
+                <div className="text-sm text-gray-600">Final Score</div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{gameSession.remainingBudget}</div>
+                <div className="text-sm text-gray-600">QUID Remaining</div>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{gameSession.completedCases}</div>
+                <div className="text-sm text-gray-600">Cases Completed</div>
+              </div>
+            </div>
+          </div>
+
+          <AlertDialogFooter className="flex justify-center space-x-4">
+            <AlertDialogAction 
+              onClick={resetLevel}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Play Again
+            </AlertDialogAction>
+            <AlertDialogCancel 
+              onClick={() => navigate('/')}
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Main Menu
+            </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
