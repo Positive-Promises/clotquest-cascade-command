@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import GameCascadeArea from '@/components/GameCascadeArea';
 import GameHeader from '@/components/GameHeader';
-import { factors as initialFactors } from '@/data/cascadeFactors';
+import { level1Factors as initialFactors } from '@/data/cascadeFactors';
 import { Factor } from '@/types/cascadeTypes';
 import AudioSystem from '@/components/AudioSystem';
 import {

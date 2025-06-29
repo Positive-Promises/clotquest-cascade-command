@@ -362,3 +362,6 @@ export const level1Factors: Factor[] = [
     ]
   }
 ];
+
+// Add the legacy export for backward compatibility
+export const factors = level1Factors;
