@@ -1,4 +1,6 @@
 
+import { Factor } from './cascadeTypes';
+
 // Enhanced type definitions for the upgraded game platform
 
 export interface AdaptiveLearningProfile {
@@ -90,6 +92,28 @@ export interface AccessibilitySettings {
   audioDescriptions: boolean;
 }
 
+export interface CommunicationChannel {
+  type: 'voice' | 'text' | 'video';
+  enabled: boolean;
+  participants: string[];
+}
+
+export interface ContributionRecord {
+  userId: string;
+  timestamp: Date;
+  type: 'placement' | 'suggestion' | 'correction';
+  factorId: string;
+  accepted: boolean;
+}
+
+export interface SharedHint {
+  id: string;
+  content: string;
+  sharedBy: string;
+  timestamp: Date;
+  factorId: string;
+}
+
 export interface MultiplayerSession {
   sessionId: string;
   hostId: string;
@@ -141,6 +165,14 @@ export interface VRConfiguration {
     vignetting: boolean;
   };
   hapticFeedback: boolean;
+}
+
+export interface AssessmentRubric {
+  id: string;
+  name: string;
+  criteria: AssessmentCriterion[];
+  maxScore: number;
+  passingScore: number;
 }
 
 export interface AssessmentFramework {
