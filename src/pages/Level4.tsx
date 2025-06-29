@@ -146,6 +146,7 @@ const Level4 = () => {
   const [gamePhase, setGamePhase] = useState<'assessment' | 'testing' | 'diagnosis' | 'treatment' | 'monitoring'>('assessment');
   const [revealedSections, setRevealedSections] = useState<{[key: string]: boolean}>({});
   const [currency, setCurrency] = useState(2000);
+  const [treatmentCompleted, setTreatmentCompleted] = useState(false);
 
   const patients: Patient[] = [
     // 1. von Willebrand Disease
@@ -178,7 +179,6 @@ const Level4 = () => {
       difficulty: 'medium'
     },
     
-    // 2. Hemophilia A
     {
       id: '2',
       name: 'Michael Chen',
@@ -208,7 +208,6 @@ const Level4 = () => {
       difficulty: 'medium'
     },
 
-    // 3. Deep Vein Thrombosis with Pulmonary Embolism
     {
       id: '3',
       name: 'Robert Johnson',
@@ -238,7 +237,6 @@ const Level4 = () => {
       difficulty: 'hard'
     },
 
-    // 4. DIC (Disseminated Intravascular Coagulation)
     {
       id: '4',
       name: 'Maria Rodriguez',
@@ -268,7 +266,6 @@ const Level4 = () => {
       difficulty: 'hard'
     },
 
-    // 5. Stroke (Anticoagulation management)
     {
       id: '5',
       name: 'David Williams',
@@ -298,7 +295,6 @@ const Level4 = () => {
       difficulty: 'hard'
     },
 
-    // 6. Atrial Fibrillation with Left Atrial Clot
     {
       id: '6',
       name: 'Patricia Davis',
@@ -328,7 +324,6 @@ const Level4 = () => {
       difficulty: 'medium'
     },
 
-    // 7. Circumcision Hemorrhage
     {
       id: '7',
       name: 'Joshua Thompson',
@@ -358,7 +353,6 @@ const Level4 = () => {
       difficulty: 'medium'
     },
 
-    // 8. Road Traffic Accident with Massive Hemorrhage
     {
       id: '8',
       name: 'James Wilson',
@@ -388,7 +382,6 @@ const Level4 = () => {
       difficulty: 'hard'
     },
 
-    // 9. Immune Thrombocytopenic Purpura (ITP)
     {
       id: '9',
       name: 'Emma Martinez',
@@ -418,7 +411,6 @@ const Level4 = () => {
       difficulty: 'medium'
     },
 
-    // 10. Massive Hematochezia with PUD
     {
       id: '10',
       name: 'Frank Anderson',
@@ -448,7 +440,6 @@ const Level4 = () => {
       difficulty: 'hard'
     },
 
-    // 11. Lower GI Bleeding - Colon Cancer
     {
       id: '11',
       name: 'Betty Johnson',
@@ -675,6 +666,15 @@ const Level4 = () => {
       keyFeatures: ['Isolated thrombocytopenia', 'Mucocutaneous bleeding', 'Normal bone marrow'],
       diagnosticCriteria: ['Platelet count <100,000', 'Normal PT/aPTT', 'Exclusion of other causes'],
       treatment: ['Corticosteroids', 'IVIG', 'Platelet transfusion if bleeding']
+    },
+    {
+      id: 'dvt_pe',
+      name: 'Deep Vein Thrombosis with Pulmonary Embolism',
+      category: 'thrombotic_disorder',
+      description: 'Venous thromboembolism with pulmonary complications',
+      keyFeatures: ['Leg swelling', 'Shortness of breath', 'Elevated D-dimer', 'Imaging confirmation'],
+      diagnosticCriteria: ['Duplex ultrasound positive', 'CT angiogram positive', 'Clinical probability'],
+      treatment: ['Anticoagulation', 'Thrombolysis', 'Supportive care']
     }
   ];
 
@@ -692,7 +692,7 @@ const Level4 = () => {
     setCurrentPatient(patients[0]);
     setGamePhase('assessment');
     toast({
-      title: "🩺 Diagnosis and Treatment Tactician Started!",
+      title: "🩺 Diagnosis & Treatment Tactician Started!",
       description: "Assess the patient, order appropriate tests, make a diagnosis, and develop a treatment plan!",
     });
   };
@@ -707,6 +707,7 @@ const Level4 = () => {
     setSelectedTreatments([]);
     setGamePhase('assessment');
     setRevealedSections({});
+    setTreatmentCompleted(false);
     setScore(prev => prev + 100);
     toast({
       title: "New Case Study! 📋",
@@ -715,7 +716,7 @@ const Level4 = () => {
   };
 
   const dischargePatient = () => {
-    if (selectedDiagnosis && selectedTreatments.length > 0) {
+    if (selectedDiagnosis && selectedTreatments.length > 0 && treatmentCompleted) {
       setScore(prev => prev + 500);
       toast({
         title: "Patient Discharged! 🏠",
@@ -821,9 +822,19 @@ const Level4 = () => {
       return;
     }
 
+    if (selectedTreatments.find(t => t.id === treatment.id)) {
+      toast({
+        title: "Treatment Already Selected",
+        description: `${treatment.name} has already been added to treatment plan.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSelectedTreatments(prev => [...prev, treatment]);
     setCurrency(prev => prev - treatment.cost);
     setScore(prev => prev + 100);
+    setTreatmentCompleted(true);
     
     toast({
       title: "Treatment Selected! 💊",
@@ -851,6 +862,7 @@ const Level4 = () => {
     setRevealedSections({});
     setLevel4Complete(false);
     setShowCompletionDialog(false);
+    setTreatmentCompleted(false);
     setGameStarted(true);
   };
 
@@ -922,8 +934,12 @@ const Level4 = () => {
               
               <Button 
                 onClick={dischargePatient}
-                className="bg-green-600 hover:bg-green-700 transform hover:scale-105 transition-all duration-200"
-                disabled={!selectedDiagnosis || selectedTreatments.length === 0}
+                className={`transform hover:scale-105 transition-all duration-200 ${
+                  treatmentCompleted && selectedDiagnosis && selectedTreatments.length > 0
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-gray-600 cursor-not-allowed'
+                }`}
+                disabled={!treatmentCompleted || !selectedDiagnosis || selectedTreatments.length === 0}
               >
                 <Home className="h-4 w-4 mr-2" />
                 Discharge Patient Home
@@ -993,10 +1009,10 @@ const Level4 = () => {
                   <GlassmorphicCard intensity="medium" color="green" className="p-4">
                     <Button
                       onClick={() => toggleSection('tests')}
-                      className="w-full flex justify-between items-center bg-transparent hover:bg-white/10 text-white border-none p-4"
+                      className="w-full flex justify-between items-center bg-transparent hover:bg-white/10 text-white border-none p-4 group transform hover:scale-105 transition-all duration-200"
                     >
                       <div className="flex items-center">
-                        <Microscope className="h-5 w-5 mr-2 text-green-400" />
+                        <Microscope className="h-5 w-5 mr-2 text-green-400 group-hover:text-green-300" />
                         <span className="text-lg font-bold">Diagnostic Tests</span>
                       </div>
                       {revealedSections['tests'] ? (
@@ -1015,7 +1031,7 @@ const Level4 = () => {
                     {revealedSections['tests'] && (
                       <div className="mt-4 space-y-3">
                         {availableTests.slice(0, 4).map((test) => (
-                          <div key={test.id} className="bg-white/5 p-3 rounded-lg border border-white/10">
+                          <div key={test.id} className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-200">
                             <div className="flex justify-between items-center mb-2">
                               <h4 className="text-white font-bold text-sm">{test.name}</h4>
                               <Badge className="bg-green-600 text-xs">{test.cost} QUID</Badge>
@@ -1025,10 +1041,16 @@ const Level4 = () => {
                               size="sm"
                               onClick={() => orderTest(test)}
                               disabled={selectedTests.some(t => t.id === test.id)}
-                              className="bg-green-600 hover:bg-green-700 text-xs"
+                              className="bg-green-600 hover:bg-green-700 text-xs transform hover:scale-105 transition-all duration-200"
                             >
                               {selectedTests.some(t => t.id === test.id) ? 'Ordered' : 'Order Test'}
                             </Button>
+                            {testResults[test.id] && (
+                              <div className="mt-2 p-2 bg-blue-600/20 rounded border border-blue-400/30">
+                                <p className="text-xs text-blue-300 font-bold">Result:</p>
+                                <p className="text-xs text-white">{testResults[test.id]}</p>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1039,10 +1061,10 @@ const Level4 = () => {
                   <GlassmorphicCard intensity="medium" color="purple" className="p-4">
                     <Button
                       onClick={() => toggleSection('diagnosis')}
-                      className="w-full flex justify-between items-center bg-transparent hover:bg-white/10 text-white border-none p-4"
+                      className="w-full flex justify-between items-center bg-transparent hover:bg-white/10 text-white border-none p-4 group transform hover:scale-105 transition-all duration-200"
                     >
                       <div className="flex items-center">
-                        <Brain className="h-5 w-5 mr-2 text-purple-400" />
+                        <Brain className="h-5 w-5 mr-2 text-purple-400 group-hover:text-purple-300" />
                         <span className="text-lg font-bold">Differential Diagnosis</span>
                       </div>
                       {revealedSections['diagnosis'] ? (
@@ -1060,10 +1082,10 @@ const Level4 = () => {
                     
                     {revealedSections['diagnosis'] && (
                       <div className="mt-4 space-y-3">
-                        {availableDiagnoses.slice(0, 3).map((diagnosis) => (
+                        {availableDiagnoses.slice(0, 5).map((diagnosis) => (
                           <div 
                             key={diagnosis.id} 
-                            className={`bg-white/5 p-3 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 ${
+                            className={`bg-white/5 p-3 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 transform hover:scale-105 ${
                               selectedDiagnosis?.id === diagnosis.id ? 'ring-2 ring-purple-400' : ''
                             }`}
                             onClick={() => selectDiagnosis(diagnosis)}
@@ -1080,13 +1102,13 @@ const Level4 = () => {
                   </GlassmorphicCard>
 
                   {/* Treatment Options */}
-                  <GlassmorphicCard intensity="medium" color="orange" className="p-4">
+                  <GlassmorphicCard intensity="medium" color="red" className="p-4">
                     <Button
                       onClick={() => toggleSection('treatment')}
-                      className="w-full flex justify-between items-center bg-transparent hover:bg-white/10 text-white border-none p-4"
+                      className="w-full flex justify-between items-center bg-transparent hover:bg-white/10 text-white border-none p-4 group transform hover:scale-105 transition-all duration-200"
                     >
                       <div className="flex items-center">
-                        <Pill className="h-5 w-5 mr-2 text-orange-400" />
+                        <Pill className="h-5 w-5 mr-2 text-red-400 group-hover:text-red-300" />
                         <span className="text-lg font-bold">Treatment Options</span>
                       </div>
                       {revealedSections['treatment'] ? (
@@ -1105,18 +1127,19 @@ const Level4 = () => {
                     {revealedSections['treatment'] && (
                       <div className="mt-4 space-y-3">
                         {availableTreatments.slice(0, 4).map((treatment) => (
-                          <div key={treatment.id} className="bg-white/5 p-3 rounded-lg border border-white/10">
+                          <div key={treatment.id} className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-200">
                             <div className="flex justify-between items-center mb-2">
                               <h4 className="text-white font-bold text-sm">{treatment.name}</h4>
-                              <Badge className="bg-orange-600 text-xs">{treatment.cost} QUID</Badge>
+                              <Badge className="bg-red-600 text-xs">{treatment.cost} QUID</Badge>
                             </div>
                             <p className="text-white/70 text-xs mb-2">{treatment.mechanism}</p>
                             <Button
                               size="sm"
                               onClick={() => selectTreatment(treatment)}
-                              className="bg-orange-600 hover:bg-orange-700 text-xs"
+                              disabled={selectedTreatments.some(t => t.id === treatment.id)}
+                              className="bg-red-600 hover:bg-red-700 text-xs transform hover:scale-105 transition-all duration-200"
                             >
-                              Select Treatment
+                              {selectedTreatments.some(t => t.id === treatment.id) ? 'Selected' : 'Select Treatment'}
                             </Button>
                           </div>
                         ))}
