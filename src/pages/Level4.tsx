@@ -904,9 +904,9 @@ const Level4 = () => {
           <div className="flex flex-col lg:flex-row items-center justify-between text-white gap-4">
             <div className="text-center lg:text-left">
               <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                Level 4: Financial Logic Challenge
+                Level 4: Diagnosis & Treatment Tactician: Financial Logic Challenge
               </h1>
-              <p className="text-purple-200 text-base lg:text-lg">Master resource management in medical diagnosis</p>
+              <p className="text-purple-200 text-base lg:text-lg">Master resource management in medical diagnosis & Treatment</p>
             </div>
             <div className="flex items-center space-x-4 lg:space-x-8">
               <div className="text-center">
@@ -931,7 +931,7 @@ const Level4 = () => {
           <div className="text-center">
             <GlassmorphicCard intensity="medium" className="p-12">
               <Calculator className="h-24 w-24 text-purple-400 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-white mb-4">Financial Logic Challenge</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">Diagnosis & Treatment Tactician: Financial Logic Challenge</h2>
               <p className="text-white/70 mb-8 text-lg">
                 You have exactly 3500 QUID to diagnose and treat 5 patients. Choose wisely - unnecessary tests and treatments will drain your budget!
               </p>
