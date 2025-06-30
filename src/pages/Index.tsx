@@ -62,7 +62,7 @@ const Index = () => {
     },
     {
       id: 3,
-      title: "PATHOLOGY PROFESSOR",
+      title: "Pathology Professor",
       description: "Learn anticoagulation therapy through strategic gameplay and clinical scenarios.",
       level: "Level 3", 
       difficulty: "Advanced",
