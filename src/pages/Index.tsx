@@ -41,14 +41,14 @@ const Index = () => {
       rating: 4.8,
       isHot: true,
       estimatedTime: "15 mins",
-      coursePrice: "$29.99",
+      coursePrice: "Q29.99",
       features: ["Emergency Mode", "Interactive Tutorial", "Real-time Feedback"],
       gradient: "from-blue-600 via-purple-600 to-pink-600"
     },
     {
       id: 2, 
-      title: "Platelet Aggregation Master",
-      description: "Explore platelet function and aggregation mechanisms in this challenging puzzle game.",
+      title: "Hematology Lab Diagnostic Detective",
+      description: "Master laboratory diagnostics for coagulation disorders in this challenging game.",
       level: "Level 2",
       difficulty: "Intermediate", 
       route: "/level2",
@@ -56,13 +56,13 @@ const Index = () => {
       rating: 4.6,
       isLive: true,
       estimatedTime: "25 mins",
-      coursePrice: "$39.99",
+      coursePrice: "Q39.99",
       features: ["Advanced Mechanics", "Multiplayer Mode"],
       gradient: "from-green-500 via-teal-500 to-blue-500"
     },
     {
       id: 3,
-      title: "Anticoagulation Strategy",
+      title: "PATHOLOGY PROFESSOR",
       description: "Learn anticoagulation therapy through strategic gameplay and clinical scenarios.",
       level: "Level 3", 
       difficulty: "Advanced",
@@ -71,13 +71,13 @@ const Index = () => {
       rating: 4.9,
       isHot: true,
       estimatedTime: "35 mins", 
-      coursePrice: "$49.99",
+      coursePrice: "Q49.99",
       features: ["Clinical Cases", "Drug Interactions"],
       gradient: "from-purple-600 via-pink-600 to-red-600"
     },
     {
       id: 4,
-      title: "Bleeding Disorders Detective",
+      title: "Diagnosis & Treatment Tactician, Resource Manager",
       description: "Diagnose and manage bleeding disorders through immersive clinical simulations.",
       level: "Level 4",
       difficulty: "Expert",
@@ -86,7 +86,7 @@ const Index = () => {
       rating: 4.7,
       isLive: true,
       estimatedTime: "45 mins",
-      coursePrice: "$59.99", 
+      coursePrice: "Q59.99", 
       features: ["AI Patients", "Diagnostic Tools"],
       gradient: "from-red-600 via-orange-600 to-yellow-600"
     }
