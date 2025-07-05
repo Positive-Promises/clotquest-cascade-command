@@ -173,14 +173,13 @@ const Level1 = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1 order-2 lg:order-1">
             <GameHeader
-              title="Level 1: Coagulation Cascade Commander"
-              subtitle="Master the intricate sequence of clotting factor activation"
-              gameStarted={gameStarted}
               score={score}
-              timeElapsed={formatTime(timeElapsed)}
-              level1Complete={level1Complete}
-              onStartGame={startGame}
-              onResetLevel={resetLevel}
+              timeElapsed={timeElapsed}
+              placedFactorsCount={factors.filter(factor => factor.isPlaced).length}
+              totalFactorsCount={factors.length}
+              emergencyMode={false}
+              patientStatus={100}
+              onExitGame={() => setShowExitDialog(true)}
             />
           </div>
 

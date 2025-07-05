@@ -721,7 +721,8 @@ const Level4 = () => {
       return;
     }
 
-    setSelectedTests(prev => [...prev, test]);
+    const newSelectedTests = [...selectedTests, test];
+    setSelectedTests(newSelectedTests);
     setGameSession(prev => ({ 
       ...prev, 
       remainingBudget: prev.remainingBudget - test.cost,
@@ -743,6 +744,23 @@ const Level4 = () => {
         title: "Results Available! 📊",
         description: `${test.name} results are ready for interpretation.`,
       });
+      
+      // Check if all necessary tests have been ordered for auto-progression
+      if (currentPatient) {
+        const necessaryTestsOrdered = currentPatient.necessaryTests.every(testId => 
+          newSelectedTests.some(selectedTest => selectedTest.id === testId)
+        );
+        
+        if (necessaryTestsOrdered && isNecessary) {
+          setTimeout(() => {
+            setRevealedSections(prev => ({ ...prev, diagnosis: true, treatment: true }));
+            toast({
+              title: "All Required Tests Complete! 🎯",
+              description: "Moving to diagnosis and treatment options...",
+            });
+          }, 1000);
+        }
+      }
     }, test.timeToResult * 10);
   };
 
@@ -814,7 +832,8 @@ const Level4 = () => {
       return;
     }
 
-    setSelectedTreatments(prev => [...prev, treatment]);
+    const newSelectedTreatments = [...selectedTreatments, treatment];
+    setSelectedTreatments(newSelectedTreatments);
     const isNecessary = currentPatient.necessaryTreatments.includes(treatment.id);
     
     setGameSession(prev => ({ 
@@ -828,9 +847,27 @@ const Level4 = () => {
       description: `${treatment.name} selected. Cost: ${treatment.cost} QUID. ${isNecessary ? '+150 points' : '-75 points'}`,
       variant: isNecessary ? "default" : "destructive"
     });
+
+    // Check if all necessary treatments have been selected for auto-progression
+    const necessaryTreatmentsSelected = currentPatient.necessaryTreatments.every(treatmentId => 
+      newSelectedTreatments.some(selectedTreatment => selectedTreatment.id === treatmentId)
+    );
+    
+    if (necessaryTreatmentsSelected && isNecessary) {
+      setTimeout(() => {
+        toast({
+          title: "Treatment Complete! 🏥",
+          description: "Patient successfully treated. Moving to next case...",
+        });
+        
+        setTimeout(() => {
+          autoProgressToNextCase();
+        }, 2000);
+      }, 1000);
+    }
   };
 
-  const nextCase = () => {
+  const autoProgressToNextCase = () => {
     const nextIndex = gameSession.currentPatientIndex + 1;
     
     if (nextIndex >= patients.length) {
@@ -840,7 +877,25 @@ const Level4 = () => {
       return;
     }
 
-    setCurrentPatient(patients[nextIndex]);
+    // Check if budget is insufficient for next case
+    const nextPatient = patients[nextIndex];
+    const estimatedCostForNextCase = calculateMinimumCostForPatient(nextPatient);
+    
+    if (gameSession.remainingBudget < estimatedCostForNextCase) {
+      toast({
+        title: "Insufficient Budget! 💰",
+        description: `Cannot proceed to next case. Budget too low for proper treatment.`,
+        variant: "destructive",
+      });
+      
+      setTimeout(() => {
+        setLevel4Complete(true);
+        setShowCompletionDialog(true);
+      }, 2000);
+      return;
+    }
+
+    setCurrentPatient(nextPatient);
     setGameSession(prev => ({ 
       ...prev, 
       currentPatientIndex: nextIndex,
@@ -856,8 +911,26 @@ const Level4 = () => {
     
     toast({
       title: "New Case Study! 📋",
-      description: `Now treating ${patients[nextIndex].name}. Case ${nextIndex + 1} of ${gameSession.totalPatients}`,
+      description: `Now treating ${nextPatient.name}. Case ${nextIndex + 1} of ${gameSession.totalPatients}`,
     });
+  };
+
+  const nextCase = () => {
+    autoProgressToNextCase();
+  };
+
+  const calculateMinimumCostForPatient = (patient: Patient) => {
+    const necessaryTestsCost = patient.necessaryTests.reduce((total, testId) => {
+      const test = availableTests.find(t => t.id === testId);
+      return total + (test?.cost || 0);
+    }, 0);
+    
+    const necessaryTreatmentsCost = patient.necessaryTreatments.reduce((total, treatmentId) => {
+      const treatment = availableTreatments.find(t => t.id === treatmentId);
+      return total + (treatment?.cost || 0);
+    }, 0);
+    
+    return necessaryTestsCost + necessaryTreatmentsCost;
   };
 
   const toggleSection = (section: string) => {
