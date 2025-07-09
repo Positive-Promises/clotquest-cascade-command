@@ -383,17 +383,17 @@ const Level1 = () => {
                 ? 'bg-green-600/80 hover:bg-green-700 border-green-400/30' 
                 : 'bg-gray-600/80 hover:bg-gray-700 border-gray-400/30'
             }`}
-            aria-label={level1Complete ? 'Go to next level' : 'Complete level 1 to unlock'}
+            aria-label={level1Complete ? 'Go to Level 2: Hematology Lab Diagnostic Detective' : 'Complete level 1 to unlock Level 2'}
           >
             {level1Complete ? (
               <>
                 <ArrowRight className="h-4 w-4 mr-2" />
-                Next Level
+                Level 2: Lab Detective
               </>
             ) : (
               <>
                 <Lock className="h-4 w-4 mr-2" />
-                Next Level
+                Level 2: Lab Detective
               </>
             )}
           </Button>
@@ -558,20 +558,29 @@ const Level1 = () => {
         <AlertDialogContent className="max-w-2xl glass-card backdrop-blur-xl border border-orange-400/30">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-              🔒 Level Locked
+              🔒 Level 2 Locked
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-lg text-white dark:text-white light:text-black">
-              Complete Level 1 first to unlock Level 2 - Hematology Lab Diagnostic Detective!
+              Complete Level 1: Coagulation Cascade Commander first to unlock Level 2: Hematology Lab Diagnostic Detective!
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="py-6 text-center">
             <div className="glass-card bg-orange-50/10 p-6 rounded-lg border border-orange-400/30">
               <Lock className="h-12 w-12 mx-auto mb-4 text-orange-400" />
-              <p className="text-gray-300 dark:text-gray-300 light:text-gray-700 text-lg">
+              <p className="text-gray-300 dark:text-gray-300 light:text-gray-700 text-lg mb-4">
                 You need to successfully place all clotting factors in the cascade to unlock the next level.
               </p>
-              <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm mt-2">
+              <div className="glass-card bg-red-50/10 p-4 rounded-lg border border-red-400/30 mb-4">
+                <h4 className="font-bold text-red-400 mb-2">Next Level Preview:</h4>
+                <p className="text-gray-300 text-sm">
+                  🔬 <strong>Level 2: Hematology Lab Diagnostic Detective</strong>
+                </p>
+                <p className="text-gray-400 text-xs mt-1">
+                  Solve real-world clinical scenarios with time pressure and patient management!
+                </p>
+              </div>
+              <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm">
                 Current progress: {factors.filter(f => f.isPlaced).length} / {factors.length} factors placed
               </p>
             </div>
@@ -601,7 +610,7 @@ const Level1 = () => {
           </AlertDialogHeader>
           
           <div className="py-6">
-            <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-3 gap-4 text-center mb-6">
               <div className="glass-card bg-blue-50/10 p-4 rounded-lg border border-blue-400/30">
                 <div className="text-2xl font-bold text-blue-400">{score}</div>
                 <div className="text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Final Score</div>
@@ -615,6 +624,13 @@ const Level1 = () => {
                 <div className="text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Cascade Status</div>
               </div>
             </div>
+            
+            <div className="glass-card bg-gradient-to-r from-green-50/10 to-blue-50/10 p-4 rounded-lg border border-green-400/30 text-center">
+              <h4 className="font-bold text-green-400 mb-2">🎓 Ready for Level 2!</h4>
+              <p className="text-gray-300 text-sm">
+                <strong>Hematology Lab Diagnostic Detective</strong> - Solve clinical coagulation disorders under time pressure!
+              </p>
+            </div>
           </div>
 
           <AlertDialogFooter className="flex justify-center space-x-4">
@@ -623,14 +639,17 @@ const Level1 = () => {
               className="glass-card bg-blue-600/80 hover:bg-blue-700 backdrop-blur-sm border border-blue-400/30"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
-              Replay Level
+              Replay Level 1
             </AlertDialogAction>
             <AlertDialogAction 
-              onClick={() => navigate('/level2')}
+              onClick={() => {
+                setShowCompletionDialog(false);
+                navigate('/level2');
+              }}
               className="glass-card bg-green-600/80 hover:bg-green-700 backdrop-blur-sm border border-green-400/30"
             >
               <ArrowRight className="h-4 w-4 mr-2" />
-              Next Level
+              Level 2: Lab Detective
             </AlertDialogAction>
             <AlertDialogCancel 
               onClick={() => navigate('/')}
