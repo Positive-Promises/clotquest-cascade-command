@@ -106,8 +106,8 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
   };
 
   // Complex background music generation
-  const startBackgroundMusic = () => {
-    if (!audioContextRef.current || isMuted) return;
+  const startBackgroundMusic = (): (() => void) => {
+    if (!audioContextRef.current || isMuted) return () => {};
 
     const ctx = audioContextRef.current;
     backgroundGainRef.current = ctx.createGain();
@@ -144,6 +144,21 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     });
 
     backgroundMusicRef.current = bassOsc;
+
+    // Return cleanup function
+    return () => {
+      [bassOsc, harmonyOsc, atmosphereOsc].forEach(osc => {
+        try {
+          osc.stop();
+        } catch (e) {
+          // Already stopped
+        }
+      });
+      if (backgroundGainRef.current) {
+        backgroundGainRef.current.disconnect();
+        backgroundGainRef.current = null;
+      }
+    };
   };
 
   const stopBackgroundMusic = () => {
@@ -163,18 +178,12 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
 
   // Background music with game state awareness
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
-
     if (gameState === 'playing' || gameState === 'emergency') {
-      cleanup = startBackgroundMusic();
+      const cleanup = startBackgroundMusic();
+      return cleanup;
     } else {
       stopBackgroundMusic();
     }
-
-    return () => {
-      if (cleanup) cleanup();
-      stopBackgroundMusic();
-    };
   }, [gameState, isMuted, musicVolume]);
 
   // Update background music volume
