@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import GameCascadeArea from '@/components/GameCascadeArea';
 import GameHeader from '@/components/GameHeader';
+import MedicalInfoPopup from '@/components/MedicalInfoPopup';
 import { level1Factors as initialFactors } from '@/data/cascadeFactors';
 import { Factor } from '@/types/cascadeTypes';
 import AudioSystem from '@/components/AudioSystem';
@@ -36,6 +37,8 @@ const Level1 = () => {
   const [showNextLevelDialog, setShowNextLevelDialog] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [draggedFactor, setDraggedFactor] = useState<Factor | null>(null);
+  const [showMedicalInfo, setShowMedicalInfo] = useState(false);
+  const [medicalInfoFactor, setMedicalInfoFactor] = useState<Factor | null>(null);
 
   // Load completion status from localStorage
   useEffect(() => {
@@ -176,7 +179,7 @@ const Level1 = () => {
     }
   };
 
-  // Correct placement handler
+  // Correct placement handler with medical info popup
   const handleCorrectPlacement = (factor: Factor) => {
     const updatedFactors = factors.map(f =>
       f.id === factor.id
@@ -187,6 +190,10 @@ const Level1 = () => {
     setFactors(updatedFactors);
     setScore(prevScore => prevScore + 100);
     setSelectedFactor(null);
+    
+    // Show medical information popup
+    setMedicalInfoFactor(factor);
+    setShowMedicalInfo(true);
     
     toast({
       title: "🎯 Perfect Placement!",
@@ -199,7 +206,9 @@ const Level1 = () => {
     if (completedFactors === updatedFactors.length) {
       setLevel1Complete(true);
       localStorage.setItem('level1Complete', 'true');
-      setShowCompletionDialog(true);
+      setTimeout(() => {
+        setShowCompletionDialog(true);
+      }, 2000); // Delay to allow medical info popup to be seen first
       const timeBonus = Math.max(0, 300 - timeElapsed) * 10;
       setScore(prevScore => prevScore + timeBonus);
       toast({
@@ -299,7 +308,7 @@ const Level1 = () => {
       <AudioSystem gameState="playing" level={1} />
       
       {/* Top Control Bar */}
-      <div className="fixed top-4 left-4 right-4 z-50 flex justify-between items-center">
+      <div className="fixed top-4 left-4 right-4 z-40 flex justify-between items-center">
         <Button
           onClick={() => setShowExitDialog(true)}
           className="glass-card bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30 transform hover:scale-105 transition-all duration-200"
@@ -354,7 +363,7 @@ const Level1 = () => {
         </div>
       </div>
 
-      <div className="container mx-auto relative z-10 pt-16">
+      <div className="container mx-auto relative z-10 pt-20">
         <div className="mb-6 animate-in slide-in-from-top-4 duration-1000">
           <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100 transform hover:scale-105 transition-all duration-200 glass-card px-4 py-2 rounded-xl border border-blue-400/30 backdrop-blur-sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -434,6 +443,13 @@ const Level1 = () => {
           </div>
         </div>
       </div>
+
+      {/* Medical Information Popup */}
+      <MedicalInfoPopup
+        factor={medicalInfoFactor}
+        isOpen={showMedicalInfo}
+        onClose={() => setShowMedicalInfo(false)}
+      />
 
       {/* Hint Dialog */}
       <AlertDialog open={showHintDialog} onOpenChange={setShowHintDialog}>

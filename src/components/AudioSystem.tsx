@@ -194,7 +194,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
   }, [musicVolume]);
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
       <div className="flex items-center space-x-2">
         <Button
           variant="ghost"
@@ -222,7 +222,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
       </div>
 
       {showControls && (
-        <Card className="absolute top-12 right-0 w-64 glass-card bg-black/90 backdrop-blur-lg border border-white/20 shadow-2xl animate-in slide-in-from-top-2 duration-300">
+        <Card className="absolute top-12 left-1/2 transform -translate-x-1/2 w-64 glass-card bg-black/90 backdrop-blur-lg border border-white/20 shadow-2xl animate-in slide-in-from-top-2 duration-300">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center space-x-2">
               <Music className="h-4 w-4 text-blue-400" />
