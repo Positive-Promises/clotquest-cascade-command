@@ -3,7 +3,7 @@ import { Factor } from '@/types/cascadeTypes';
 
 export const level1Factors: Factor[] = [
   {
-    id: 'f12',
+    id: 'factor12',
     name: 'Factor XII',
     fullName: 'Hageman Factor (Contact Factor)',
     pathway: 'intrinsic',
@@ -11,7 +11,7 @@ export const level1Factors: Factor[] = [
     description: 'Initiates the intrinsic pathway when activated by contact with negatively charged surfaces like collagen or glass',
     color: 'bg-blue-500',
     isPlaced: false,
-    correctPosition: { x: 180, y: 140 },
+    correctPosition: { x: 50, y: 100 },
     clinicalRelevance: 'Deficiency rarely causes bleeding but prolongs aPTT. Important in laboratory activation of coagulation cascade.',
     deficiencyDisorder: 'Factor XII deficiency (usually asymptomatic)',
     normalRange: '50-150% of pooled normal plasma',
@@ -25,7 +25,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f11',
+    id: 'factor11',
     name: 'Factor XI',
     fullName: 'Plasma Thromboplastin Antecedent',
     pathway: 'intrinsic',
@@ -33,7 +33,7 @@ export const level1Factors: Factor[] = [
     description: 'Activated by Factor XIIa and also by thrombin in a positive feedback loop. Activates Factor IX.',
     color: 'bg-blue-600',
     isPlaced: false,
-    correctPosition: { x: 180, y: 200 },
+    correctPosition: { x: 50, y: 180 },
     clinicalRelevance: 'Deficiency causes mild to moderate bleeding, especially after trauma or surgery. Common in Ashkenazi Jewish population.',
     deficiencyDisorder: 'Hemophilia C (Factor XI deficiency)',
     normalRange: '50-150% of pooled normal plasma',
@@ -47,7 +47,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f9',
+    id: 'factor9',
     name: 'Factor IX',
     fullName: 'Christmas Factor',
     pathway: 'intrinsic',
@@ -55,7 +55,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent factor, key component of the intrinsic pathway. Forms tenase complex with Factor VIIIa.',
     color: 'bg-blue-700',
     isPlaced: false,
-    correctPosition: { x: 180, y: 260 },
+    correctPosition: { x: 50, y: 260 },
     clinicalRelevance: 'Deficiency causes Hemophilia B, an X-linked bleeding disorder affecting males primarily.',
     deficiencyDisorder: 'Hemophilia B (Christmas Disease)',
     normalRange: '50-150% of pooled normal plasma',
@@ -69,7 +69,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f8',
+    id: 'factor8',
     name: 'Factor VIII',
     fullName: 'Antihemophilic Factor',
     pathway: 'intrinsic',
@@ -77,7 +77,7 @@ export const level1Factors: Factor[] = [
     description: 'Essential cofactor for Factor IXa in the tenase complex. Activated by thrombin and Factor Xa.',
     color: 'bg-blue-800',
     isPlaced: false,
-    correctPosition: { x: 130, y: 310 },
+    correctPosition: { x: 120, y: 260 },
     clinicalRelevance: 'Deficiency causes Hemophilia A, the most common severe bleeding disorder.',
     deficiencyDisorder: 'Hemophilia A (Classic Hemophilia)',
     normalRange: '50-150% of pooled normal plasma',
@@ -93,7 +93,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f7',
+    id: 'factor7',
     name: 'Factor VII',
     fullName: 'Proconvertin (Stable Factor)',
     pathway: 'extrinsic',
@@ -101,7 +101,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent factor activated by tissue factor. Initiates extrinsic pathway after tissue injury.',
     color: 'bg-green-500',
     isPlaced: false,
-    correctPosition: { x: 420, y: 200 },
+    correctPosition: { x: 450, y: 180 },
     clinicalRelevance: 'First factor to decrease with warfarin therapy. Deficiency causes bleeding similar to hemophilia.',
     deficiencyDisorder: 'Factor VII deficiency (rare autosomal recessive)',
     normalRange: '50-150% of pooled normal plasma',
@@ -115,7 +115,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'tf',
+    id: 'tissueFactor',
     name: 'Tissue Factor',
     fullName: 'Factor III (Thromboplastin)',
     pathway: 'extrinsic',
@@ -123,7 +123,7 @@ export const level1Factors: Factor[] = [
     description: 'Membrane-bound glycoprotein released by damaged tissue. Forms complex with Factor VII to initiate coagulation.',
     color: 'bg-green-600',
     isPlaced: false,
-    correctPosition: { x: 420, y: 140 },
+    correctPosition: { x: 450, y: 100 },
     clinicalRelevance: 'Primary initiator of hemostasis. Expression increased in inflammation, cancer, and atherosclerosis.',
     deficiencyDisorder: 'No hereditary deficiency described (incompatible with life)',
     normalRange: 'Not routinely measured in clinical practice',
@@ -137,7 +137,29 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f10',
+    id: 'factor3',
+    name: 'Factor III',
+    fullName: 'Tissue Factor Complex',
+    pathway: 'extrinsic',
+    position: null,
+    description: 'Active tissue factor-factor VII complex that initiates the extrinsic pathway.',
+    color: 'bg-green-700',
+    isPlaced: false,
+    correctPosition: { x: 450, y: 260 },
+    clinicalRelevance: 'Forms the primary activation complex for extrinsic pathway initiation.',
+    deficiencyDisorder: 'Related to tissue factor pathway disorders',
+    normalRange: 'Activity measured through PT/INR',
+    antagonisticAgents: ['TFPI', 'Warfarin', 'Direct factor VIIa inhibitors'],
+    referenceLinks: [
+      {
+        title: 'Tissue Factor Pathway',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28436116/',
+        type: 'pubmed'
+      }
+    ]
+  },
+  {
+    id: 'factor10',
     name: 'Factor X',
     fullName: 'Stuart-Prower Factor',
     pathway: 'common',
@@ -145,7 +167,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent factor, convergence point of intrinsic and extrinsic pathways. Forms prothrombinase complex.',
     color: 'bg-purple-500',
     isPlaced: false,
-    correctPosition: { x: 300, y: 360 },
+    correctPosition: { x: 250, y: 340 },
     clinicalRelevance: 'Critical convergence point. Deficiency causes moderate to severe bleeding disorder.',
     deficiencyDisorder: 'Factor X deficiency (rare autosomal recessive)',
     normalRange: '50-150% of pooled normal plasma',
@@ -159,7 +181,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f5',
+    id: 'factor5',
     name: 'Factor V',
     fullName: 'Proaccelerin (Labile Factor)',
     pathway: 'common',
@@ -167,7 +189,7 @@ export const level1Factors: Factor[] = [
     description: 'Non-enzymatic cofactor for Factor Xa in the prothrombinase complex. Essential for thrombin generation.',
     color: 'bg-purple-600',
     isPlaced: false,
-    correctPosition: { x: 250, y: 430 },
+    correctPosition: { x: 320, y: 340 },
     clinicalRelevance: 'Factor V Leiden mutation causes activated protein C resistance and thrombophilia.',
     deficiencyDisorder: 'Factor V deficiency (parahemophilia) or Factor V Leiden (thrombophilia)',
     normalRange: '50-150% of pooled normal plasma',
@@ -183,7 +205,7 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'f2',
+    id: 'factor2',
     name: 'Factor II',
     fullName: 'Prothrombin',
     pathway: 'common',
@@ -191,7 +213,7 @@ export const level1Factors: Factor[] = [
     description: 'Vitamin K-dependent zymogen converted to thrombin by prothrombinase complex. Central enzyme of hemostasis.',
     color: 'bg-purple-700',
     isPlaced: false,
-    correctPosition: { x: 300, y: 500 },
+    correctPosition: { x: 250, y: 420 },
     clinicalRelevance: 'Thrombin has multiple functions: converts fibrinogen to fibrin, activates factors V, VIII, XI, and XIII.',
     deficiencyDisorder: 'Prothrombin deficiency (very rare) or Prothrombin G20210A mutation (thrombophilia)',
     normalRange: '80-120% of pooled normal plasma',
@@ -205,15 +227,15 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'fibrinogen',
-    name: 'Fibrinogen',
-    fullName: 'Factor I',
+    id: 'factor1',
+    name: 'Factor I',
+    fullName: 'Fibrinogen',
     pathway: 'common',
     position: null,
     description: 'Soluble plasma protein converted to insoluble fibrin by thrombin. Forms the structural basis of blood clots.',
     color: 'bg-red-500',
     isPlaced: false,
-    correctPosition: { x: 300, y: 570 },
+    correctPosition: { x: 320, y: 420 },
     clinicalRelevance: 'Acute phase reactant. Low levels cause bleeding; high levels increase thrombotic risk.',
     deficiencyDisorder: 'Afibrinogenemia, hypofibrinogenemia, or dysfibrinogenemia',
     normalRange: '200-400 mg/dL (2.0-4.0 g/L)',
@@ -227,30 +249,29 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'fibrin',
-    name: 'Fibrin',
-    fullName: 'Polymerized Fibrin',
+    id: 'fibrinogen',
+    name: 'Fibrinogen',
+    fullName: 'Factor I',
     pathway: 'common',
     position: null,
-    description: 'Insoluble protein polymer formed from fibrinogen by thrombin action. Forms the mesh structure of blood clots.',
-    color: 'bg-red-600',
+    description: 'Soluble plasma protein converted to insoluble fibrin by thrombin. Forms the structural basis of blood clots.',
+    color: 'bg-red-500',
     isPlaced: false,
-    correctPosition: { x: 300, y: 630 },
-    clinicalRelevance: 'Final product of coagulation cascade. Forms stable hemostatic plug with platelets.',
-    deficiencyDisorder: 'Dysfibrinogenemia can affect fibrin polymerization',
-    normalRange: 'Not directly measured; assessed through fibrinogen levels',
-    antagonisticAgents: ['Plasmin', 'Fibrinolytic therapy (tPA, urokinase)', 'Antifibrin antibodies'],
-    activatedBy: 'Thrombin',
+    correctPosition: { x: 250, y: 500 },
+    clinicalRelevance: 'Acute phase reactant. Low levels cause bleeding; high levels increase thrombotic risk.',
+    deficiencyDisorder: 'Afibrinogenemia, hypofibrinogenemia, or dysfibrinogenemia',
+    normalRange: '200-400 mg/dL (2.0-4.0 g/L)',
+    antagonisticAgents: ['Fibrinolytic agents (tPA, Streptokinase)', 'Plasmin', 'Anti-fibrinogen antibodies'],
     referenceLinks: [
       {
-        title: 'Fibrin Formation and Structure',
-        url: 'https://pubmed.ncbi.nlm.nih.gov/28420295/',
+        title: 'Fibrinogen Disorders',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/29436322/',
         type: 'pubmed'
       }
     ]
   },
   {
-    id: 'f13',
+    id: 'factor13',
     name: 'Factor XIII',
     fullName: 'Fibrin Stabilizing Factor',
     pathway: 'common',
@@ -258,7 +279,7 @@ export const level1Factors: Factor[] = [
     description: 'Transglutaminase enzyme that cross-links fibrin polymers, stabilizing the clot structure.',
     color: 'bg-red-700',
     isPlaced: false,
-    correctPosition: { x: 350, y: 670 },
+    correctPosition: { x: 320, y: 500 },
     clinicalRelevance: 'Essential for clot stability. Deficiency causes delayed bleeding and poor wound healing.',
     deficiencyDisorder: 'Factor XIII deficiency (rare, causes delayed bleeding)',
     normalRange: '70-140% of pooled normal plasma',
@@ -273,46 +294,45 @@ export const level1Factors: Factor[] = [
     ]
   },
   {
-    id: 'plasminogen',
-    name: 'Plasminogen',
-    fullName: 'Plasmin Precursor',
-    pathway: 'fibrinolysis',
+    id: 'prekallikrein',
+    name: 'Prekallikrein',
+    fullName: 'Fletcher Factor',
+    pathway: 'intrinsic',
     position: null,
-    description: 'Zymogen that is converted to plasmin, the primary fibrinolytic enzyme.',
-    color: 'bg-orange-500',
+    description: 'Contact system component that works with HMWK to activate Factor XII.',
+    color: 'bg-blue-400',
     isPlaced: false,
-    correctPosition: { x: 500, y: 580 },
-    clinicalRelevance: 'Key component of fibrinolytic system. Deficiency causes thrombotic complications.',
-    deficiencyDisorder: 'Plasminogen deficiency (ligneous conjunctivitis syndrome)',
-    normalRange: '75-150% of pooled normal plasma',
-    antagonisticAgents: ['Plasminogen activator inhibitor-1 (PAI-1)', 'α2-antiplasmin', 'Tranexamic acid'],
-    activatedBy: 'tPA, urokinase',
+    correctPosition: { x: 120, y: 100 },
+    clinicalRelevance: 'Deficiency prolongs aPTT but rarely causes bleeding.',
+    deficiencyDisorder: 'Prekallikrein deficiency (Fletcher factor deficiency)',
+    normalRange: '50-150% of pooled normal plasma',
+    antagonisticAgents: ['C1 esterase inhibitor', 'Alpha-2 antiplasmin'],
     referenceLinks: [
       {
-        title: 'Plasminogen and Fibrinolysis',
-        url: 'https://pubmed.ncbi.nlm.nih.gov/27363882/',
+        title: 'Prekallikrein and Contact System',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28436116/',
         type: 'pubmed'
       }
     ]
   },
   {
-    id: 'tpa',
-    name: 'tPA',
-    fullName: 'Tissue Plasminogen Activator',
-    pathway: 'fibrinolysis',
+    id: 'hmwk',
+    name: 'HMWK',
+    fullName: 'High Molecular Weight Kininogen',
+    pathway: 'intrinsic',
     position: null,
-    description: 'Serine protease that converts plasminogen to plasmin, initiating fibrinolysis.',
-    color: 'bg-orange-600',
+    description: 'Contact system cofactor essential for Factor XII activation and surface binding.',
+    color: 'bg-blue-300',
     isPlaced: false,
-    correctPosition: { x: 450, y: 530 },
-    clinicalRelevance: 'Primary endogenous fibrinolytic activator. Used therapeutically for stroke and MI.',
-    deficiencyDisorder: 'tPA deficiency (rare, causes thrombotic tendency)',
-    normalRange: '1-12 ng/mL',
-    antagonisticAgents: ['PAI-1', 'PAI-2', 'Neuroserpin'],
+    correctPosition: { x: 120, y: 180 },
+    clinicalRelevance: 'Deficiency causes prolonged aPTT with minimal bleeding tendency.',
+    deficiencyDisorder: 'HMWK deficiency (Williams-Fitzgerald-Flaujeac trait)',
+    normalRange: '50-150% of pooled normal plasma',
+    antagonisticAgents: ['Carboxypeptidase N', 'Angiotensin converting enzyme'],
     referenceLinks: [
       {
-        title: 'tPA in Fibrinolysis and Therapy',
-        url: 'https://pubmed.ncbi.nlm.nih.gov/28851729/',
+        title: 'HMWK in Coagulation',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/25472749/',
         type: 'pubmed'
       }
     ]
@@ -326,7 +346,7 @@ export const level1Factors: Factor[] = [
     description: 'Primary natural anticoagulant that inhibits thrombin and Factor Xa. Enhanced by heparin.',
     color: 'bg-cyan-500',
     isPlaced: false,
-    correctPosition: { x: 100, y: 480 },
+    correctPosition: { x: 50, y: 420 },
     clinicalRelevance: 'Major natural anticoagulant. Deficiency causes thrombophilia and heparin resistance.',
     deficiencyDisorder: 'Antithrombin deficiency (hereditary thrombophilia)',
     normalRange: '80-120% of pooled normal plasma',
@@ -335,28 +355,6 @@ export const level1Factors: Factor[] = [
       {
         title: 'Antithrombin and Natural Anticoagulation',
         url: 'https://pubmed.ncbi.nlm.nih.gov/25472749/',
-        type: 'pubmed'
-      }
-    ]
-  },
-  {
-    id: 'protein_c',
-    name: 'Protein C',
-    fullName: 'Protein C System',
-    pathway: 'regulatory',
-    position: null,
-    description: 'Vitamin K-dependent anticoagulant protein that inactivates Factors Va and VIIIa.',
-    color: 'bg-cyan-600',
-    isPlaced: false,
-    correctPosition: { x: 50, y: 430 },
-    clinicalRelevance: 'Natural anticoagulant. Deficiency causes thrombophilia. Resistance causes Factor V Leiden.',
-    deficiencyDisorder: 'Protein C deficiency (hereditary thrombophilia)',
-    normalRange: '70-140% of pooled normal plasma',
-    antagonisticAgents: ['Warfarin (decreases levels)', 'Protein C inhibitor'],
-    referenceLinks: [
-      {
-        title: 'Protein C Pathway',
-        url: 'https://pubmed.ncbi.nlm.nih.gov/28436116/',
         type: 'pubmed'
       }
     ]

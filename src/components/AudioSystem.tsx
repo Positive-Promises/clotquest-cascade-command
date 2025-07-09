@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Volume2, VolumeX, Music, Settings, Headphones } from 'lucide-react';
+import { Volume2, VolumeX, Music, Settings, Headphones, Play, Pause } from 'lucide-react';
 
 interface AudioSystemProps {
   gameState: 'menu' | 'playing' | 'emergency' | 'success' | 'failure';
@@ -15,6 +15,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
   const [musicVolume, setMusicVolume] = useState(50);
   const [sfxVolume, setSfxVolume] = useState(70);
   const [showControls, setShowControls] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const currentTrackRef = useRef<AudioBufferSourceNode | null>(null);
@@ -144,6 +145,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     });
 
     backgroundMusicRef.current = bassOsc;
+    setIsPlaying(true);
 
     // Return cleanup function
     return () => {
@@ -158,6 +160,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
         backgroundGainRef.current.disconnect();
         backgroundGainRef.current = null;
       }
+      setIsPlaying(false);
     };
   };
 
@@ -174,6 +177,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
       backgroundGainRef.current.disconnect();
       backgroundGainRef.current = null;
     }
+    setIsPlaying(false);
   };
 
   // Background music with game state awareness
@@ -193,77 +197,155 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     }
   }, [musicVolume]);
 
+  // Export sound functions for external use
+  useEffect(() => {
+    (window as any).gameAudio = {
+      playSuccess: playSuccessSound,
+      playError: playErrorSound,
+      playClick: playClickSound
+    };
+  }, []);
+
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setIsMuted(!isMuted);
-            playClickSound();
-          }}
-          className="glass-card bg-black/20 backdrop-blur-sm hover:bg-black/40 text-white border border-white/20 transform hover:scale-105 transition-all duration-200"
-        >
-          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setShowControls(!showControls);
-            playClickSound();
-          }}
-          className="glass-card bg-black/20 backdrop-blur-sm hover:bg-black/40 text-white border border-white/20 transform hover:scale-105 transition-all duration-200"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
+    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="flex items-center space-x-3">
+        {/* Main Audio Control Panel */}
+        <Card className="glassmorphic-card bg-black/30 backdrop-blur-xl border border-white/20 shadow-2xl">
+          <CardContent className="p-3">
+            <div className="flex items-center space-x-3">
+              {/* Mute/Unmute Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setIsMuted(!isMuted);
+                  playClickSound();
+                }}
+                className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 transform hover:scale-105 transition-all duration-200 rounded-xl"
+              >
+                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              </Button>
+
+              {/* Music Play/Pause */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (isPlaying) {
+                    stopBackgroundMusic();
+                  } else {
+                    startBackgroundMusic();
+                  }
+                  playClickSound();
+                }}
+                className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 transform hover:scale-105 transition-all duration-200 rounded-xl"
+              >
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+
+              {/* Volume Level Display */}
+              <div className="flex items-center space-x-2 px-3 py-1 bg-white/10 rounded-lg border border-white/20">
+                <Music className="h-4 w-4 text-blue-400" />
+                <span className="text-white text-sm font-medium min-w-[2rem]">{musicVolume}%</span>
+              </div>
+
+              {/* Settings Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowControls(!showControls);
+                  playClickSound();
+                }}
+                className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 transform hover:scale-105 transition-all duration-200 rounded-xl"
+              >
+                <Settings className={`h-5 w-5 transition-transform duration-300 ${showControls ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
+      {/* Expanded Audio Controls */}
       {showControls && (
-        <Card className="absolute top-12 left-1/2 transform -translate-x-1/2 w-64 glass-card bg-black/90 backdrop-blur-lg border border-white/20 shadow-2xl animate-in slide-in-from-top-2 duration-300">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center space-x-2">
-              <Music className="h-4 w-4 text-blue-400" />
-              <span className="text-white text-sm">Ambient Music</span>
-              <Headphones className="h-3 w-3 text-gray-400" />
+        <Card className="absolute top-16 left-1/2 transform -translate-x-1/2 w-80 glassmorphic-card bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl animate-in slide-in-from-top-2 duration-300">
+          <CardContent className="p-6 space-y-6">
+            <div className="text-center">
+              <h3 className="text-white font-bold text-lg mb-2 flex items-center justify-center">
+                <Headphones className="h-5 w-5 mr-2 text-purple-400" />
+                Audio Controls
+              </h3>
+              <div className="text-gray-400 text-sm">Level {level} • Coagulation Cascade</div>
             </div>
-            <Slider
-              value={[musicVolume]}
-              onValueChange={(value) => setMusicVolume(value[0])}
-              max={100}
-              step={1}
-              className="w-full"
-            />
-            
-            <div className="flex items-center space-x-2">
-              <Volume2 className="h-4 w-4 text-green-400" />
-              <span className="text-white text-sm">Sound Effects</span>
+
+            {/* Ambient Music Control */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Music className="h-4 w-4 text-blue-400" />
+                  <span className="text-white text-sm font-medium">Ambient Music</span>
+                </div>
+                <span className="text-blue-300 text-sm">{musicVolume}%</span>
+              </div>
+              <Slider
+                value={[musicVolume]}
+                onValueChange={(value) => setMusicVolume(value[0])}
+                max={100}
+                step={1}
+                className="w-full"
+              />
             </div>
-            <Slider
-              value={[sfxVolume]}
-              onValueChange={(value) => setSfxVolume(value[0])}
-              max={100}
-              step={1}
-              className="w-full"
-            />
             
-            <div className="flex space-x-2">
+            {/* Sound Effects Control */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Volume2 className="h-4 w-4 text-green-400" />
+                  <span className="text-white text-sm font-medium">Sound Effects</span>
+                </div>
+                <span className="text-green-300 text-sm">{sfxVolume}%</span>
+              </div>
+              <Slider
+                value={[sfxVolume]}
+                onValueChange={(value) => setSfxVolume(value[0])}
+                max={100}
+                step={1}
+                className="w-full"
+              />
+            </div>
+            
+            {/* Audio Test Buttons */}
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 size="sm"
                 onClick={playSuccessSound}
-                className="flex-1 bg-green-600 hover:bg-green-700 transform hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 text-white shadow-lg"
               >
                 🎉 Success
               </Button>
               <Button
                 size="sm"
                 onClick={playClickSound}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 transform hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 text-white shadow-lg"
               >
                 🔊 Click
               </Button>
+            </div>
+
+            {/* Audio Status */}
+            <div className="pt-3 border-t border-white/20">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">Status:</span>
+                <span className={`font-medium ${isPlaying ? 'text-green-400' : 'text-gray-400'}`}>
+                  {isPlaying ? '🎵 Playing' : '⏸️ Paused'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm mt-1">
+                <span className="text-gray-400">Audio:</span>
+                <span className={`font-medium ${isMuted ? 'text-red-400' : 'text-green-400'}`}>
+                  {isMuted ? '🔇 Muted' : '🔊 Active'}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>

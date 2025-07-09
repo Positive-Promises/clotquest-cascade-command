@@ -1,367 +1,145 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  /* WCAG Compliant Light Mode */
-  .light {
-    --background: 0 0% 98%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 93%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 93%;
-    --muted-foreground: 215.4 16.3% 25%;
-
-    --accent: 210 40% 93%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 40%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 80%;
-    --input: 214.3 31.8% 85%;
-    --ring: 222.2 84% 4.9%;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-inter;
-    scroll-behavior: smooth;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair;
-  }
-
-  /* WCAG Compliance */
-  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
-    color: hsl(222.2, 84%, 4.9%); /* High contrast ratio */
-  }
-
-  .light p, .light span, .light div {
-    color: hsl(222.2, 47.4%, 11.2%); /* Sufficient contrast */
-  }
+body {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
+/* Glassmorphic Card Effect */
 @layer components {
-  /* Glassmorphism effects */
-  .glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+  .glassmorphic-card {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl;
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
 
   .glass-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
-  }
-
-  /* Hover effects */
-  .hover-scale {
-    @apply transition-transform duration-300 hover:scale-105;
-  }
-
-  .hover-glow {
-    @apply transition-shadow duration-300 hover:shadow-xl hover:shadow-blue-500/25;
-  }
-
-  /* Medical theme colors */
-  .medical-red {
-    @apply bg-gradient-to-r from-red-500 to-red-600;
-  }
-
-  .medical-blue {
-    @apply bg-gradient-to-r from-blue-500 to-blue-600;
-  }
-
-  .medical-green {
-    @apply bg-gradient-to-r from-green-500 to-green-600;
-  }
-
-  /* Custom scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-gray-100 dark:bg-gray-800;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400 dark:bg-gray-500;
+    @apply backdrop-blur-lg bg-white/10 border border-white/20 shadow-xl;
+    backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 }
 
-@layer utilities {
-  /* Text gradients */
-  .text-medical-gradient {
-    @apply bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
-  }
-
-  .text-gold-gradient {
-    @apply bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent;
-  }
-
-  /* Responsive text sizing */
-  .text-responsive-lg {
-    @apply text-lg sm:text-xl lg:text-2xl;
-  }
-
-  .text-responsive-xl {
-    @apply text-xl sm:text-2xl lg:text-3xl;
-  }
-
-  /* Mobile-first flex utilities */
-  .flex-mobile-col {
-    @apply flex flex-col sm:flex-row;
-  }
-
-  /* Z-index utilities for proper layering */
-  .z-modal {
-    z-index: 1000;
-  }
-
-  .z-tooltip {
-    z-index: 1010;
-  }
-
-  .z-dropdown {
-    z-index: 1020;
-  }
-
-  /* Light mode specific utilities */
-  .light .glass {
-    @apply bg-black/5 backdrop-blur-xl border border-black/10;
-  }
-
-  .light .glass-card {
-    @apply bg-black/[0.03] backdrop-blur-xl border border-black/[0.08] shadow-2xl;
-  }
-
-  /* Emergency light animation */
-  .emergency-flash {
-    animation: emergency-flash 1s ease-in-out infinite;
-  }
-
-  .success-glow {
-    animation: success-glow 2s ease-in-out infinite;
-  }
-}
-
-/* Custom animations for medical theme */
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-@keyframes blood-flow {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
-}
-
-@keyframes factor-activation {
-  0% { 
-    transform: scale(1) rotate(0deg);
-    filter: brightness(1);
-  }
-  50% { 
-    transform: scale(1.1) rotate(5deg);
-    filter: brightness(1.2);
-  }
-  100% { 
-    transform: scale(1) rotate(0deg);
-    filter: brightness(1);
-  }
-}
-
-@keyframes emergency-flash {
-  0%, 100% { 
-    opacity: 1;
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
-  }
-  50% { 
-    opacity: 0.3;
-    box-shadow: 0 0 40px rgba(239, 68, 68, 1);
-  }
-}
-
-@keyframes success-glow {
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
-  }
-  50% { 
-    box-shadow: 0 0 40px rgba(34, 197, 94, 0.9);
-  }
-}
-
-/* Floating animation for blood cells */
-@keyframes animate-float {
+/* Enhanced Animations */
+@keyframes float {
   0%, 100% {
-    transform: translateY(0px) translateX(0px) rotate(0deg);
-    opacity: 0.3;
+    transform: translateY(0px) rotate(0deg);
   }
-  33% {
-    transform: translateY(-20px) translateX(10px) rotate(120deg);
-    opacity: 0.7;
+  25% {
+    transform: translateY(-10px) rotate(5deg);
   }
-  66% {
-    transform: translateY(20px) translateX(-10px) rotate(240deg);
-    opacity: 0.5;
+  50% {
+    transform: translateY(-20px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+}
+
+@keyframes magnetic-pull {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1.05);
   }
 }
 
 .animate-float {
-  animation: animate-float linear infinite;
+  animation: float 6s ease-in-out infinite;
 }
 
-.heartbeat {
-  animation: heartbeat 2s ease-in-out infinite;
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.blood-flow {
-  animation: blood-flow 3s linear infinite;
+.animate-magnetic-pull {
+  animation: magnetic-pull 0.6s ease-out;
 }
 
-.factor-activation {
-  animation: factor-activation 1s ease-in-out;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Enhanced focus states for accessibility */
-.focus-medical:focus {
-  @apply outline-none ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900;
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
-/* Light mode focus states */
-.light .focus-medical:focus {
-  @apply outline-none ring-2 ring-blue-600 ring-offset-2 ring-offset-slate-100;
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
 }
 
-/* Mobile responsiveness improvements */
-@media (max-width: 640px) {
-  .container {
-    @apply px-4;
-  }
-  
-  .card-mobile {
-    @apply rounded-lg;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .glass {
-    @apply bg-slate-900 border-2 border-white;
-  }
-  
-  .light .glass {
-    @apply bg-white border-2 border-black;
-  }
+/* Enhanced Focus States */
+.focus-visible:focus-visible {
+  outline: 2px solid rgb(59 130 246);
+  outline-offset: 2px;
 }
 
-/* Reduced motion support */
+/* High Performance Animations */
+* {
+  will-change: auto;
+}
+
+.animate-bounce,
+.animate-pulse,
+.animate-spin {
+  will-change: transform;
+}
+
+/* Improved Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .animate-bounce,
+  .animate-pulse,
+  .animate-spin,
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-magnetic-pull {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .glassmorphic-card,
+  .glass-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid white;
   }
 }

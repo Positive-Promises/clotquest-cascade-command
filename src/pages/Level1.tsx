@@ -57,9 +57,14 @@ const Level1 = () => {
     }
   }, [gameStarted]);
 
-  // Chess-like factor selection (click to select, click to place)
+  // Enhanced chess-like factor selection
   const handleFactorClick = (factor: Factor) => {
     if (!gameStarted || factor.isPlaced) return;
+    
+    // Play click sound
+    if ((window as any).gameAudio) {
+      (window as any).gameAudio.playClick();
+    }
     
     // If clicking the same factor, deselect it
     if (selectedFactor?.id === factor.id) {
@@ -74,13 +79,13 @@ const Level1 = () => {
     
     setSelectedFactor(factor);
     toast({
-      title: `${factor.name} Selected! ⚡`,
-      description: `${factor.fullName} - Now click on the target position in the cascade to place it!`,
+      title: `⚡ ${factor.name} Selected!`,
+      description: `${factor.fullName} - Now click on the target position in the cascade!`,
       duration: 3000,
     });
   };
 
-  // Enhanced drag start with chess-like feedback
+  // Enhanced drag start with better visual feedback
   const handleDragStart = (e: React.DragEvent, factor: Factor) => {
     if (!gameStarted || factor.isPlaced) {
       e.preventDefault();
@@ -96,10 +101,10 @@ const Level1 = () => {
       position: absolute;
       top: -1000px;
       left: -1000px;
-      width: 140px;
-      height: 90px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
-      border-radius: 12px;
+      width: 160px;
+      height: 100px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(67, 56, 202, 0.9));
+      border-radius: 16px;
       border: 2px solid rgba(255,255,255,0.4);
       color: white;
       font-weight: bold;
@@ -108,15 +113,15 @@ const Level1 = () => {
       justify-content: center;
       text-align: center;
       font-size: 14px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
       transform: scale(1.1);
       z-index: 1000;
     `;
-    dragImage.innerHTML = `<div>${factor.name}<br><small>${factor.pathway}</small></div>`;
+    dragImage.innerHTML = `<div>${factor.name}<br><small>${factor.pathway} pathway</small></div>`;
     document.body.appendChild(dragImage);
     
-    e.dataTransfer.setDragImage(dragImage, 70, 45);
+    e.dataTransfer.setDragImage(dragImage, 80, 50);
     e.dataTransfer.setData('text/plain', factor.id);
     e.dataTransfer.effectAllowed = 'move';
     
@@ -127,7 +132,7 @@ const Level1 = () => {
     }, 100);
     
     toast({
-      title: `Dragging ${factor.name} 🎯`,
+      title: `🎯 Dragging ${factor.name}`,
       description: "Drop it on the correct position in the cascade!",
       duration: 2000,
     });
@@ -137,7 +142,7 @@ const Level1 = () => {
     setDraggedFactor(null);
   };
 
-  // Enhanced drop handling with chess-like precision
+  // Enhanced drop handling with better validation
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -167,7 +172,7 @@ const Level1 = () => {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  // Chess-like click-to-place functionality
+  // Enhanced click-to-place functionality
   const handleDropZoneClick = (targetFactor: Factor) => {
     if (!gameStarted || !selectedFactor || targetFactor.isPlaced) return;
 
@@ -179,7 +184,7 @@ const Level1 = () => {
     }
   };
 
-  // Correct placement handler with medical info popup
+  // Enhanced correct placement with medical info popup
   const handleCorrectPlacement = (factor: Factor) => {
     const updatedFactors = factors.map(f =>
       f.id === factor.id
@@ -190,6 +195,11 @@ const Level1 = () => {
     setFactors(updatedFactors);
     setScore(prevScore => prevScore + 100);
     setSelectedFactor(null);
+    
+    // Play success sound
+    if ((window as any).gameAudio) {
+      (window as any).gameAudio.playSuccess();
+    }
     
     // Show medical information popup
     setMedicalInfoFactor(factor);
@@ -208,7 +218,7 @@ const Level1 = () => {
       localStorage.setItem('level1Complete', 'true');
       setTimeout(() => {
         setShowCompletionDialog(true);
-      }, 2000); // Delay to allow medical info popup to be seen first
+      }, 2000);
       const timeBonus = Math.max(0, 300 - timeElapsed) * 10;
       setScore(prevScore => prevScore + timeBonus);
       toast({
@@ -219,11 +229,16 @@ const Level1 = () => {
     }
   };
 
-  // Incorrect placement handler
+  // Enhanced incorrect placement with better feedback
   const handleIncorrectPlacement = (factor: Factor) => {
+    // Play error sound
+    if ((window as any).gameAudio) {
+      (window as any).gameAudio.playError();
+    }
+
     toast({
       title: "❌ Incorrect Placement",
-      description: `${factor.name} doesn't belong there. Check the pathway and try again!`,
+      description: `${factor.name} doesn't belong there. Check the ${factor.pathway} pathway and try again!`,
       variant: "destructive",
       duration: 4000,
     });
@@ -286,41 +301,44 @@ const Level1 = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 pb-32 relative overflow-hidden">
       {/* Enhanced Floating particles animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(50)].map((_, i) => (
+        {[...Array(75)].map((_, i) => (
           <div
             key={i}
             className={`absolute rounded-full animate-bounce ${
-              i % 4 === 0 ? 'w-2 h-2 bg-blue-400/20' :
-              i % 4 === 1 ? 'w-3 h-3 bg-purple-400/20' :
-              i % 4 === 2 ? 'w-1.5 h-1.5 bg-pink-400/20' :
-              'w-2.5 h-2.5 bg-green-400/20'
+              i % 5 === 0 ? 'w-3 h-3 bg-blue-400/30' :
+              i % 5 === 1 ? 'w-4 h-4 bg-purple-400/25' :
+              i % 5 === 2 ? 'w-2 h-2 bg-pink-400/35' :
+              i % 5 === 3 ? 'w-3.5 h-3.5 bg-green-400/20' :
+              'w-2.5 h-2.5 bg-yellow-400/25'
             }`}
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 4}s`,
-              animationDuration: `${2 + Math.random() * 4}s`
+              animationDuration: `${2 + Math.random() * 4}s`,
+              boxShadow: `0 0 ${Math.random() * 10 + 5}px currentColor`
             }}
           />
         ))}
       </div>
 
+      {/* Enhanced Audio System - Positioned at top center */}
       <AudioSystem gameState="playing" level={1} />
       
-      {/* Top Control Bar */}
-      <div className="fixed top-4 left-4 right-4 z-40 flex justify-between items-center">
+      {/* Top Control Bar - Positioned below audio system */}
+      <div className="fixed top-28 left-4 right-4 z-40 flex justify-between items-center">
         <Button
           onClick={() => setShowExitDialog(true)}
-          className="glass-card bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30 transform hover:scale-105 transition-all duration-200"
+          className="glassmorphic-card bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
         >
           <LogOut className="h-4 w-4 mr-2" />
           Exit Game
         </Button>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Button
             onClick={handleHintClick}
-            className="glass-card bg-yellow-600/80 hover:bg-yellow-700 backdrop-blur-sm border border-yellow-400/30 transform hover:scale-105 transition-all duration-200"
+            className="glassmorphic-card bg-yellow-600/80 hover:bg-yellow-700 backdrop-blur-sm border border-yellow-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
             disabled={!gameStarted}
           >
             <Lightbulb className="h-4 w-4 mr-2" />
@@ -329,7 +347,7 @@ const Level1 = () => {
 
           <Button
             onClick={handleHintToggle}
-            className={`glass-card backdrop-blur-sm border transform hover:scale-105 transition-all duration-200 ${
+            className={`glassmorphic-card backdrop-blur-sm border transform hover:scale-105 transition-all duration-200 shadow-xl ${
               showHints 
                 ? 'bg-orange-600/80 hover:bg-orange-700 border-orange-400/30' 
                 : 'bg-purple-600/80 hover:bg-purple-700 border-purple-400/30'
@@ -342,7 +360,7 @@ const Level1 = () => {
 
           <Button
             onClick={handleNextLevelClick}
-            className={`glass-card backdrop-blur-sm border transform hover:scale-105 transition-all duration-200 ${
+            className={`glassmorphic-card backdrop-blur-sm border transform hover:scale-105 transition-all duration-200 shadow-xl ${
               level1Complete 
                 ? 'bg-green-600/80 hover:bg-green-700 border-green-400/30' 
                 : 'bg-gray-600/80 hover:bg-gray-700 border-gray-400/30'
@@ -363,9 +381,9 @@ const Level1 = () => {
         </div>
       </div>
 
-      <div className="container mx-auto relative z-10 pt-20">
+      <div className="container mx-auto relative z-10 pt-36">
         <div className="mb-6 animate-in slide-in-from-top-4 duration-1000">
-          <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100 transform hover:scale-105 transition-all duration-200 glass-card px-4 py-2 rounded-xl border border-blue-400/30 backdrop-blur-sm">
+          <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100 transform hover:scale-105 transition-all duration-200 glassmorphic-card px-4 py-2 rounded-xl border border-blue-400/30 backdrop-blur-sm shadow-xl">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
             <Sparkles className="ml-2 h-4 w-4 animate-pulse" />
@@ -386,7 +404,7 @@ const Level1 = () => {
 
             {/* Game Instructions Panel */}
             {gameStarted && (
-              <Card className="mt-4 glass-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
+              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
                 <CardContent className="p-4">
                   <h4 className="text-white font-bold mb-3 flex items-center">
                     <Target className="h-4 w-4 mr-2 text-yellow-400" />
@@ -399,11 +417,11 @@ const Level1 = () => {
                     <p>• Use <strong>Show Labels</strong> for easier placement</p>
                     <p>• Use <strong>Hint</strong> button for detailed guidance</p>
                     {selectedFactor && (
-                      <div className="mt-3 p-2 bg-amber-500/20 rounded-lg border border-amber-400/30">
+                      <div className="mt-3 p-3 bg-amber-500/20 rounded-lg border border-amber-400/30 animate-pulse">
                         <p className="text-amber-200 font-medium">
                           {selectedFactor.name} is selected!
                         </p>
-                        <p className="text-xs text-amber-300">
+                        <p className="text-xs text-amber-300 mt-1">
                           Click its target position to place it.
                         </p>
                       </div>
@@ -414,7 +432,7 @@ const Level1 = () => {
             )}
 
             {!gameStarted && (
-              <Card className="mt-4 glass-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
+              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
                 <CardContent className="p-6 text-center">
                   <Button 
                     onClick={startGame}
