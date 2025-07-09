@@ -34,6 +34,8 @@ const Level1 = () => {
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showHintDialog, setShowHintDialog] = useState(false);
   const [showNextLevelDialog, setShowNextLevelDialog] = useState(false);
+  const [showHints, setShowHints] = useState(false);
+  const [draggedFactor, setDraggedFactor] = useState<Factor | null>(null);
 
   // Load completion status from localStorage
   useEffect(() => {
@@ -52,8 +54,20 @@ const Level1 = () => {
     }
   }, [gameStarted]);
 
+  // Chess-like factor selection (click to select, click to place)
   const handleFactorClick = (factor: Factor) => {
     if (!gameStarted || factor.isPlaced) return;
+    
+    // If clicking the same factor, deselect it
+    if (selectedFactor?.id === factor.id) {
+      setSelectedFactor(null);
+      toast({
+        title: `${factor.name} Deselected`,
+        description: "Factor deselected. Click another factor to select it.",
+        duration: 2000,
+      });
+      return;
+    }
     
     setSelectedFactor(factor);
     toast({
@@ -63,12 +77,52 @@ const Level1 = () => {
     });
   };
 
+  // Enhanced drag start with chess-like feedback
   const handleDragStart = (e: React.DragEvent, factor: Factor) => {
-    if (!gameStarted) return;
+    if (!gameStarted || factor.isPlaced) {
+      e.preventDefault();
+      return;
+    }
+    
+    setDraggedFactor(factor);
+    setSelectedFactor(factor);
+    
+    // Create enhanced drag image
+    const dragImage = document.createElement('div');
+    dragImage.style.cssText = `
+      position: absolute;
+      top: -1000px;
+      left: -1000px;
+      width: 140px;
+      height: 90px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.4);
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      transform: scale(1.1);
+      z-index: 1000;
+    `;
+    dragImage.innerHTML = `<div>${factor.name}<br><small>${factor.pathway}</small></div>`;
+    document.body.appendChild(dragImage);
+    
+    e.dataTransfer.setDragImage(dragImage, 70, 45);
     e.dataTransfer.setData('text/plain', factor.id);
     e.dataTransfer.effectAllowed = 'move';
     
-    // Provide immediate feedback
+    setTimeout(() => {
+      if (document.body.contains(dragImage)) {
+        document.body.removeChild(dragImage);
+      }
+    }, 100);
+    
     toast({
       title: `Dragging ${factor.name} 🎯`,
       description: "Drop it on the correct position in the cascade!",
@@ -76,64 +130,94 @@ const Level1 = () => {
     });
   };
 
+  const handleDragEnd = () => {
+    setDraggedFactor(null);
+  };
+
+  // Enhanced drop handling with chess-like precision
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const factorId = e.dataTransfer.getData('text/plain');
-    const factor = factors.find(f => f.id === factorId);
-    if (factor && !factor.isPlaced) {
-      setSelectedFactor(factor);
+    e.stopPropagation();
+    
+    const factorId = e.dataTransfer?.getData('text/plain');
+    if (!factorId) return;
+    
+    const draggedFactor = factors.find(f => f.id === factorId);
+    const dropZone = e.currentTarget as HTMLElement;
+    const targetFactorId = dropZone.getAttribute('data-factor-id');
+    
+    if (!draggedFactor || !targetFactorId) return;
+    
+    // Check if dropping on correct position
+    if (draggedFactor.id === targetFactorId) {
+      handleCorrectPlacement(draggedFactor);
+    } else {
+      handleIncorrectPlacement(draggedFactor);
     }
+    
+    setDraggedFactor(null);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
   };
 
+  // Chess-like click-to-place functionality
   const handleDropZoneClick = (targetFactor: Factor) => {
     if (!gameStarted || !selectedFactor || targetFactor.isPlaced) return;
 
-    // Implement click-to-add functionality
+    // Check if clicking on the correct position for the selected factor
     if (selectedFactor.id === targetFactor.id) {
-      const updatedFactors = factors.map(factor =>
-        factor.id === selectedFactor.id
-          ? { ...factor, isPlaced: true, position: factor.correctPosition }
-          : factor
-      );
-      
-      setFactors(updatedFactors);
-      setScore(prevScore => prevScore + 100);
-      setSelectedFactor(null);
-      
-      toast({
-        title: "🎯 Perfect Placement!",
-        description: `${selectedFactor.name} correctly placed! +100 points`,
-        duration: 4000,
-      });
-
-      // Check for level completion
-      const completedFactors = updatedFactors.filter(f => f.isPlaced).length;
-      if (completedFactors === updatedFactors.length) {
-        setLevel1Complete(true);
-        localStorage.setItem('level1Complete', 'true');
-        setShowCompletionDialog(true);
-        const timeBonus = Math.max(0, 300 - timeElapsed) * 10;
-        setScore(prevScore => prevScore + timeBonus);
-        toast({
-          title: "🎉 Cascade Commander!",
-          description: `Congratulations! All factors placed correctly! Time bonus: +${timeBonus} points`,
-          duration: 6000,
-        });
-      }
+      handleCorrectPlacement(selectedFactor);
     } else {
-      // Enhanced feedback for incorrect placement
+      handleIncorrectPlacement(selectedFactor);
+    }
+  };
+
+  // Correct placement handler
+  const handleCorrectPlacement = (factor: Factor) => {
+    const updatedFactors = factors.map(f =>
+      f.id === factor.id
+        ? { ...f, isPlaced: true, position: f.correctPosition }
+        : f
+    );
+    
+    setFactors(updatedFactors);
+    setScore(prevScore => prevScore + 100);
+    setSelectedFactor(null);
+    
+    toast({
+      title: "🎯 Perfect Placement!",
+      description: `${factor.name} correctly placed! +100 points`,
+      duration: 4000,
+    });
+
+    // Check for level completion
+    const completedFactors = updatedFactors.filter(f => f.isPlaced).length;
+    if (completedFactors === updatedFactors.length) {
+      setLevel1Complete(true);
+      localStorage.setItem('level1Complete', 'true');
+      setShowCompletionDialog(true);
+      const timeBonus = Math.max(0, 300 - timeElapsed) * 10;
+      setScore(prevScore => prevScore + timeBonus);
       toast({
-        title: "❌ Incorrect Placement",
-        description: `${selectedFactor.name} doesn't belong there. Check the pathway and try again!`,
-        variant: "destructive",
-        duration: 4000,
+        title: "🎉 Cascade Commander!",
+        description: `Congratulations! All factors placed correctly! Time bonus: +${timeBonus} points`,
+        duration: 6000,
       });
     }
+  };
+
+  // Incorrect placement handler
+  const handleIncorrectPlacement = (factor: Factor) => {
+    toast({
+      title: "❌ Incorrect Placement",
+      description: `${factor.name} doesn't belong there. Check the pathway and try again!`,
+      variant: "destructive",
+      duration: 4000,
+    });
   };
 
   const handleHintClick = () => {
@@ -146,6 +230,15 @@ const Level1 = () => {
       return;
     }
     setShowHintDialog(true);
+  };
+
+  const handleHintToggle = () => {
+    setShowHints(!showHints);
+    toast({
+      title: showHints ? "🙈 Hints Hidden" : "💡 Hints Revealed",
+      description: showHints ? "Challenge mode activated!" : "Drop zones now show factor names",
+      duration: 3000,
+    });
   };
 
   const handleNextLevelClick = () => {
@@ -226,6 +319,19 @@ const Level1 = () => {
           </Button>
 
           <Button
+            onClick={handleHintToggle}
+            className={`glass-card backdrop-blur-sm border transform hover:scale-105 transition-all duration-200 ${
+              showHints 
+                ? 'bg-orange-600/80 hover:bg-orange-700 border-orange-400/30' 
+                : 'bg-purple-600/80 hover:bg-purple-700 border-purple-400/30'
+            }`}
+            disabled={!gameStarted}
+          >
+            <Target className="h-4 w-4 mr-2" />
+            {showHints ? 'Hide Labels' : 'Show Labels'}
+          </Button>
+
+          <Button
             onClick={handleNextLevelClick}
             className={`glass-card backdrop-blur-sm border transform hover:scale-105 transition-all duration-200 ${
               level1Complete 
@@ -275,13 +381,14 @@ const Level1 = () => {
                 <CardContent className="p-4">
                   <h4 className="text-white font-bold mb-3 flex items-center">
                     <Target className="h-4 w-4 mr-2 text-yellow-400" />
-                    How to Play
+                    Chess-Style Controls
                   </h4>
                   <div className="text-sm text-gray-300 space-y-2">
-                    <p>• <strong>Click</strong> a factor to select it</p>
+                    <p>• <strong>Click</strong> a factor to select it (like chess pieces)</p>
                     <p>• <strong>Click</strong> the target drop zone to place it</p>
                     <p>• Or <strong>drag and drop</strong> factors directly</p>
-                    <p>• Use <strong>Hint</strong> button for guidance</p>
+                    <p>• Use <strong>Show Labels</strong> for easier placement</p>
+                    <p>• Use <strong>Hint</strong> button for detailed guidance</p>
                     {selectedFactor && (
                       <div className="mt-3 p-2 bg-amber-500/20 rounded-lg border border-amber-400/30">
                         <p className="text-amber-200 font-medium">
@@ -322,6 +429,7 @@ const Level1 = () => {
               onDropZoneClick={handleDropZoneClick}
               onDragStart={handleDragStart}
               onFactorClick={handleFactorClick}
+              showHints={showHints}
             />
           </div>
         </div>

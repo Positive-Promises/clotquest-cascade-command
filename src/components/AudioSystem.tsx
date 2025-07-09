@@ -99,19 +99,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     setTimeout(() => createEnhancedTone(174.61, 0.4, 0.15, 'sawtooth'), 400); // F3
   };
 
-  // Enhanced emergency alert with siren-like effect
-  const playEmergencyAlert = () => {
-    for (let i = 0; i < 3; i++) {
-      setTimeout(() => {
-        // Siren effect
-        createEnhancedTone(880, 0.2, 0.4, 'sawtooth'); // A5
-        setTimeout(() => createEnhancedTone(440, 0.2, 0.4, 'sawtooth'), 100); // A4
-        setTimeout(() => createEnhancedTone(880, 0.2, 0.4, 'sawtooth'), 200); // A5
-      }, i * 600);
-    }
-  };
-
-  // Enhanced click sound with variation
+  // Enhanced click sound
   const playClickSound = () => {
     createEnhancedTone(800 + Math.random() * 200, 0.1, 0.15, 'square');
     setTimeout(() => createEnhancedTone(1200 + Math.random() * 300, 0.05, 0.1, 'sine'), 50);
@@ -126,7 +114,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     backgroundGainRef.current.connect(ctx.destination);
     backgroundGainRef.current.gain.value = (musicVolume / 100) * 0.03;
 
-    // Create multiple oscillators for harmony
+    // Create ambient music layer
     const createMusicLayer = (baseFreq: number, type: OscillatorType, detune: number = 0) => {
       const osc = ctx.createOscillator();
       const filter = ctx.createBiquadFilter();
@@ -155,43 +143,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
       osc.start();
     });
 
-    // Create evolving frequencies for ambient effect
-    const modulate = () => {
-      if (!backgroundGainRef.current) return;
-      
-      const time = ctx.currentTime;
-      const gameStateMultiplier = gameState === 'emergency' ? 1.5 : gameState === 'playing' ? 1.0 : 0.7;
-      
-      bassOsc.frequency.setValueAtTime(55 * gameStateMultiplier, time);
-      bassOsc.frequency.linearRampToValueAtTime(65 * gameStateMultiplier, time + 4);
-      bassOsc.frequency.linearRampToValueAtTime(55 * gameStateMultiplier, time + 8);
-      
-      harmonyOsc.frequency.setValueAtTime(220 * gameStateMultiplier, time);
-      harmonyOsc.frequency.linearRampToValueAtTime(247 * gameStateMultiplier, time + 4);
-      harmonyOsc.frequency.linearRampToValueAtTime(220 * gameStateMultiplier, time + 8);
-      
-      atmosphereOsc.frequency.setValueAtTime(440 * gameStateMultiplier, time);
-      atmosphereOsc.frequency.linearRampToValueAtTime(494 * gameStateMultiplier, time + 4);
-      atmosphereOsc.frequency.linearRampToValueAtTime(440 * gameStateMultiplier, time + 8);
-    };
-
-    // Update music every 8 seconds
-    const musicInterval = setInterval(modulate, 8000);
-    modulate(); // Start immediately
-
-    // Store reference for cleanup
     backgroundMusicRef.current = bassOsc;
-    
-    return () => {
-      clearInterval(musicInterval);
-      [bassOsc, harmonyOsc, atmosphereOsc].forEach(osc => {
-        try {
-          osc.stop();
-        } catch (e) {
-          // Oscillator already stopped
-        }
-      });
-    };
   };
 
   const stopBackgroundMusic = () => {
@@ -209,7 +161,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     }
   };
 
-  // Enhanced background music with game state awareness
+  // Background music with game state awareness
   useEffect(() => {
     let cleanup: (() => void) | undefined;
 
@@ -225,17 +177,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
     };
   }, [gameState, isMuted, musicVolume]);
 
-  // Event-based sound effects
-  useEffect(() => {
-    if (gameState === 'success') {
-      playSuccessSound();
-    } else if (gameState === 'failure') {
-      playErrorSound();
-    } else if (gameState === 'emergency') {
-      playEmergencyAlert();
-    }
-  }, [gameState]);
-
   // Update background music volume
   useEffect(() => {
     if (backgroundGainRef.current) {
@@ -244,7 +185,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
   }, [musicVolume]);
 
   return (
-    <div className="fixed top-4 right-4 z-40">
+    <div className="fixed top-4 right-4 z-50">
       <div className="flex items-center space-x-2">
         <Button
           variant="ghost"
@@ -253,7 +194,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
             setIsMuted(!isMuted);
             playClickSound();
           }}
-          className="bg-black/20 backdrop-blur-sm hover:bg-black/40 text-white border border-white/20 transform hover:scale-105 transition-all duration-200"
+          className="glass-card bg-black/20 backdrop-blur-sm hover:bg-black/40 text-white border border-white/20 transform hover:scale-105 transition-all duration-200"
         >
           {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </Button>
@@ -265,14 +206,14 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
             setShowControls(!showControls);
             playClickSound();
           }}
-          className="bg-black/20 backdrop-blur-sm hover:bg-black/40 text-white border border-white/20 transform hover:scale-105 transition-all duration-200"
+          className="glass-card bg-black/20 backdrop-blur-sm hover:bg-black/40 text-white border border-white/20 transform hover:scale-105 transition-all duration-200"
         >
           <Settings className="h-4 w-4" />
         </Button>
       </div>
 
       {showControls && (
-        <Card className="absolute top-12 right-0 w-64 bg-black/90 backdrop-blur-lg border border-white/20 shadow-2xl animate-in slide-in-from-top-2 duration-300">
+        <Card className="absolute top-12 right-0 w-64 glass-card bg-black/90 backdrop-blur-lg border border-white/20 shadow-2xl animate-in slide-in-from-top-2 duration-300">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center space-x-2">
               <Music className="h-4 w-4 text-blue-400" />
@@ -302,33 +243,19 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
             <div className="flex space-x-2">
               <Button
                 size="sm"
-                onClick={() => {
-                  playSuccessSound();
-                }}
+                onClick={playSuccessSound}
                 className="flex-1 bg-green-600 hover:bg-green-700 transform hover:scale-105 transition-all duration-200"
               >
                 🎉 Success
               </Button>
               <Button
                 size="sm"
-                onClick={() => {
-                  playClickSound();
-                }}
+                onClick={playClickSound}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 transform hover:scale-105 transition-all duration-200"
               >
                 🔊 Click
               </Button>
             </div>
-            
-            <Button
-              size="sm"
-              onClick={() => {
-                playEmergencyAlert();
-              }}
-              className="w-full bg-red-600 hover:bg-red-700 transform hover:scale-105 transition-all duration-200"
-            >
-              🚨 Emergency Alert
-            </Button>
           </CardContent>
         </Card>
       )}

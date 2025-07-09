@@ -15,6 +15,7 @@ interface GameCascadeAreaProps {
   onDropZoneClick: (factor: Factor) => void;
   onDragStart: (e: React.DragEvent, factor: Factor) => void;
   onFactorClick: (factor: Factor) => void;
+  showHints?: boolean;
 }
 
 const GameCascadeArea: React.FC<GameCascadeAreaProps> = ({
@@ -25,7 +26,8 @@ const GameCascadeArea: React.FC<GameCascadeAreaProps> = ({
   onDragOver,
   onDropZoneClick,
   onDragStart,
-  onFactorClick
+  onFactorClick,
+  showHints = false
 }) => {
   const unplacedFactors = factors.filter(factor => !factor.isPlaced);
   
@@ -95,6 +97,7 @@ const GameCascadeArea: React.FC<GameCascadeAreaProps> = ({
                 onDragOver={onDragOver}
                 selectedFactor={selectedFactor}
                 onDropZoneClick={onDropZoneClick}
+                showHints={showHints}
               />
             </div>
 
