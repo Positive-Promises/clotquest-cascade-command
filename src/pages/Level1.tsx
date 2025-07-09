@@ -289,6 +289,21 @@ const Level1 = () => {
     setTimeElapsed(0);
     setShowCompletionDialog(false);
     setGameStarted(true);
+    toast({
+      title: "🔄 Level Reset!",
+      description: "All factors have been restored to their initial positions. Ready to try again!",
+      duration: 3000,
+    });
+  };
+
+  const resetFactors = () => {
+    setFactors(initialFactors.map(factor => ({ ...factor, isPlaced: false, position: null })));
+    setSelectedFactor(null);
+    toast({
+      title: "🔄 Factors Reset!",
+      description: "All clotting factors have been restored to their original positions.",
+      duration: 3000,
+    });
   };
 
   const formatTime = (seconds: number): string => {
@@ -356,6 +371,15 @@ const Level1 = () => {
           >
             <Target className="h-4 w-4 mr-2" />
             {showHints ? 'Hide Labels' : 'Show Labels'}
+          </Button>
+
+          <Button
+            onClick={resetFactors}
+            className="glassmorphic-card bg-cyan-600/80 hover:bg-cyan-700 backdrop-blur-sm border border-cyan-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
+            disabled={!gameStarted}
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset Factors
           </Button>
 
           <Button
