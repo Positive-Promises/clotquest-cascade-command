@@ -390,8 +390,10 @@ const Level1 = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1 order-2 lg:order-1">
+        {/* New Layout with Side Factors and Compact Game Area */}
+        <div className="flex gap-6">
+          {/* Left Panel - Game Header and Instructions */}
+          <div className="w-64">
             <GameHeader
               score={score}
               timeElapsed={timeElapsed}
@@ -411,11 +413,10 @@ const Level1 = () => {
                     Chess-Style Controls
                   </h4>
                   <div className="text-sm text-gray-300 space-y-2">
-                    <p>• <strong>Click</strong> a factor to select it (like chess pieces)</p>
+                    <p>• <strong>Click</strong> a factor to select it</p>
                     <p>• <strong>Click</strong> the target drop zone to place it</p>
                     <p>• Or <strong>drag and drop</strong> factors directly</p>
-                    <p>• Use <strong>Show Labels</strong> for easier placement</p>
-                    <p>• Use <strong>Hint</strong> button for detailed guidance</p>
+                    <p>• Use <strong>Show Labels</strong> for hints</p>
                     {selectedFactor && (
                       <div className="mt-3 p-3 bg-amber-500/20 rounded-lg border border-amber-400/30 animate-pulse">
                         <p className="text-amber-200 font-medium">
@@ -446,7 +447,8 @@ const Level1 = () => {
             )}
           </div>
 
-          <div className="lg:col-span-3">
+          {/* Main Game Area */}
+          <div className="flex-1">
             <GameCascadeArea
               factors={factors}
               selectedFactor={selectedFactor}
