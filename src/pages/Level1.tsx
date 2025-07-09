@@ -414,7 +414,7 @@ const Level1 = () => {
           {/* Left Panel - Game Instructions and Start */}
           <div className="w-64">
             {!gameStarted && (
-              <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl dark:bg-white/5 light:bg-black/5 dark:border-white/10 light:border-black/10">
+              <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl dark:bg-white/5 light:bg-black/5 dark:border-white/10 light:border-black/10 mb-4">
                 <CardContent className="p-6 text-center">
                   <Button 
                     onClick={startGame}
@@ -428,7 +428,7 @@ const Level1 = () => {
               </Card>
             )}
 
-            {/* Move Progress Panel Below Start Game */}
+            {/* Progress Panel - Moved under Start Game button */}
             {gameStarted && (
               <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl dark:bg-white/5 light:bg-black/5 dark:border-white/10 light:border-black/10 mb-4">
                 <CardContent className="p-4">
@@ -561,7 +561,7 @@ const Level1 = () => {
               🔒 Level Locked
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-lg text-white dark:text-white light:text-black">
-              Complete Level 1 first to unlock Level 2!
+              Complete Level 1 first to unlock Level 2 - Hematology Lab Diagnostic Detective!
             </AlertDialogDescription>
           </AlertDialogHeader>
           

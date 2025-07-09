@@ -97,7 +97,7 @@ const GameCascadeArea: React.FC<GameCascadeAreaProps> = ({
               </div>
 
               {/* Cascade Area - Increased Height for Full Display */}
-              <div className="relative h-[500px]">
+              <div className="relative h-[600px]">
                 <ModernAnimatedCascade
                   factors={factors}
                   onDrop={onDrop}
@@ -156,31 +156,11 @@ const GameCascadeArea: React.FC<GameCascadeAreaProps> = ({
               </div>
             </CardContent>
           </Card>
-
-          {/* Progress Statistics */}
-          <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
-            <CardContent className="p-3">
-              <h4 className="text-yellow-400 font-bold text-sm text-center mb-2 flex items-center justify-center glassmorphic-card p-2 rounded-lg bg-yellow-900/20 border border-yellow-400/30">
-                <Target className="h-4 w-4 mr-2" />
-                Progress
-              </h4>
-              <div className="text-center">
-                <div className="text-xl font-bold text-white mb-1">
-                  {factors.filter(f => f.isPlaced).length}/{factors.length}
-                </div>
-                <div className="text-xs text-gray-300">Factors Placed</div>
-                <div className="text-lg font-bold text-emerald-400 mt-1">
-                  {Math.round((factors.filter(f => f.isPlaced).length / factors.length) * 100)}%
-                </div>
-                <div className="text-xs text-gray-300">Complete</div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
-      {/* Bottom Section - Common Pathway Factors Horizontal Layout */}
-      <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
+      {/* Bottom Section - Common Pathway Factors Horizontal Layout - Positioned closer to game area */}
+      <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl -mt-2">
         <CardContent className="p-3">
           <h4 className="text-purple-400 font-bold text-sm text-center mb-2 flex items-center justify-center glassmorphic-card p-2 rounded-lg bg-purple-900/20 border border-purple-400/30">
             <Target className="h-4 w-4 mr-2" />

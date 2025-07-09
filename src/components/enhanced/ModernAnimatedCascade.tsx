@@ -128,7 +128,7 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[500px] p-4 rounded-2xl overflow-hidden">
+    <div className="relative w-full h-[600px] p-4 rounded-2xl overflow-hidden">
       {/* Enhanced bleeding patient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-900/60 via-red-800/50 to-red-950/60 rounded-2xl"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-transparent to-red-500/20 animate-pulse"></div>
@@ -269,8 +269,8 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
           </div>
         </div>
 
-        {/* REGULATORY SYSTEM (Left Bottom) */}
-        <div className="absolute left-2 bottom-4 w-20">
+        {/* REGULATORY SYSTEM (Left Bottom) - Added drop zones for Protein C and S */}
+        <div className="absolute left-2 bottom-4 w-24">
           <div className="text-center mb-1">
             <h4 className="text-cyan-400 font-bold text-xs mb-1 flex items-center justify-center backdrop-blur-sm bg-cyan-900/30 rounded-lg p-1 border border-cyan-400/30">
               <Heart className="w-3 h-3 mr-1" />
@@ -279,6 +279,8 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
           </div>
           <div className="space-y-2">
             <DropZone factorId="antithrombin" pathway="regulatory" size="small" />
+            <DropZone factorId="proteinC" pathway="regulatory" size="small" />
+            <DropZone factorId="proteinS" pathway="regulatory" size="small" />
           </div>
         </div>
 
