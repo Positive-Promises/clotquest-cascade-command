@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import GameCascadeArea from '@/components/GameCascadeArea';
 import GameHeader from '@/components/GameHeader';
 import MedicalInfoPopup from '@/components/MedicalInfoPopup';
+import CompletionCongratulations from '@/components/CompletionCongratulations';
 import { level1Factors as initialFactors } from '@/data/cascadeFactors';
 import { Factor } from '@/types/cascadeTypes';
 import AudioSystem from '@/components/AudioSystem';
@@ -519,6 +520,15 @@ const Level1 = () => {
         onClose={() => setShowMedicalInfo(false)}
       />
 
+      {/* Completion Congratulations */}
+      <CompletionCongratulations
+        isOpen={showCompletionDialog}
+        onRestart={resetLevel}
+        onNextLevel={() => navigate('/level2')}
+        score={score}
+        timeElapsed={timeElapsed}
+      />
+      
       {/* Hint Dialog */}
       <AlertDialog open={showHintDialog} onOpenChange={setShowHintDialog}>
         <AlertDialogContent className="max-w-2xl glass-card backdrop-blur-xl border border-yellow-400/30">
@@ -590,60 +600,6 @@ const Level1 = () => {
               <Target className="h-4 w-4 mr-2" />
               Continue Playing
             </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <AlertDialogContent className="max-w-2xl glass-card backdrop-blur-xl border border-emerald-400/30">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-              🩸 Level 1 Complete! 🩸
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-lg text-white">
-              Excellent work! You've successfully mastered the coagulation cascade fundamentals!
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="py-6">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="glass-card bg-blue-50/10 p-4 rounded-lg border border-blue-400/30">
-                <div className="text-2xl font-bold text-blue-400">{score}</div>
-                <div className="text-sm text-gray-300">Final Score</div>
-              </div>
-              <div className="glass-card bg-green-50/10 p-4 rounded-lg border border-green-400/30">
-                <div className="text-2xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
-                <div className="text-sm text-gray-300">Completion Time</div>
-              </div>
-              <div className="glass-card bg-purple-50/10 p-4 rounded-lg border border-purple-400/30">
-                <div className="text-2xl font-bold text-purple-400">MASTER</div>
-                <div className="text-sm text-gray-300">Cascade Status</div>
-              </div>
-            </div>
-          </div>
-
-          <AlertDialogFooter className="flex justify-center space-x-4">
-            <AlertDialogAction 
-              onClick={resetLevel}
-              className="glass-card bg-blue-600/80 hover:bg-blue-700 backdrop-blur-sm border border-blue-400/30"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Replay Level
-            </AlertDialogAction>
-            <AlertDialogAction 
-              onClick={() => navigate('/level2')}
-              className="glass-card bg-green-600/80 hover:bg-green-700 backdrop-blur-sm border border-green-400/30"
-            >
-              <ArrowRight className="h-4 w-4 mr-2" />
-              Next Level
-            </AlertDialogAction>
-            <AlertDialogCancel 
-              onClick={() => navigate('/')}
-              className="glass-card border border-white/20 text-white hover:bg-white/10"
-            >
-              <Target className="h-4 w-4 mr-2" />
-              Main Menu
-            </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
