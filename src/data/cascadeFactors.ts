@@ -1,4 +1,3 @@
-
 import { Factor } from '@/types/cascadeTypes';
 
 export const level1Factors: Factor[] = [
@@ -354,6 +353,52 @@ export const level1Factors: Factor[] = [
     referenceLinks: [
       {
         title: 'Antithrombin and Natural Anticoagulation',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/25472749/',
+        type: 'pubmed'
+      }
+    ]
+  },
+  {
+    id: 'proteinC',
+    name: 'Protein C',
+    fullName: 'Protein C (Anticoagulant)',
+    pathway: 'regulatory',
+    position: null,
+    description: 'Vitamin K-dependent anticoagulant protein that inactivates factors Va and VIIIa when activated.',
+    color: 'bg-cyan-600',
+    isPlaced: false,
+    correctPosition: { x: 400, y: 420 },
+    clinicalRelevance: 'Key natural anticoagulant. Deficiency causes severe thrombophilia and neonatal purpura fulminans.',
+    deficiencyDisorder: 'Protein C deficiency (hereditary thrombophilia)',
+    normalRange: '70-140% of pooled normal plasma',
+    antagonisticAgents: ['Warfarin', 'Vitamin K antagonists'],
+    activatedBy: 'Thrombin-thrombomodulin complex',
+    referenceLinks: [
+      {
+        title: 'Protein C Deficiency and Thrombosis',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28301907/',
+        type: 'pubmed'
+      }
+    ]
+  },
+  {
+    id: 'proteinS',
+    name: 'Protein S',
+    fullName: 'Protein S (Cofactor)',
+    pathway: 'regulatory',
+    position: null,
+    description: 'Vitamin K-dependent cofactor for activated Protein C. Essential for anticoagulant activity.',
+    color: 'bg-cyan-700',
+    isPlaced: false,
+    correctPosition: { x: 470, y: 420 },
+    clinicalRelevance: 'Cofactor for Protein C. Deficiency causes thrombophilia and increased clotting risk.',
+    deficiencyDisorder: 'Protein S deficiency (hereditary thrombophilia)',
+    normalRange: '65-140% of pooled normal plasma',
+    antagonisticAgents: ['Warfarin', 'Vitamin K antagonists'],
+    cofactorFor: 'Activated Protein C',
+    referenceLinks: [
+      {
+        title: 'Protein S Deficiency',
         url: 'https://pubmed.ncbi.nlm.nih.gov/25472749/',
         type: 'pubmed'
       }
