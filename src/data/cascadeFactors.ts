@@ -361,5 +361,12 @@ export const level1Factors: Factor[] = [
   }
 ];
 
+// Level 2 factors - same as Level 1 but for clinical scenarios
+export const level2Factors: Factor[] = level1Factors.map(factor => ({
+  ...factor,
+  isPlaced: false,
+  position: null
+}));
+
 // Add the legacy export for backward compatibility
 export const factors = level1Factors;
