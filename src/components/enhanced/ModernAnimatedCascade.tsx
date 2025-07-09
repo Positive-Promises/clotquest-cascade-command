@@ -129,41 +129,41 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[600px] p-6 rounded-2xl overflow-hidden">
+    <div className="relative w-full h-[500px] p-4 rounded-2xl overflow-hidden">
       {/* Enhanced bleeding patient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-900/60 via-red-800/50 to-red-950/60 rounded-2xl"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-transparent to-red-500/20 animate-pulse"></div>
       
-      {/* Cascade Layout - Compact and Visible */}
+      {/* Cascade Layout - More Compact */}
       <div className="relative z-10 h-full">
         
         {/* INTRINSIC PATHWAY (Left Side) */}
-        <div className="absolute left-4 top-8 w-32">
-          <div className="text-center mb-3">
-            <h3 className="text-blue-400 font-bold text-sm mb-1 flex items-center justify-center backdrop-blur-sm bg-blue-900/30 rounded-lg p-2 border border-blue-400/30">
-              <ArrowDown className="w-4 h-4 mr-1 animate-bounce" />
+        <div className="absolute left-4 top-4 w-28">
+          <div className="text-center mb-2">
+            <h3 className="text-blue-400 font-bold text-xs mb-1 flex items-center justify-center backdrop-blur-sm bg-blue-900/30 rounded-lg p-1 border border-blue-400/30">
+              <ArrowDown className="w-3 h-3 mr-1 animate-bounce" />
               INTRINSIC
             </h3>
           </div>
           
           {/* Contact System */}
-          <div className="space-y-4">
-            <div className="flex justify-center space-x-2">
+          <div className="space-y-3">
+            <div className="flex justify-center space-x-1">
               <DropZone factorId="factor12" pathway="intrinsic" size="small" />
               <DropZone factorId="prekallikrein" pathway="intrinsic" size="small" />
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-blue-400/70 w-6 h-6 animate-bounce" />
+              <ArrowDown className="text-blue-400/70 w-4 h-4 animate-bounce" />
             </div>
             
-            <div className="flex justify-center space-x-2">
+            <div className="flex justify-center space-x-1">
               <DropZone factorId="factor11" pathway="intrinsic" size="small" />
               <DropZone factorId="hmwk" pathway="intrinsic" size="small" />
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-blue-400/70 w-6 h-6 animate-bounce delay-200" />
+              <ArrowDown className="text-blue-400/70 w-4 h-4 animate-bounce delay-200" />
             </div>
             
             <div className="flex justify-center">
@@ -171,7 +171,7 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-blue-400/70 w-6 h-6 animate-bounce delay-400" />
+              <ArrowDown className="text-blue-400/70 w-4 h-4 animate-bounce delay-400" />
             </div>
             
             <div className="flex justify-center">
@@ -180,28 +180,28 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
           </div>
           
           {/* Flow arrow to common pathway */}
-          <div className="absolute -bottom-8 right-0 transform translate-x-4">
-            <ArrowDownRight className="text-blue-400/70 w-8 h-8 animate-pulse" />
+          <div className="absolute -bottom-4 right-0 transform translate-x-2">
+            <ArrowDownRight className="text-blue-400/70 w-6 h-6 animate-pulse" />
           </div>
         </div>
 
         {/* EXTRINSIC PATHWAY (Right Side) */}
-        <div className="absolute right-4 top-8 w-32">
-          <div className="text-center mb-3">
-            <h3 className="text-green-400 font-bold text-sm mb-1 flex items-center justify-center backdrop-blur-sm bg-green-900/30 rounded-lg p-2 border border-green-400/30">
-              <ArrowDown className="w-4 h-4 mr-1 animate-bounce" />
+        <div className="absolute right-4 top-4 w-28">
+          <div className="text-center mb-2">
+            <h3 className="text-green-400 font-bold text-xs mb-1 flex items-center justify-center backdrop-blur-sm bg-green-900/30 rounded-lg p-1 border border-green-400/30">
+              <ArrowDown className="w-3 h-3 mr-1 animate-bounce" />
               EXTRINSIC
             </h3>
           </div>
           
           {/* Tissue Factor System */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex justify-center">
               <DropZone factorId="tissueFactor" pathway="extrinsic" size="medium" />
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-green-400/70 w-6 h-6 animate-bounce" />
+              <ArrowDown className="text-green-400/70 w-4 h-4 animate-bounce" />
             </div>
             
             <div className="flex justify-center">
@@ -209,7 +209,7 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-green-400/70 w-6 h-6 animate-bounce delay-200" />
+              <ArrowDown className="text-green-400/70 w-4 h-4 animate-bounce delay-200" />
             </div>
             
             <div className="flex justify-center">
@@ -218,60 +218,60 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
           </div>
           
           {/* Flow arrow to common pathway */}
-          <div className="absolute -bottom-8 left-0 transform -translate-x-4">
-            <ArrowDownLeft className="text-green-400/70 w-8 h-8 animate-pulse" />
+          <div className="absolute -bottom-4 left-0 transform -translate-x-2">
+            <ArrowDownLeft className="text-green-400/70 w-6 h-6 animate-pulse" />
           </div>
         </div>
 
         {/* COMMON PATHWAY (Center) */}
-        <div className="absolute left-1/2 top-48 transform -translate-x-1/2 w-48">
-          <div className="text-center mb-3">
-            <h3 className="text-purple-400 font-bold text-sm mb-1 flex items-center justify-center backdrop-blur-sm bg-purple-900/30 rounded-lg p-2 border border-purple-400/30">
-              <Zap className="w-4 h-4 mr-1 animate-pulse" />
+        <div className="absolute left-1/2 top-32 transform -translate-x-1/2 w-44">
+          <div className="text-center mb-2">
+            <h3 className="text-purple-400 font-bold text-xs mb-1 flex items-center justify-center backdrop-blur-sm bg-purple-900/30 rounded-lg p-1 border border-purple-400/30">
+              <Zap className="w-3 h-3 mr-1 animate-pulse" />
               COMMON PATHWAY
             </h3>
           </div>
           
           {/* Central cascade */}
-          <div className="space-y-4 flex flex-col items-center">
+          <div className="space-y-3 flex flex-col items-center">
             {/* Prothrombinase Complex */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <DropZone factorId="factor10" pathway="common" size="medium" />
               <DropZone factorId="factor5" pathway="common" size="medium" />
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-purple-400/70 w-8 h-8 animate-bounce" />
+              <ArrowDown className="text-purple-400/70 w-6 h-6 animate-bounce" />
             </div>
             
             {/* Prothrombin → Thrombin */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <DropZone factorId="factor2" pathway="common" size="medium" />
               <DropZone factorId="factor1" pathway="common" size="medium" />
             </div>
             
             <div className="flex justify-center">
-              <ArrowDown className="text-purple-400/70 w-8 h-8 animate-bounce delay-300" />
+              <ArrowDown className="text-purple-400/70 w-6 h-6 animate-bounce delay-300" />
             </div>
             
             {/* Fibrinogen → Fibrin */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <DropZone factorId="fibrinogen" pathway="common" size="medium" />
               <DropZone factorId="factor13" pathway="common" size="medium" />
             </div>
           </div>
           
           {/* Convergence indicators */}
-          <div className="absolute top-8 -left-12">
-            <ArrowRight className="text-blue-400/70 w-8 h-8 animate-pulse" />
+          <div className="absolute top-6 -left-8">
+            <ArrowRight className="text-blue-400/70 w-6 h-6 animate-pulse" />
           </div>
-          <div className="absolute top-8 -right-12 rotate-180">
-            <ArrowRight className="text-green-400/70 w-8 h-8 animate-pulse" />
+          <div className="absolute top-6 -right-8 rotate-180">
+            <ArrowRight className="text-green-400/70 w-6 h-6 animate-pulse" />
           </div>
         </div>
 
-        {/* REGULATORY SYSTEM (Left Bottom) */}
-        <div className="absolute left-4 bottom-8 w-24">
+        {/* REGULATORY SYSTEM (Left Bottom) - Enhanced with all regulatory factors */}
+        <div className="absolute left-4 bottom-4 w-32">
           <div className="text-center mb-2">
             <h4 className="text-cyan-400 font-bold text-xs mb-1 flex items-center justify-center backdrop-blur-sm bg-cyan-900/30 rounded-lg p-1 border border-cyan-400/30">
               <Heart className="w-3 h-3 mr-1" />
@@ -279,12 +279,18 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
             </h4>
           </div>
           <div className="space-y-2">
-            <DropZone factorId="antithrombin" pathway="regulatory" size="small" />
+            <div className="grid grid-cols-2 gap-2">
+              <DropZone factorId="antithrombin" pathway="regulatory" size="small" />
+              <DropZone factorId="proteinC" pathway="regulatory" size="small" />
+            </div>
+            <div className="flex justify-center">
+              <DropZone factorId="proteinS" pathway="regulatory" size="small" />
+            </div>
           </div>
         </div>
 
         {/* FIBRINOLYSIS PATHWAY (Right Bottom) */}
-        <div className="absolute right-4 bottom-8 w-32">
+        <div className="absolute right-4 bottom-4 w-28">
           <div className="text-center mb-2">
             <h4 className="text-orange-400 font-bold text-xs mb-1 flex items-center justify-center backdrop-blur-sm bg-orange-900/30 rounded-lg p-1 border border-orange-400/30">
               <Sparkles className="w-3 h-3 mr-1" />
@@ -302,13 +308,13 @@ const ModernAnimatedCascade: React.FC<ModernAnimatedCascadeProps> = ({
 
       {/* Ambient blood cell particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(30)].map((_, i) => (
+        {[...Array(20)].map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full animate-float opacity-40"
             style={{
-              width: `${2 + Math.random() * 4}px`,
-              height: `${2 + Math.random() * 4}px`,
+              width: `${2 + Math.random() * 3}px`,
+              height: `${2 + Math.random() * 3}px`,
               backgroundColor: `rgba(239, 68, 68, ${0.1 + Math.random() * 0.3})`,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,

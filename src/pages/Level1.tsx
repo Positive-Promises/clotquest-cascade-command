@@ -414,9 +414,9 @@ const Level1 = () => {
           </Link>
         </div>
 
-        {/* New Layout with Side Factors and Compact Game Area */}
+        {/* New Layout with Side Controls and Main Game Area */}
         <div className="flex gap-6">
-          {/* Left Panel - Game Header and Instructions */}
+          {/* Left Panel - Game Controls */}
           <div className="w-64">
             <GameHeader
               score={score}
@@ -427,6 +427,44 @@ const Level1 = () => {
               patientStatus={100}
               onExitGame={() => setShowExitDialog(true)}
             />
+
+            {/* Start Game / Progress Panel */}
+            {!gameStarted ? (
+              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
+                <CardContent className="p-6 text-center">
+                  <Button 
+                    onClick={startGame}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all duration-200"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Game
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
+                <CardContent className="p-4">
+                  <h4 className="text-yellow-400 font-bold text-sm text-center mb-3 flex items-center justify-center glassmorphic-card p-2 rounded-lg bg-yellow-900/20 border border-yellow-400/30">
+                    <Target className="h-4 w-4 mr-2" />
+                    Progress
+                  </h4>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white mb-1">
+                      {factors.filter(f => f.isPlaced).length}/{factors.length}
+                    </div>
+                    <div className="text-xs text-gray-300">Factors Placed</div>
+                    <div className="text-lg font-bold text-emerald-400 mt-2">
+                      {Math.round((factors.filter(f => f.isPlaced).length / factors.length) * 100)}%
+                    </div>
+                    <div className="text-xs text-gray-300">Complete</div>
+                    <Progress 
+                      value={(factors.filter(f => f.isPlaced).length / factors.length) * 100} 
+                      className="mt-3"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Game Instructions Panel */}
             {gameStarted && (
@@ -452,20 +490,6 @@ const Level1 = () => {
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {!gameStarted && (
-              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
-                <CardContent className="p-6 text-center">
-                  <Button 
-                    onClick={startGame}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all duration-200"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Start Game
-                  </Button>
                 </CardContent>
               </Card>
             )}
