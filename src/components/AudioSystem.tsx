@@ -80,7 +80,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
 
   // Enhanced success sound with multiple tones and effects
   const playSuccessSound = () => {
-    if (isMuted) return;
     createEnhancedTone(523.25, 0.2, 0.3, 'triangle'); // C5
     setTimeout(() => createEnhancedTone(659.25, 0.2, 0.3, 'triangle'), 100); // E5
     setTimeout(() => createEnhancedTone(783.99, 0.4, 0.3, 'triangle'), 200); // G5
@@ -96,7 +95,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
 
   // Enhanced error sound
   const playErrorSound = () => {
-    if (isMuted) return;
     createEnhancedTone(220, 0.2, 0.3, 'sawtooth'); // A3
     setTimeout(() => createEnhancedTone(196, 0.3, 0.2, 'sawtooth'), 200); // G3
     setTimeout(() => createEnhancedTone(174.61, 0.4, 0.15, 'sawtooth'), 400); // F3
@@ -104,7 +102,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
 
   // Enhanced click sound
   const playClickSound = () => {
-    if (isMuted) return;
     createEnhancedTone(800 + Math.random() * 200, 0.1, 0.15, 'square');
     setTimeout(() => createEnhancedTone(1200 + Math.random() * 300, 0.05, 0.1, 'sine'), 50);
   };
@@ -185,7 +182,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
 
   // Background music with game state awareness
   useEffect(() => {
-    if ((gameState === 'playing' || gameState === 'emergency') && !isMuted) {
+    if (gameState === 'playing' || gameState === 'emergency') {
       const cleanup = startBackgroundMusic();
       return cleanup;
     } else {
@@ -196,9 +193,9 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
   // Update background music volume
   useEffect(() => {
     if (backgroundGainRef.current) {
-      backgroundGainRef.current.gain.value = isMuted ? 0 : (musicVolume / 100) * 0.03;
+      backgroundGainRef.current.gain.value = (musicVolume / 100) * 0.03;
     }
-  }, [musicVolume, isMuted]);
+  }, [musicVolume]);
 
   // Export sound functions for external use
   useEffect(() => {
@@ -207,18 +204,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
       playError: playErrorSound,
       playClick: playClickSound
     };
-  }, [isMuted]);
-
-  // Handle mute toggle
-  const handleMuteToggle = () => {
-    setIsMuted(!isMuted);
-    playClickSound();
-    if (!isMuted) {
-      stopBackgroundMusic();
-    } else if (gameState === 'playing' || gameState === 'emergency') {
-      startBackgroundMusic();
-    }
-  };
+  }, []);
 
   return (
     <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
@@ -231,7 +217,10 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleMuteToggle}
+                onClick={() => {
+                  setIsMuted(!isMuted);
+                  playClickSound();
+                }}
                 className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 transform hover:scale-105 transition-all duration-200 rounded-xl"
               >
                 {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
@@ -244,13 +233,12 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                 onClick={() => {
                   if (isPlaying) {
                     stopBackgroundMusic();
-                  } else if (!isMuted) {
+                  } else {
                     startBackgroundMusic();
                   }
                   playClickSound();
                 }}
                 className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 transform hover:scale-105 transition-all duration-200 rounded-xl"
-                disabled={isMuted}
               >
                 {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
               </Button>
@@ -258,7 +246,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
               {/* Volume Level Display */}
               <div className="flex items-center space-x-2 px-3 py-1 bg-white/10 rounded-lg border border-white/20">
                 <Music className="h-4 w-4 text-blue-400" />
-                <span className="text-white text-sm font-medium min-w-[2rem]">{isMuted ? 0 : musicVolume}%</span>
+                <span className="text-white text-sm font-medium min-w-[2rem]">{musicVolume}%</span>
               </div>
 
               {/* Settings Toggle */}
@@ -297,7 +285,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                   <Music className="h-4 w-4 text-blue-400" />
                   <span className="text-white text-sm font-medium">Ambient Music</span>
                 </div>
-                <span className="text-blue-300 text-sm">{isMuted ? 0 : musicVolume}%</span>
+                <span className="text-blue-300 text-sm">{musicVolume}%</span>
               </div>
               <Slider
                 value={[musicVolume]}
@@ -305,7 +293,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                 max={100}
                 step={1}
                 className="w-full"
-                disabled={isMuted}
               />
             </div>
             
@@ -316,7 +303,7 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                   <Volume2 className="h-4 w-4 text-green-400" />
                   <span className="text-white text-sm font-medium">Sound Effects</span>
                 </div>
-                <span className="text-green-300 text-sm">{isMuted ? 0 : sfxVolume}%</span>
+                <span className="text-green-300 text-sm">{sfxVolume}%</span>
               </div>
               <Slider
                 value={[sfxVolume]}
@@ -324,7 +311,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                 max={100}
                 step={1}
                 className="w-full"
-                disabled={isMuted}
               />
             </div>
             
@@ -334,7 +320,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                 size="sm"
                 onClick={playSuccessSound}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 text-white shadow-lg"
-                disabled={isMuted}
               >
                 🎉 Success
               </Button>
@@ -342,7 +327,6 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
                 size="sm"
                 onClick={playClickSound}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 text-white shadow-lg"
-                disabled={isMuted}
               >
                 🔊 Click
               </Button>
@@ -352,8 +336,8 @@ const AudioSystem: React.FC<AudioSystemProps> = ({ gameState, level }) => {
             <div className="pt-3 border-t border-white/20">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-400">Status:</span>
-                <span className={`font-medium ${isPlaying && !isMuted ? 'text-green-400' : 'text-gray-400'}`}>
-                  {isPlaying && !isMuted ? '🎵 Playing' : '⏸️ Paused'}
+                <span className={`font-medium ${isPlaying ? 'text-green-400' : 'text-gray-400'}`}>
+                  {isPlaying ? '🎵 Playing' : '⏸️ Paused'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm mt-1">
