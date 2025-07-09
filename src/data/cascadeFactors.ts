@@ -1,4 +1,3 @@
-
 import { Factor } from '@/types/cascadeTypes';
 
 export const level1Factors: Factor[] = [
@@ -355,6 +354,52 @@ export const level1Factors: Factor[] = [
       {
         title: 'Antithrombin and Natural Anticoagulation',
         url: 'https://pubmed.ncbi.nlm.nih.gov/25472749/',
+        type: 'pubmed'
+      }
+    ]
+  },
+  {
+    id: 'proteinC',
+    name: 'Protein C',
+    fullName: 'Activated Protein C (APC)',
+    pathway: 'regulatory',
+    position: null,
+    description: 'Vitamin K-dependent anticoagulant protein that inactivates factors Va and VIIIa when activated.',
+    color: 'bg-cyan-600',
+    isPlaced: false,
+    correctPosition: { x: 120, y: 420 },
+    clinicalRelevance: 'Deficiency causes severe thrombophilia. APC resistance (Factor V Leiden) increases clotting risk.',
+    deficiencyDisorder: 'Protein C deficiency (hereditary thrombophilia)',
+    normalRange: '70-140% of pooled normal plasma',
+    antagonisticAgents: ['Warfarin', 'Protein C inhibitor', 'Alpha-1 antitrypsin'],
+    activatedBy: 'Thrombin-thrombomodulin complex',
+    referenceLinks: [
+      {
+        title: 'Protein C Anticoagulant System',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23020097/',
+        type: 'pubmed'
+      }
+    ]
+  },
+  {
+    id: 'proteinS',
+    name: 'Protein S',
+    fullName: 'Protein S (APC Cofactor)',
+    pathway: 'regulatory',
+    position: null,
+    description: 'Vitamin K-dependent cofactor for activated Protein C. Essential for APC anticoagulant activity.',
+    color: 'bg-cyan-700',
+    isPlaced: false,
+    correctPosition: { x: 190, y: 420 },
+    clinicalRelevance: 'Deficiency causes thrombophilia. Free form is active, bound form is inactive.',
+    deficiencyDisorder: 'Protein S deficiency (hereditary thrombophilia)',
+    normalRange: 'Total: 60-140%, Free: 65-140% of pooled normal plasma',
+    antagonisticAgents: ['Warfarin', 'C4b-binding protein'],
+    cofactorFor: 'Activated Protein C',
+    referenceLinks: [
+      {
+        title: 'Protein S and Anticoagulation',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28899503/',
         type: 'pubmed'
       }
     ]

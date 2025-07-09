@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import GameCascadeArea from '@/components/GameCascadeArea';
 import GameHeader from '@/components/GameHeader';
 import MedicalInfoPopup from '@/components/MedicalInfoPopup';
+import ThemeToggle from '@/components/ThemeToggle';
 import { level1Factors as initialFactors } from '@/data/cascadeFactors';
 import { Factor } from '@/types/cascadeTypes';
 import AudioSystem from '@/components/AudioSystem';
@@ -57,7 +58,6 @@ const Level1 = () => {
     }
   }, [gameStarted]);
 
-  // Enhanced chess-like factor selection
   const handleFactorClick = (factor: Factor) => {
     if (!gameStarted || factor.isPlaced) return;
     
@@ -85,7 +85,6 @@ const Level1 = () => {
     });
   };
 
-  // Enhanced drag start with better visual feedback
   const handleDragStart = (e: React.DragEvent, factor: Factor) => {
     if (!gameStarted || factor.isPlaced) {
       e.preventDefault();
@@ -95,7 +94,6 @@ const Level1 = () => {
     setDraggedFactor(factor);
     setSelectedFactor(factor);
     
-    // Create enhanced drag image
     const dragImage = document.createElement('div');
     dragImage.style.cssText = `
       position: absolute;
@@ -142,7 +140,6 @@ const Level1 = () => {
     setDraggedFactor(null);
   };
 
-  // Enhanced drop handling with better validation
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -156,7 +153,6 @@ const Level1 = () => {
     
     if (!draggedFactor || !targetFactorId) return;
     
-    // Check if dropping on correct position
     if (draggedFactor.id === targetFactorId) {
       handleCorrectPlacement(draggedFactor);
     } else {
@@ -172,11 +168,9 @@ const Level1 = () => {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  // Enhanced click-to-place functionality
   const handleDropZoneClick = (targetFactor: Factor) => {
     if (!gameStarted || !selectedFactor || targetFactor.isPlaced) return;
 
-    // Check if clicking on the correct position for the selected factor
     if (selectedFactor.id === targetFactor.id) {
       handleCorrectPlacement(selectedFactor);
     } else {
@@ -184,7 +178,6 @@ const Level1 = () => {
     }
   };
 
-  // Enhanced correct placement with medical info popup
   const handleCorrectPlacement = (factor: Factor) => {
     const updatedFactors = factors.map(f =>
       f.id === factor.id
@@ -196,12 +189,10 @@ const Level1 = () => {
     setScore(prevScore => prevScore + 100);
     setSelectedFactor(null);
     
-    // Play success sound
     if ((window as any).gameAudio) {
       (window as any).gameAudio.playSuccess();
     }
     
-    // Show medical information popup
     setMedicalInfoFactor(factor);
     setShowMedicalInfo(true);
     
@@ -211,7 +202,6 @@ const Level1 = () => {
       duration: 4000,
     });
 
-    // Check for level completion
     const completedFactors = updatedFactors.filter(f => f.isPlaced).length;
     if (completedFactors === updatedFactors.length) {
       setLevel1Complete(true);
@@ -229,9 +219,7 @@ const Level1 = () => {
     }
   };
 
-  // Enhanced incorrect placement with better feedback
   const handleIncorrectPlacement = (factor: Factor) => {
-    // Play error sound
     if ((window as any).gameAudio) {
       (window as any).gameAudio.playError();
     }
@@ -313,18 +301,18 @@ const Level1 = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 pb-32 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-900 dark:via-blue-900 dark:to-slate-900 light:from-slate-100 light:via-blue-100 light:to-slate-100 p-4 pb-32 relative overflow-hidden">
       {/* Enhanced Floating particles animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(75)].map((_, i) => (
+        {[...Array(50)].map((_, i) => (
           <div
             key={i}
             className={`absolute rounded-full animate-bounce ${
-              i % 5 === 0 ? 'w-3 h-3 bg-blue-400/30' :
-              i % 5 === 1 ? 'w-4 h-4 bg-purple-400/25' :
-              i % 5 === 2 ? 'w-2 h-2 bg-pink-400/35' :
-              i % 5 === 3 ? 'w-3.5 h-3.5 bg-green-400/20' :
-              'w-2.5 h-2.5 bg-yellow-400/25'
+              i % 5 === 0 ? 'w-3 h-3 bg-blue-400/30 dark:bg-blue-400/30 light:bg-blue-600/40' :
+              i % 5 === 1 ? 'w-4 h-4 bg-purple-400/25 dark:bg-purple-400/25 light:bg-purple-600/35' :
+              i % 5 === 2 ? 'w-2 h-2 bg-pink-400/35 dark:bg-pink-400/35 light:bg-pink-600/45' :
+              i % 5 === 3 ? 'w-3.5 h-3.5 bg-green-400/20 dark:bg-green-400/20 light:bg-green-600/30' :
+              'w-2.5 h-2.5 bg-yellow-400/25 dark:bg-yellow-400/25 light:bg-yellow-600/35'
             }`}
             style={{
               left: `${Math.random() * 100}%`,
@@ -337,24 +325,28 @@ const Level1 = () => {
         ))}
       </div>
 
-      {/* Enhanced Audio System - Positioned at top center */}
+      {/* Enhanced Audio System */}
       <AudioSystem gameState="playing" level={1} />
       
-      {/* Top Control Bar - Positioned below audio system */}
+      {/* Top Control Bar with Theme Toggle */}
       <div className="fixed top-28 left-4 right-4 z-40 flex justify-between items-center">
-        <Button
-          onClick={() => setShowExitDialog(true)}
-          className="glassmorphic-card bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Exit Game
-        </Button>
+        <div className="flex gap-3 items-center">
+          <Button
+            onClick={() => setShowExitDialog(true)}
+            className="glassmorphic-card bg-red-600/80 hover:bg-red-700 backdrop-blur-sm border border-red-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Exit Game
+          </Button>
+          <ThemeToggle />
+        </div>
 
         <div className="flex gap-3">
           <Button
             onClick={handleHintClick}
             className="glassmorphic-card bg-yellow-600/80 hover:bg-yellow-700 backdrop-blur-sm border border-yellow-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
             disabled={!gameStarted}
+            aria-label="Get hint for selected factor"
           >
             <Lightbulb className="h-4 w-4 mr-2" />
             Hint
@@ -368,6 +360,7 @@ const Level1 = () => {
                 : 'bg-purple-600/80 hover:bg-purple-700 border-purple-400/30'
             }`}
             disabled={!gameStarted}
+            aria-label={showHints ? 'Hide factor labels' : 'Show factor labels'}
           >
             <Target className="h-4 w-4 mr-2" />
             {showHints ? 'Hide Labels' : 'Show Labels'}
@@ -377,6 +370,7 @@ const Level1 = () => {
             onClick={resetFactors}
             className="glassmorphic-card bg-cyan-600/80 hover:bg-cyan-700 backdrop-blur-sm border border-cyan-400/30 transform hover:scale-105 transition-all duration-200 shadow-xl"
             disabled={!gameStarted}
+            aria-label="Reset all factors to original positions"
           >
             <RotateCcw className="h-4 w-4 mr-2" />
             Reset Factors
@@ -389,6 +383,7 @@ const Level1 = () => {
                 ? 'bg-green-600/80 hover:bg-green-700 border-green-400/30' 
                 : 'bg-gray-600/80 hover:bg-gray-700 border-gray-400/30'
             }`}
+            aria-label={level1Complete ? 'Go to next level' : 'Complete level 1 to unlock'}
           >
             {level1Complete ? (
               <>
@@ -407,36 +402,76 @@ const Level1 = () => {
 
       <div className="container mx-auto relative z-10 pt-36">
         <div className="mb-6 animate-in slide-in-from-top-4 duration-1000">
-          <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100 transform hover:scale-105 transition-all duration-200 glassmorphic-card px-4 py-2 rounded-xl border border-blue-400/30 backdrop-blur-sm shadow-xl">
+          <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100 dark:text-blue-300 dark:hover:text-blue-100 light:text-blue-700 light:hover:text-blue-900 transform hover:scale-105 transition-all duration-200 glassmorphic-card px-4 py-2 rounded-xl border border-blue-400/30 backdrop-blur-sm shadow-xl">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
             <Sparkles className="ml-2 h-4 w-4 animate-pulse" />
           </Link>
         </div>
 
-        {/* New Layout with Side Factors and Compact Game Area */}
-        <div className="flex gap-6">
-          {/* Left Panel - Game Header and Instructions */}
+        {/* New Compact Layout */}
+        <div className="flex gap-4">
+          {/* Left Panel - Game Instructions and Start */}
           <div className="w-64">
-            <GameHeader
-              score={score}
-              timeElapsed={timeElapsed}
-              placedFactorsCount={factors.filter(factor => factor.isPlaced).length}
-              totalFactorsCount={factors.length}
-              emergencyMode={false}
-              patientStatus={100}
-              onExitGame={() => setShowExitDialog(true)}
-            />
+            {!gameStarted && (
+              <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl dark:bg-white/5 light:bg-black/5 dark:border-white/10 light:border-black/10">
+                <CardContent className="p-6 text-center">
+                  <Button 
+                    onClick={startGame}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all duration-200"
+                    aria-label="Start Level 1 game"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Game
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Move Progress Panel Below Start Game */}
+            {gameStarted && (
+              <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl dark:bg-white/5 light:bg-black/5 dark:border-white/10 light:border-black/10 mb-4">
+                <CardContent className="p-4">
+                  <h4 className="text-white dark:text-white light:text-black font-bold mb-3 flex items-center">
+                    <Target className="h-4 w-4 mr-2 text-yellow-400" />
+                    Progress
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm text-gray-300 dark:text-gray-300 light:text-gray-700 mb-1">
+                        <span>Factors Placed</span>
+                        <span>{factors.filter(f => f.isPlaced).length}/{factors.length}</span>
+                      </div>
+                      <Progress 
+                        value={(factors.filter(f => f.isPlaced).length / factors.length) * 100} 
+                        className="h-2"
+                        aria-label={`Progress: ${factors.filter(f => f.isPlaced).length} out of ${factors.length} factors placed`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-center text-sm">
+                      <div className="glassmorphic-card bg-blue-50/10 p-2 rounded-lg">
+                        <div className="text-lg font-bold text-blue-400">{score}</div>
+                        <div className="text-xs text-gray-300 dark:text-gray-300 light:text-gray-700">Score</div>
+                      </div>
+                      <div className="glassmorphic-card bg-green-50/10 p-2 rounded-lg">
+                        <div className="text-lg font-bold text-green-400">{formatTime(timeElapsed)}</div>
+                        <div className="text-xs text-gray-300 dark:text-gray-300 light:text-gray-700">Time</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Game Instructions Panel */}
             {gameStarted && (
-              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
+              <Card className="glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl dark:bg-white/5 light:bg-black/5 dark:border-white/10 light:border-black/10">
                 <CardContent className="p-4">
-                  <h4 className="text-white font-bold mb-3 flex items-center">
+                  <h4 className="text-white dark:text-white light:text-black font-bold mb-3 flex items-center">
                     <Target className="h-4 w-4 mr-2 text-yellow-400" />
                     Chess-Style Controls
                   </h4>
-                  <div className="text-sm text-gray-300 space-y-2">
+                  <div className="text-sm text-gray-300 dark:text-gray-300 light:text-gray-700 space-y-2">
                     <p>• <strong>Click</strong> a factor to select it</p>
                     <p>• <strong>Click</strong> the target drop zone to place it</p>
                     <p>• Or <strong>drag and drop</strong> factors directly</p>
@@ -452,20 +487,6 @@ const Level1 = () => {
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {!gameStarted && (
-              <Card className="mt-4 glassmorphic-card bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl">
-                <CardContent className="p-6 text-center">
-                  <Button 
-                    onClick={startGame}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all duration-200"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Start Game
-                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -495,14 +516,13 @@ const Level1 = () => {
         onClose={() => setShowMedicalInfo(false)}
       />
 
-      {/* Hint Dialog */}
       <AlertDialog open={showHintDialog} onOpenChange={setShowHintDialog}>
         <AlertDialogContent className="max-w-2xl glass-card backdrop-blur-xl border border-yellow-400/30">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
               💡 Hint for {selectedFactor?.name}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-lg text-white">
+            <AlertDialogDescription className="text-center text-lg text-white dark:text-white light:text-black">
               {selectedFactor?.fullName}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -510,15 +530,15 @@ const Level1 = () => {
           <div className="py-6 space-y-4">
             <div className="glass-card bg-blue-50/10 p-4 rounded-lg border border-blue-400/30">
               <h4 className="font-bold text-blue-400 mb-2">Pathway</h4>
-              <p className="text-gray-300 capitalize">{selectedFactor?.pathway} Pathway</p>
+              <p className="text-gray-300 dark:text-gray-300 light:text-gray-700 capitalize">{selectedFactor?.pathway} Pathway</p>
             </div>
             <div className="glass-card bg-green-50/10 p-4 rounded-lg border border-green-400/30">
               <h4 className="font-bold text-green-400 mb-2">Function</h4>
-              <p className="text-gray-300">{selectedFactor?.description}</p>
+              <p className="text-gray-300 dark:text-gray-300 light:text-gray-700">{selectedFactor?.description}</p>
             </div>
             <div className="glass-card bg-purple-50/10 p-4 rounded-lg border border-purple-400/30">
               <h4 className="font-bold text-purple-400 mb-2">Clinical Relevance</h4>
-              <p className="text-gray-300">{selectedFactor?.clinicalRelevance}</p>
+              <p className="text-gray-300 dark:text-gray-300 light:text-gray-700">{selectedFactor?.clinicalRelevance}</p>
             </div>
           </div>
 
@@ -534,14 +554,13 @@ const Level1 = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Next Level Dialog */}
       <AlertDialog open={showNextLevelDialog} onOpenChange={setShowNextLevelDialog}>
         <AlertDialogContent className="max-w-2xl glass-card backdrop-blur-xl border border-orange-400/30">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
               🔒 Level Locked
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-lg text-white">
+            <AlertDialogDescription className="text-center text-lg text-white dark:text-white light:text-black">
               Complete Level 1 first to unlock Level 2!
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -549,10 +568,10 @@ const Level1 = () => {
           <div className="py-6 text-center">
             <div className="glass-card bg-orange-50/10 p-6 rounded-lg border border-orange-400/30">
               <Lock className="h-12 w-12 mx-auto mb-4 text-orange-400" />
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 dark:text-gray-300 light:text-gray-700 text-lg">
                 You need to successfully place all clotting factors in the cascade to unlock the next level.
               </p>
-              <p className="text-gray-400 text-sm mt-2">
+              <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm mt-2">
                 Current progress: {factors.filter(f => f.isPlaced).length} / {factors.length} factors placed
               </p>
             </div>
@@ -576,7 +595,7 @@ const Level1 = () => {
             <AlertDialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
               🩸 Level 1 Complete! 🩸
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-lg text-white">
+            <AlertDialogDescription className="text-center text-lg text-white dark:text-white light:text-black">
               Excellent work! You've successfully mastered the coagulation cascade fundamentals!
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -585,15 +604,15 @@ const Level1 = () => {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="glass-card bg-blue-50/10 p-4 rounded-lg border border-blue-400/30">
                 <div className="text-2xl font-bold text-blue-400">{score}</div>
-                <div className="text-sm text-gray-300">Final Score</div>
+                <div className="text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Final Score</div>
               </div>
               <div className="glass-card bg-green-50/10 p-4 rounded-lg border border-green-400/30">
                 <div className="text-2xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
-                <div className="text-sm text-gray-300">Completion Time</div>
+                <div className="text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Completion Time</div>
               </div>
               <div className="glass-card bg-purple-50/10 p-4 rounded-lg border border-purple-400/30">
                 <div className="text-2xl font-bold text-purple-400">MASTER</div>
-                <div className="text-sm text-gray-300">Cascade Status</div>
+                <div className="text-sm text-gray-300 dark:text-gray-300 light:text-gray-700">Cascade Status</div>
               </div>
             </div>
           </div>
@@ -615,7 +634,7 @@ const Level1 = () => {
             </AlertDialogAction>
             <AlertDialogCancel 
               onClick={() => navigate('/')}
-              className="glass-card border border-white/20 text-white hover:bg-white/10"
+              className="glass-card border border-white/20 text-white dark:text-white light:text-black hover:bg-white/10"
             >
               <Target className="h-4 w-4 mr-2" />
               Main Menu
@@ -630,12 +649,12 @@ const Level1 = () => {
             <AlertDialogTitle className="text-center text-2xl font-bold text-red-400">
               Exit Game?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-lg text-gray-300">
+            <AlertDialogDescription className="text-center text-lg text-gray-300 dark:text-gray-300 light:text-gray-700">
               Are you sure you want to exit? Your current progress will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex justify-center space-x-4">
-            <AlertDialogCancel className="glass-card border-white/20 text-white hover:bg-white/10">
+            <AlertDialogCancel className="glass-card border-white/20 text-white dark:text-white light:text-black hover:bg-white/10">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction 
