@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   ArrowLeft, 
   Play, 
   RotateCcw, 
-  Zap, 
-  Target,
   Clock,
-  Award
+  Award,
+  BookOpen,
+  Trophy,
+  Target,
+  Stethoscope
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -24,171 +26,414 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-interface PlateletStep {
-  id: number;
-  name: string;
-  description: string;
-  isCompleted: boolean;
-  isActive: boolean;
-  requiredClicks: number;
-  currentClicks: number;
-  position: { x: number; y: number };
-  color: string;
-}
+import { PatientProfile } from '@/components/pathology/PatientProfile';
+import { LaboratoryResults } from '@/components/pathology/LaboratoryResults';
+import { DiagnosticWorkspace } from '@/components/pathology/DiagnosticWorkspace';
+import { clinicalCases } from '@/data/clinicalCases';
+import { ClinicalCase, DiagnosticHypothesis, GameState, LabResult } from '@/types/pathologyTypes';
 
 const Level3 = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [score, setScore] = useState(0);
-  const [timeElapsed, setTimeElapsed] = useState(0);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [level3Complete, setLevel3Complete] = useState(false);
+  
+  const [currentCaseIndex, setCurrentCaseIndex] = useState(0);
+  const [gameState, setGameState] = useState<GameState>({
+    currentCase: null,
+    hypotheses: [],
+    timeElapsed: 0,
+    score: 0,
+    consultationsUsed: 0,
+    isComplete: false,
+    feedback: []
+  });
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
-  const [plateletSteps, setPlateletSteps] = useState<PlateletStep[]>([
-    {
-      id: 1,
-      name: 'Vessel Injury',
-      description: 'Blood vessel is damaged, exposing collagen and von Willebrand factor',
-      isCompleted: false,
-      isActive: true,
-      requiredClicks: 3,
-      currentClicks: 0,
-      position: { x: 100, y: 100 },
-      color: 'bg-red-500'
-    },
-    {
-      id: 2,
-      name: 'Platelet Adhesion',
-      description: 'Platelets bind to exposed collagen via GP Ia/IIa and to vWF via GP Ib/IX/V',
-      isCompleted: false,
-      isActive: false,
-      requiredClicks: 5,
-      currentClicks: 0,
-      position: { x: 300, y: 150 },
-      color: 'bg-blue-500'
-    },
-    {
-      id: 3,
-      name: 'Platelet Activation',
-      description: 'Adhered platelets become activated, change shape, and release granule contents',
-      isCompleted: false,
-      isActive: false,
-      requiredClicks: 4,
-      currentClicks: 0,
-      position: { x: 500, y: 100 },
-      color: 'bg-green-500'
-    },
-    {
-      id: 4,
-      name: 'Platelet Aggregation',
-      description: 'Activated platelets recruit more platelets via fibrinogen bridges and GP IIb/IIIa',
-      isCompleted: false,
-      isActive: false,
-      requiredClicks: 6,
-      currentClicks: 0,
-      position: { x: 350, y: 300 },
-      color: 'bg-purple-500'
-    },
-    {
-      id: 5,
-      name: 'Plug Stabilization',
-      description: 'Platelet plug is stabilized by fibrin formation from the coagulation cascade',
-      isCompleted: false,
-      isActive: false,
-      requiredClicks: 3,
-      currentClicks: 0,
-      position: { x: 150, y: 350 },
-      color: 'bg-orange-500'
-    }
-  ]);
+  const currentCase = clinicalCases[currentCaseIndex];
+  const maxConsultations = 2;
+  const consultationsRemaining = maxConsultations - gameState.consultationsUsed;
 
   useEffect(() => {
-    if (gameStarted) {
+    if (gameStarted && currentCase && !gameState.isComplete) {
       const timer = setInterval(() => {
-        setTimeElapsed(prev => prev + 1);
+        setGameState(prev => ({
+          ...prev,
+          timeElapsed: prev.timeElapsed + 1
+        }));
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [gameStarted]);
-
-  const handleStepClick = (stepId: number) => {
-    if (!gameStarted) return;
-
-    setPlateletSteps(prev => prev.map(step => {
-      if (step.id === stepId && step.isActive) {
-        const newClicks = step.currentClicks + 1;
-        const isCompleted = newClicks >= step.requiredClicks;
-        
-        if (isCompleted) {
-          setScore(prevScore => prevScore + 200);
-          toast({
-            title: "Step Completed! 🎯",
-            description: `${step.name} successfully completed! +200 points`,
-          });
-          
-          // Activate next step
-          const nextStep = prev.find(s => s.id === stepId + 1);
-          if (nextStep) {
-            toast({
-              title: "Next Step Activated! ⚡",
-              description: `${nextStep.name} is now active. Click to proceed!`,
-            });
-          }
-        }
-        
-        return {
-          ...step,
-          currentClicks: newClicks,
-          isCompleted,
-          isActive: !isCompleted
-        };
-      } else if (step.id === stepId + 1 && prev.find(s => s.id === stepId)?.currentClicks === prev.find(s => s.id === stepId)?.requiredClicks - 1) {
-        return { ...step, isActive: true };
-      }
-      return step;
-    }));
-  };
-
-  const checkCompletion = () => {
-    const allCompleted = plateletSteps.every(step => step.isCompleted);
-    if (allCompleted && !level3Complete) {
-      setLevel3Complete(true);
-      const timeBonus = Math.max(0, 180 - timeElapsed) * 15; // 3 minute target
-      setScore(prev => prev + timeBonus);
-      setShowCompletionDialog(true);
-      toast({
-        title: "🎉 Hemostasis Master!",
-        description: `Perfect! You've successfully formed a stable platelet plug! Time bonus: +${timeBonus} points`,
-      });
-    }
-  };
-
-  useEffect(() => {
-    checkCompletion();
-  }, [plateletSteps]);
+  }, [gameStarted, currentCase, gameState.isComplete]);
 
   const startGame = () => {
     setGameStarted(true);
+    setGameState(prev => ({
+      ...prev,
+      currentCase: currentCase,
+      timeElapsed: 0,
+      score: 0,
+      consultationsUsed: 0,
+      hypotheses: [],
+      isComplete: false,
+      feedback: []
+    }));
     toast({
-      title: "🩸 Hemostasis Challenge Started!",
-      description: "Click on each step in sequence to form a stable platelet plug and stop the bleeding!",
+      title: "🩺 Pathology Case Started!",
+      description: `Analyze the clinical presentation of: ${currentCase.title}`,
     });
   };
 
   const resetLevel = () => {
-    setPlateletSteps(prev => prev.map((step, index) => ({
-      ...step,
-      isCompleted: false,
-      isActive: index === 0,
-      currentClicks: 0
-    })));
-    setScore(0);
-    setTimeElapsed(0);
-    setLevel3Complete(false);
-    setShowCompletionDialog(false);
+    setGameState({
+      currentCase: currentCase,
+      hypotheses: [],
+      timeElapsed: 0,
+      score: 0,
+      consultationsUsed: 0,
+      isComplete: false,
+      feedback: []
+    });
     setGameStarted(true);
+    setShowCompletionDialog(false);
+  };
+
+  const nextCase = () => {
+    if (currentCaseIndex < clinicalCases.length - 1) {
+      setCurrentCaseIndex(prev => prev + 1);
+      setGameStarted(false);
+      setShowCompletionDialog(false);
+      setGameState({
+        currentCase: null,
+        hypotheses: [],
+        timeElapsed: 0,
+        score: 0,
+        consultationsUsed: 0,
+        isComplete: false,
+        feedback: []
+      });
+    }
+  };
+
+  const handleAddHypothesis = (hypothesis: Omit<DiagnosticHypothesis, 'id'>) => {
+    const newHypothesis: DiagnosticHypothesis = {
+      ...hypothesis,
+      id: `hyp-${Date.now()}`
+    };
+    
+    setGameState(prev => ({
+      ...prev,
+      hypotheses: [...prev.hypotheses, newHypothesis]
+    }));
+
+    // Auto-populate evidence based on lab results and clinical findings
+    setTimeout(() => updateHypothesisEvidence(newHypothesis.id, hypothesis.diagnosis), 100);
+  };
+
+  const updateHypothesisEvidence = (hypothesisId: string, diagnosis: string) => {
+    if (!currentCase) return;
+
+    let supportingEvidence: string[] = [];
+    let contradictingEvidence: string[] = [];
+    let probability = 50;
+
+    // Analyze diagnosis against case data
+    if (diagnosis.toLowerCase().includes('hemophilia')) {
+      const hasLowFactorVIII = currentCase.patient.labResults.some(
+        lab => lab.name === 'Factor VIII Activity' && typeof lab.value === 'number' && lab.value < 50
+      );
+      const hasProlongedPTT = currentCase.patient.labResults.some(
+        lab => lab.name === 'PTT' && lab.isAbnormal
+      );
+      const malePatient = currentCase.patient.demographics.sex === 'M';
+      const familyHistory = currentCase.patient.familyHistory.some(
+        history => history.toLowerCase().includes('bleeding')
+      );
+
+      if (hasLowFactorVIII) {
+        supportingEvidence.push('Low Factor VIII activity (<50%)');
+        probability += 25;
+      }
+      if (hasProlongedPTT) {
+        supportingEvidence.push('Prolonged PTT (intrinsic pathway defect)');
+        probability += 20;
+      }
+      if (malePatient) {
+        supportingEvidence.push('Male patient (X-linked inheritance pattern)');
+        probability += 15;
+      }
+      if (familyHistory) {
+        supportingEvidence.push('Family history of bleeding disorder');
+        probability += 10;
+      }
+
+      const normalPlateletCount = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && !lab.isAbnormal
+      );
+      if (normalPlateletCount) {
+        supportingEvidence.push('Normal platelet count (excludes platelet disorders)');
+        probability += 10;
+      }
+    }
+
+    if (diagnosis.toLowerCase().includes('warfarin') || diagnosis.toLowerCase().includes('anticoagulation')) {
+      const elevatedINR = currentCase.patient.labResults.some(
+        lab => lab.name === 'INR' && lab.significance === 'Critical'
+      );
+      const onWarfarin = currentCase.patient.medications.some(
+        med => med.toLowerCase().includes('warfarin')
+      );
+      const recentAntibiotics = currentCase.patient.medications.some(
+        med => med.toLowerCase().includes('trimethoprim') || med.toLowerCase().includes('sulfamethoxazole')
+      );
+
+      if (elevatedINR) {
+        supportingEvidence.push('Critically elevated INR (>6.0)');
+        probability += 30;
+      }
+      if (onWarfarin) {
+        supportingEvidence.push('Patient on warfarin therapy');
+        probability += 25;
+      }
+      if (recentAntibiotics) {
+        supportingEvidence.push('Recent antibiotic use (drug interaction)');
+        probability += 20;
+      }
+    }
+
+    if (diagnosis.toLowerCase().includes('ttp') || diagnosis.toLowerCase().includes('thrombotic thrombocytopenic')) {
+      const severeThrombocytopenia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && lab.significance === 'Critical'
+      );
+      const anemia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Hemoglobin' && lab.significance === 'Critical'
+      );
+      const elevatedLDH = currentCase.patient.labResults.some(
+        lab => lab.name === 'LDH' && lab.significance === 'Critical'
+      );
+      const schistocytes = currentCase.patient.labResults.some(
+        lab => lab.name === 'Schistocytes' && lab.isAbnormal
+      );
+      const neuroSymptoms = currentCase.patient.chiefComplaint.toLowerCase().includes('confusion') ||
+                           currentCase.patient.chiefComplaint.toLowerCase().includes('headache');
+
+      if (severeThrombocytopenia) {
+        supportingEvidence.push('Severe thrombocytopenia (<20,000)');
+        probability += 25;
+      }
+      if (anemia) {
+        supportingEvidence.push('Severe hemolytic anemia');
+        probability += 20;
+      }
+      if (elevatedLDH) {
+        supportingEvidence.push('Markedly elevated LDH (hemolysis)');
+        probability += 15;
+      }
+      if (schistocytes) {
+        supportingEvidence.push('Schistocytes on blood smear');
+        probability += 20;
+      }
+      if (neuroSymptoms) {
+        supportingEvidence.push('Neurological symptoms (confusion, headache)');
+        probability += 15;
+      }
+    }
+
+    // Cap probability at 95%
+    probability = Math.min(probability, 95);
+
+    setGameState(prev => ({
+      ...prev,
+      hypotheses: prev.hypotheses.map(hyp =>
+        hyp.id === hypothesisId
+          ? {
+              ...hyp,
+              probability,
+              supportingEvidence,
+              contradictingEvidence,
+              nextSteps: generateNextSteps(diagnosis)
+            }
+          : hyp
+      )
+    }));
+  };
+
+  const generateNextSteps = (diagnosis: string): string[] => {
+    if (diagnosis.toLowerCase().includes('hemophilia')) {
+      return [
+        'Confirm with factor VIII and IX levels',
+        'Genetic counseling consultation',
+        'Consider factor concentrate therapy',
+        'Activity restrictions counseling'
+      ];
+    }
+    if (diagnosis.toLowerCase().includes('warfarin')) {
+      return [
+        'Hold warfarin immediately',
+        'Consider vitamin K administration',
+        'Monitor INR closely',
+        'Review drug interactions'
+      ];
+    }
+    if (diagnosis.toLowerCase().includes('ttp')) {
+      return [
+        'URGENT: Initiate plasmapheresis',
+        'Hematology consultation STAT',
+        'Monitor neurological status',
+        'Consider corticosteroids'
+      ];
+    }
+    return ['Further diagnostic workup needed'];
+  };
+
+  const handleUpdateHypothesis = (id: string, updates: Partial<DiagnosticHypothesis>) => {
+    setGameState(prev => ({
+      ...prev,
+      hypotheses: prev.hypotheses.map(hyp =>
+        hyp.id === id ? { ...hyp, ...updates } : hyp
+      )
+    }));
+  };
+
+  const handleRemoveHypothesis = (id: string) => {
+    setGameState(prev => ({
+      ...prev,
+      hypotheses: prev.hypotheses.filter(hyp => hyp.id !== id)
+    }));
+  };
+
+  const handleConsultSpecialist = () => {
+    if (consultationsRemaining > 0 && currentCase) {
+      setGameState(prev => ({
+        ...prev,
+        consultationsUsed: prev.consultationsUsed + 1
+      }));
+
+      // Provide specialist insight
+      const insight = getSpecialistInsight(currentCase);
+      toast({
+        title: "🩺 Specialist Consultation",
+        description: insight,
+      });
+    }
+  };
+
+  const getSpecialistInsight = (case_: ClinicalCase): string => {
+    if (case_.correctDiagnosis.includes('Hemophilia')) {
+      return "Consider inherited coagulation disorders given the family history and prolonged PTT with normal platelet count.";
+    }
+    if (case_.correctDiagnosis.includes('Warfarin')) {
+      return "Drug interactions with warfarin are common, especially with antibiotics. Check recent medication changes.";
+    }
+    if (case_.correctDiagnosis.includes('TTP')) {
+      return "This constellation of symptoms requires immediate evaluation for thrombotic microangiopathy. Time is critical.";
+    }
+    return "Consider the pattern of lab abnormalities and clinical presentation systematically.";
+  };
+
+  const handleSearchLiterature = (query: string) => {
+    toast({
+      title: "📚 Literature Search",
+      description: `Searching medical literature for: "${query}". Relevant articles would appear in a real system.`,
+    });
+  };
+
+  const handleLabResultClick = (result: LabResult) => {
+    const interpretation = getLabInterpretation(result);
+    toast({
+      title: `💡 ${result.name} Interpretation`,
+      description: interpretation,
+    });
+  };
+
+  const getLabInterpretation = (result: LabResult): string => {
+    switch (result.name) {
+      case 'Factor VIII Activity':
+        if (typeof result.value === 'number' && result.value < 30) return "Severely reduced Factor VIII suggests moderate to severe hemophilia A";
+        if (typeof result.value === 'number' && result.value < 50) return "Mildly reduced Factor VIII may indicate mild hemophilia A or other causes";
+        return "Normal Factor VIII activity";
+      case 'INR':
+        if (typeof result.value === 'number' && result.value > 5) return "Critically elevated INR indicates severe anticoagulation - bleeding risk is very high";
+        if (typeof result.value === 'number' && result.value > 3.5) return "Significantly elevated INR - increased bleeding risk";
+        return "Therapeutic or normal INR range";
+      case 'Platelet Count':
+        if (typeof result.value === 'number' && result.value < 20) return "Severe thrombocytopenia - high bleeding risk, consider TTP/ITP";
+        if (typeof result.value === 'number' && result.value < 100) return "Thrombocytopenia - investigate cause";
+        return "Normal platelet count";
+      default:
+        return `${result.name}: ${result.value} ${result.unit} (Reference: ${result.referenceRange})`;
+    }
+  };
+
+  const submitDiagnosis = () => {
+    if (!currentCase || gameState.hypotheses.length === 0) return;
+
+    const topHypothesis = gameState.hypotheses.reduce((top, current) =>
+      current.probability > top.probability ? current : top
+    );
+
+    const isCorrect = topHypothesis.diagnosis.toLowerCase().includes(
+      currentCase.correctDiagnosis.toLowerCase().split(' ')[0]
+    );
+
+    let finalScore = 0;
+    const timeInMinutes = gameState.timeElapsed / 60;
+    const timeLimit = currentCase.timeLimit;
+
+    // Calculate score
+    if (isCorrect) {
+      finalScore += 1000; // Base score for correct diagnosis
+      
+      // Time bonus (up to 500 points)
+      const timeBonus = Math.max(0, (timeLimit - timeInMinutes) / timeLimit * 500);
+      finalScore += Math.round(timeBonus);
+      
+      // Evidence quality bonus (up to 300 points)
+      const evidenceBonus = Math.min(topHypothesis.supportingEvidence.length * 50, 300);
+      finalScore += evidenceBonus;
+      
+      // Consultation penalty
+      finalScore -= gameState.consultationsUsed * 100;
+    } else {
+      finalScore = Math.max(100, 500 - gameState.consultationsUsed * 50); // Partial credit
+    }
+
+    setGameState(prev => ({
+      ...prev,
+      score: finalScore,
+      isComplete: true,
+      feedback: generateFeedback(isCorrect, topHypothesis, currentCase)
+    }));
+
+    setShowCompletionDialog(true);
+
+    toast({
+      title: isCorrect ? "🎉 Correct Diagnosis!" : "📝 Case Complete",
+      description: isCorrect 
+        ? `Excellent clinical reasoning! Score: ${finalScore}`
+        : `Diagnosis needs refinement. Review the feedback.`,
+    });
+  };
+
+  const generateFeedback = (
+    isCorrect: boolean, 
+    hypothesis: DiagnosticHypothesis, 
+    case_: ClinicalCase
+  ): string[] => {
+    const feedback: string[] = [];
+    
+    if (isCorrect) {
+      feedback.push("✅ Correct diagnosis identified");
+      feedback.push("✅ Good use of clinical reasoning");
+      if (hypothesis.supportingEvidence.length >= 3) {
+        feedback.push("✅ Strong evidence-based approach");
+      }
+    } else {
+      feedback.push(`❌ Missed diagnosis: ${case_.correctDiagnosis}`);
+      feedback.push("💡 Key learning points:");
+      case_.learningObjectives.forEach(obj => feedback.push(`• ${obj}`));
+    }
+    
+    return feedback;
   };
 
   const formatTime = (seconds: number) => {
@@ -197,226 +442,256 @@ const Level3 = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const completedSteps = plateletSteps.filter(step => step.isCompleted).length;
-  const totalSteps = plateletSteps.length;
-  const progressPercentage = (completedSteps / totalSteps) * 100;
+  const timeRemaining = currentCase ? (currentCase.timeLimit * 60 - gameState.timeElapsed) / 60 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-blue-900 p-4 pb-20">
-      <div className="container mx-auto">
-        <Link to="/" className="inline-flex items-center mb-4 text-blue-300 hover:text-blue-100">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted p-4 pb-20">
+      <div className="container mx-auto max-w-7xl">
+        <Link to="/" className="inline-flex items-center mb-4 text-primary hover:text-primary/80">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </Link>
 
         {/* Header */}
-        <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-2xl mb-6">
+        <Card className="border-border shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row items-center justify-between text-white gap-4">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
               <div className="text-center lg:text-left">
-                <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-red-400 to-purple-400 bg-clip-text text-transparent">
-                  Level 3: Platelet Plug Formation
+                <h1 className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  Level 3: Pathology Professor
                 </h1>
-                <p className="text-purple-200 text-base lg:text-lg">Master primary hemostasis through interactive platelet activation</p>
+                <p className="text-muted-foreground text-base lg:text-lg">
+                  Master clinical case analysis and diagnostic reasoning
+                </p>
+                {currentCase && (
+                  <Badge variant="outline" className="mt-2">
+                    Case {currentCaseIndex + 1}/{clinicalCases.length}: {currentCase.title}
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center space-x-4 lg:space-x-8">
                 <div className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-yellow-400">{score}</div>
-                  <div className="text-sm text-gray-300">Score</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-primary">{gameState.score}</div>
+                  <div className="text-sm text-muted-foreground">Score</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-green-400">{formatTime(timeElapsed)}</div>
-                  <div className="text-sm text-gray-300">Time</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-secondary">
+                    {formatTime(gameState.timeElapsed)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Elapsed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-blue-400">{completedSteps}/{totalSteps}</div>
-                  <div className="text-sm text-gray-300">Steps</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-accent">
+                    {gameState.hypotheses.length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Hypotheses</div>
                 </div>
               </div>
             </div>
-            <div className="mt-4">
-              <Progress value={progressPercentage} className="h-3" />
-              <p className="text-center text-white mt-2 text-sm">Hemostasis Progress: {Math.round(progressPercentage)}%</p>
-            </div>
+            
+            {gameStarted && currentCase && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Case Progress</span>
+                  <Badge variant={currentCase.isUrgent ? "destructive" : "secondary"}>
+                    {currentCase.difficulty.charAt(0).toUpperCase() + currentCase.difficulty.slice(1)}
+                  </Badge>
+                </div>
+                <Progress 
+                  value={gameState.isComplete ? 100 : Math.min((gameState.timeElapsed / (currentCase.timeLimit * 60)) * 100, 100)} 
+                  className="h-3" 
+                />
+                <p className="text-center text-muted-foreground mt-2 text-sm">
+                  {gameState.isComplete ? 'Case Complete' : `Time Remaining: ${Math.max(0, Math.ceil(timeRemaining))} min`}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <div className="grid lg:grid-cols-4 gap-6">
-          {/* Control Panel */}
-          <div className="lg:col-span-1">
-            <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-xl">
+        {!gameStarted ? (
+          // Case Selection and Start Screen
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Target className="h-6 w-6 mr-2 text-red-400" />
-                  Hemostasis Control
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {!gameStarted && (
-                  <Button onClick={startGame} className="w-full bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700">
-                    <Play className="h-4 w-4 mr-2" />
-                    Start Hemostasis
-                  </Button>
-                )}
-
-                {gameStarted && (
-                  <Button onClick={resetLevel} variant="outline" className="w-full border-white text-white hover:bg-white hover:text-purple-900">
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Reset Challenge
-                  </Button>
-                )}
-
-                <div className="bg-white/10 p-4 rounded-lg">
-                  <h4 className="text-white font-bold mb-2">Instructions</h4>
-                  <p className="text-white/80 text-sm">
-                    Click on each step in sequence to progress through platelet plug formation. 
-                    Each step requires multiple clicks to complete.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Step Progress */}
-            <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-xl mt-4">
-              <CardHeader>
-                <CardTitle className="text-white text-lg">Step Progress</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {plateletSteps.map(step => (
-                  <div key={step.id} className="bg-white/5 p-3 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-white font-semibold text-sm">{step.name}</span>
-                      <Badge 
-                        variant={step.isCompleted ? "default" : step.isActive ? "secondary" : "outline"}
-                        className={`text-xs ${
-                          step.isCompleted ? 'bg-green-600' : 
-                          step.isActive ? 'bg-yellow-600' : 'bg-gray-600'
-                        }`}
-                      >
-                        {step.isCompleted ? 'Done' : step.isActive ? 'Active' : 'Waiting'}
-                      </Badge>
-                    </div>
-                    <Progress 
-                      value={(step.currentClicks / step.requiredClicks) * 100} 
-                      className="h-2" 
-                    />
-                    <p className="text-white/60 text-xs mt-1">
-                      {step.currentClicks}/{step.requiredClicks} clicks
-                    </p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Interactive Vessel Visualization */}
-          <div className="lg:col-span-3">
-            <Card className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Zap className="h-6 w-6 mr-2 text-red-400" />
-                  Blood Vessel Cross-Section
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2 text-primary" />
+                  Case Preview
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="relative bg-gradient-to-b from-pink-100 to-red-100 rounded-2xl p-8 min-h-[400px] lg:min-h-[500px] overflow-hidden border-4 border-red-300">
-                  {/* Vessel wall representation */}
-                  <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-pink-200 to-pink-300 opacity-50"></div>
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-pink-200 to-pink-300 opacity-50"></div>
-                  
-                  {/* Blood flow representation */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-200 via-red-300 to-red-200 opacity-30 animate-pulse"></div>
-                  
-                  {/* Platelet steps */}
-                  {plateletSteps.map(step => (
-                    <div
-                      key={step.id}
-                      className={`absolute w-24 h-24 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 transform ${
-                        step.isActive ? 'hover:scale-110 animate-pulse' : ''
-                      } ${
-                        step.isCompleted ? 'scale-110 shadow-2xl ring-4 ring-green-400' : 
-                        step.isActive ? 'shadow-xl ring-4 ring-yellow-400' : 'opacity-50'
-                      } ${step.color}`}
-                      style={{
-                        left: step.position.x,
-                        top: step.position.y
-                      }}
-                      onClick={() => handleStepClick(step.id)}
-                    >
-                      <div className="text-center text-white">
-                        <div className="text-xs font-bold">{step.id}</div>
-                        <div className="text-[10px] leading-tight">{step.name.split(' ')[0]}</div>
-                        {step.isActive && (
-                          <div className="text-[8px]">
-                            {step.currentClicks}/{step.requiredClicks}
-                          </div>
-                        )}
-                      </div>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-lg">{currentCase.title}</h3>
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant="outline">{currentCase.difficulty}</Badge>
+                      <Badge variant="outline">{currentCase.category}</Badge>
+                      {currentCase.isUrgent && <Badge variant="destructive">Urgent</Badge>}
                     </div>
-                  ))}
-
-                  {/* Educational overlay - moved to prevent overlap */}
-                  <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
-                    <h4 className="font-bold text-gray-800 mb-1 text-sm">Primary Hemostasis</h4>
-                    <p className="text-xs text-gray-700">
-                      Click the active steps in sequence to simulate platelet plug formation. 
-                      This is the body's immediate response to vascular injury.
-                    </p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2">Learning Objectives:</h4>
+                    <ul className="text-sm space-y-1 text-muted-foreground">
+                      {currentCase.learningObjectives.map((obj, index) => (
+                        <li key={index} className="flex items-center">
+                          <Target className="h-3 w-3 mr-2 text-primary" />
+                          {obj}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-muted p-4 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Time Limit:</span>
+                      <span className="font-medium">{currentCase.timeLimit} minutes</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Consultations:</span>
+                      <span className="font-medium">{maxConsultations} available</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Stethoscope className="h-5 w-5 mr-2 text-primary" />
+                  Game Controls
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button onClick={startGame} size="lg" className="w-full">
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Clinical Case
+                </Button>
+                
+                <div className="bg-muted p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">How to Play</h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• Analyze patient data systematically</li>
+                    <li>• Build differential diagnoses</li>
+                    <li>• Use evidence-based reasoning</li>
+                    <li>• Consult specialists when needed</li>
+                    <li>• Submit your final diagnosis</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
+        ) : (
+          // Active Game Interface
+          <div className="grid lg:grid-cols-12 gap-6">
+            {/* Patient Profile */}
+            <div className="lg:col-span-4">
+              <PatientProfile 
+                patient={currentCase.patient}
+                isUrgent={currentCase.isUrgent}
+                timeRemaining={timeRemaining}
+              />
+            </div>
+
+            {/* Laboratory Results */}
+            <div className="lg:col-span-4">
+              <LaboratoryResults 
+                labResults={currentCase.patient.labResults}
+                onResultClick={handleLabResultClick}
+              />
+            </div>
+
+            {/* Diagnostic Workspace */}
+            <div className="lg:col-span-4">
+              <DiagnosticWorkspace
+                hypotheses={gameState.hypotheses}
+                onAddHypothesis={handleAddHypothesis}
+                onUpdateHypothesis={handleUpdateHypothesis}
+                onRemoveHypothesis={handleRemoveHypothesis}
+                onConsultSpecialist={handleConsultSpecialist}
+                onSearchLiterature={handleSearchLiterature}
+                consultationsRemaining={consultationsRemaining}
+              />
+              
+              {/* Submit Diagnosis */}
+              <Card className="mt-4 border-border">
+                <CardContent className="p-4">
+                  <Button 
+                    onClick={submitDiagnosis}
+                    disabled={gameState.hypotheses.length === 0 || gameState.isComplete}
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Trophy className="h-4 w-4 mr-2" />
+                    Submit Final Diagnosis
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Completion Dialog */}
       <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
         <AlertDialogContent className="max-w-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-center text-2xl font-bold text-purple-600">
-              🩸 Level 3 Complete! 🩸
+            <AlertDialogTitle className="text-center text-2xl font-bold text-primary">
+              🩺 Case Analysis Complete! 🩺
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-lg">
-              Excellent work! You've successfully demonstrated mastery of primary hemostasis and platelet plug formation!
+              {gameState.feedback[0]?.includes('✅') 
+                ? 'Excellent diagnostic reasoning!' 
+                : 'Case complete - review the feedback for learning.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="py-6">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">{score}</div>
-                <div className="text-sm text-gray-600">Final Score</div>
+            <div className="grid grid-cols-3 gap-4 text-center mb-6">
+              <div className="bg-muted p-4 rounded-lg">
+                <div className="text-2xl font-bold text-primary">{gameState.score}</div>
+                <div className="text-sm text-muted-foreground">Final Score</div>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{formatTime(timeElapsed)}</div>
-                <div className="text-sm text-gray-600">Completion Time</div>
+              <div className="bg-muted p-4 rounded-lg">
+                <div className="text-2xl font-bold text-secondary">{formatTime(gameState.timeElapsed)}</div>
+                <div className="text-sm text-muted-foreground">Completion Time</div>
               </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">MASTER</div>
-                <div className="text-sm text-gray-600">Hemostasis Status</div>
+              <div className="bg-muted p-4 rounded-lg">
+                <div className="text-2xl font-bold text-accent">{gameState.consultationsUsed}/{maxConsultations}</div>
+                <div className="text-sm text-muted-foreground">Consultations Used</div>
               </div>
+            </div>
+            
+            {/* Feedback */}
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Clinical Feedback</h4>
+              <ul className="text-sm space-y-1">
+                {gameState.feedback.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
             </div>
           </div>
 
           <AlertDialogFooter className="flex justify-center space-x-4">
-            <AlertDialogAction 
-              onClick={resetLevel}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
+            <AlertDialogAction onClick={resetLevel}>
               <RotateCcw className="h-4 w-4 mr-2" />
-              Replay Level
+              Retry Case
             </AlertDialogAction>
-            <AlertDialogAction 
-              onClick={() => navigate('/level4')}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <Award className="h-4 w-4 mr-2" />
-              Next Level
-            </AlertDialogAction>
-            <AlertDialogCancel 
-              onClick={() => navigate('/')}
-            >
+            {currentCaseIndex < clinicalCases.length - 1 && (
+              <AlertDialogAction onClick={nextCase}>
+                <Award className="h-4 w-4 mr-2" />
+                Next Case
+              </AlertDialogAction>
+            )}
+            {currentCaseIndex === clinicalCases.length - 1 && (
+              <AlertDialogAction onClick={() => navigate('/level4')}>
+                <Award className="h-4 w-4 mr-2" />
+                Final Level
+              </AlertDialogAction>
+            )}
+            <AlertDialogCancel onClick={() => navigate('/')}>
               <Target className="h-4 w-4 mr-2" />
               Main Menu
             </AlertDialogCancel>
