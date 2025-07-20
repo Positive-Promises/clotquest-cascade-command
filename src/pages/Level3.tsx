@@ -335,28 +335,11 @@ const Level3 = () => {
 
     toast({
       title: "🔍 Searching Medical Literature",
-      description: "Fetching real-time research findings...",
+      description: "Fetching latest research findings from trusted medical databases...",
     });
 
-    try {
-      // Use web search to find medical literature and research
-      const searchResults = await searchMedicalLiterature(query);
-      
-      // Display results in a toast or update UI
-      toast({
-        title: "📚 Research Findings",
-        description: `Found ${searchResults.length} relevant studies for "${query}". Check console for details.`,
-      });
-      
-      console.log('Medical Literature Search Results:', searchResults);
-    } catch (error) {
-      console.error('Search error:', error);
-      toast({
-        title: "❌ Search Error",
-        description: "Unable to fetch research data. Please try again.",
-        variant: "destructive"
-      });
-    }
+    // The actual search will be handled by the LiteratureSearch component
+    // This function now serves as a callback for toast notifications
   };
 
   const searchMedicalLiterature = async (query: string) => {
