@@ -66,7 +66,7 @@ export interface ClinicalCase {
   id: string;
   title: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  category: 'hereditary' | 'acquired' | 'platelet' | 'thrombophilia' | 'medication';
+  category: 'hereditary' | 'acquired' | 'platelet' | 'thrombophilia' | 'medication' | 'emergency';
   patient: Patient;
   correctDiagnosis: string;
   learningObjectives: string[];
