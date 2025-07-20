@@ -136,8 +136,10 @@ const Level3 = () => {
     let contradictingEvidence: string[] = [];
     let probability = 50;
 
-    // Analyze diagnosis against case data
-    if (diagnosis.toLowerCase().includes('hemophilia')) {
+    const diagnosisLower = diagnosis.toLowerCase();
+
+    // Comprehensive evidence analysis for different diagnoses
+    if (diagnosisLower.includes('hemophilia')) {
       const hasLowFactorVIII = currentCase.patient.labResults.some(
         lab => lab.name === 'Factor VIII Activity' && typeof lab.value === 'number' && lab.value < 50
       );
@@ -148,34 +150,49 @@ const Level3 = () => {
       const familyHistory = currentCase.patient.familyHistory.some(
         history => history.toLowerCase().includes('bleeding')
       );
+      const normalPlateletCount = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && !lab.isAbnormal
+      );
 
       if (hasLowFactorVIII) {
         supportingEvidence.push('Low Factor VIII activity (<50%)');
         probability += 25;
+      } else {
+        contradictingEvidence.push('Normal Factor VIII activity');
+        probability -= 20;
       }
+
       if (hasProlongedPTT) {
         supportingEvidence.push('Prolonged PTT (intrinsic pathway defect)');
         probability += 20;
+      } else {
+        contradictingEvidence.push('Normal PTT');
+        probability -= 15;
       }
+
       if (malePatient) {
         supportingEvidence.push('Male patient (X-linked inheritance pattern)');
         probability += 15;
+      } else {
+        contradictingEvidence.push('Female patient (less likely for X-linked disorder)');
+        probability -= 10;
       }
+
       if (familyHistory) {
         supportingEvidence.push('Family history of bleeding disorder');
         probability += 10;
+      } else {
+        contradictingEvidence.push('No family history of bleeding disorders');
+        probability -= 5;
       }
 
-      const normalPlateletCount = currentCase.patient.labResults.some(
-        lab => lab.name === 'Platelet Count' && !lab.isAbnormal
-      );
       if (normalPlateletCount) {
         supportingEvidence.push('Normal platelet count (excludes platelet disorders)');
         probability += 10;
       }
     }
 
-    if (diagnosis.toLowerCase().includes('warfarin') || diagnosis.toLowerCase().includes('anticoagulation')) {
+    else if (diagnosisLower.includes('warfarin') || diagnosisLower.includes('anticoagulation')) {
       const elevatedINR = currentCase.patient.labResults.some(
         lab => lab.name === 'INR' && lab.significance === 'Critical'
       );
@@ -185,22 +202,38 @@ const Level3 = () => {
       const recentAntibiotics = currentCase.patient.medications.some(
         med => med.toLowerCase().includes('trimethoprim') || med.toLowerCase().includes('sulfamethoxazole')
       );
+      const prolongedPT = currentCase.patient.labResults.some(
+        lab => lab.name === 'PT' && lab.isAbnormal
+      );
 
       if (elevatedINR) {
         supportingEvidence.push('Critically elevated INR (>6.0)');
         probability += 30;
+      } else {
+        contradictingEvidence.push('Normal INR');
+        probability -= 25;
       }
+
       if (onWarfarin) {
         supportingEvidence.push('Patient on warfarin therapy');
         probability += 25;
+      } else {
+        contradictingEvidence.push('Patient not on warfarin');
+        probability -= 30;
       }
+
       if (recentAntibiotics) {
         supportingEvidence.push('Recent antibiotic use (drug interaction)');
         probability += 20;
       }
+
+      if (prolongedPT) {
+        supportingEvidence.push('Prolonged PT (extrinsic pathway affected)');
+        probability += 15;
+      }
     }
 
-    if (diagnosis.toLowerCase().includes('ttp') || diagnosis.toLowerCase().includes('thrombotic thrombocytopenic')) {
+    else if (diagnosisLower.includes('ttp') || diagnosisLower.includes('thrombotic thrombocytopenic')) {
       const severeThrombocytopenia = currentCase.patient.labResults.some(
         lab => lab.name === 'Platelet Count' && lab.significance === 'Critical'
       );
@@ -215,31 +248,236 @@ const Level3 = () => {
       );
       const neuroSymptoms = currentCase.patient.chiefComplaint.toLowerCase().includes('confusion') ||
                            currentCase.patient.chiefComplaint.toLowerCase().includes('headache');
+      const normalCoagulation = currentCase.patient.labResults.some(
+        lab => (lab.name === 'PT' || lab.name === 'PTT') && !lab.isAbnormal
+      );
 
       if (severeThrombocytopenia) {
         supportingEvidence.push('Severe thrombocytopenia (<20,000)');
         probability += 25;
+      } else {
+        contradictingEvidence.push('Normal or mildly decreased platelet count');
+        probability -= 20;
       }
+
       if (anemia) {
         supportingEvidence.push('Severe hemolytic anemia');
         probability += 20;
       }
+
       if (elevatedLDH) {
         supportingEvidence.push('Markedly elevated LDH (hemolysis)');
         probability += 15;
       }
+
       if (schistocytes) {
         supportingEvidence.push('Schistocytes on blood smear');
         probability += 20;
+      } else {
+        contradictingEvidence.push('No schistocytes seen on blood smear');
+        probability -= 25;
       }
+
       if (neuroSymptoms) {
         supportingEvidence.push('Neurological symptoms (confusion, headache)');
         probability += 15;
       }
+
+      if (normalCoagulation) {
+        supportingEvidence.push('Normal PT/PTT (differentiates from DIC)');
+        probability += 10;
+      }
     }
 
-    // Cap probability at 95%
-    probability = Math.min(probability, 95);
+    else if (diagnosisLower.includes('dic') || diagnosisLower.includes('disseminated intravascular')) {
+      const lowPlatelets = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && lab.isAbnormal
+      );
+      const prolongedPT = currentCase.patient.labResults.some(
+        lab => lab.name === 'PT' && lab.isAbnormal
+      );
+      const prolongedPTT = currentCase.patient.labResults.some(
+        lab => lab.name === 'PTT' && lab.isAbnormal
+      );
+      const lowFibrinogen = currentCase.patient.labResults.some(
+        lab => lab.name === 'Fibrinogen' && lab.significance === 'Critical'
+      );
+      const elevatedDDimer = currentCase.patient.labResults.some(
+        lab => lab.name === 'D-dimer' && lab.significance === 'Critical'
+      );
+      const underlyingCondition = currentCase.patient.pastMedicalHistory.some(
+        history => history.toLowerCase().includes('surgery') || 
+                   history.toLowerCase().includes('infection') ||
+                   history.toLowerCase().includes('trauma')
+      );
+
+      if (lowPlatelets) {
+        supportingEvidence.push('Thrombocytopenia (consumption)');
+        probability += 20;
+      }
+
+      if (prolongedPT && prolongedPTT) {
+        supportingEvidence.push('Prolonged PT and PTT (consumption coagulopathy)');
+        probability += 25;
+      } else if (!prolongedPT || !prolongedPTT) {
+        contradictingEvidence.push('Normal coagulation studies');
+        probability -= 20;
+      }
+
+      if (lowFibrinogen) {
+        supportingEvidence.push('Low fibrinogen (consumption)');
+        probability += 20;
+      } else {
+        contradictingEvidence.push('Normal fibrinogen levels');
+        probability -= 15;
+      }
+
+      if (elevatedDDimer) {
+        supportingEvidence.push('Markedly elevated D-dimer');
+        probability += 15;
+      }
+
+      if (underlyingCondition) {
+        supportingEvidence.push('Underlying trigger condition present');
+        probability += 15;
+      }
+    }
+
+    else if (diagnosisLower.includes('hus') || diagnosisLower.includes('hemolytic uremic')) {
+      const severeThrombocytopenia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && lab.significance === 'Critical'
+      );
+      const anemia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Hemoglobin' && lab.significance === 'Critical'
+      );
+      const elevatedCreatinine = currentCase.patient.labResults.some(
+        lab => lab.name === 'Creatinine' && lab.significance === 'Critical'
+      );
+      const schistocytes = currentCase.patient.labResults.some(
+        lab => lab.name === 'Schistocytes' && lab.isAbnormal
+      );
+      const diarrheaHistory = currentCase.patient.historyOfPresentIllness.toLowerCase().includes('diarrhea');
+      const pediatricAge = currentCase.patient.demographics.age < 18;
+
+      if (severeThrombocytopenia && anemia && elevatedCreatinine) {
+        supportingEvidence.push('Classic HUS triad: thrombocytopenia, anemia, acute kidney injury');
+        probability += 30;
+      }
+
+      if (schistocytes) {
+        supportingEvidence.push('Schistocytes indicating microangiopathic hemolytic anemia');
+        probability += 20;
+      } else {
+        contradictingEvidence.push('No schistocytes on blood smear');
+        probability -= 25;
+      }
+
+      if (diarrheaHistory) {
+        supportingEvidence.push('Preceding bloody diarrhea (STEC-HUS)');
+        probability += 20;
+      }
+
+      if (pediatricAge) {
+        supportingEvidence.push('Pediatric age group (typical for STEC-HUS)');
+        probability += 15;
+      }
+    }
+
+    else if (diagnosisLower.includes('itp') || diagnosisLower.includes('immune thrombocytopenic')) {
+      const isolatedThrombocytopenia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && lab.isAbnormal
+      );
+      const normalCoagulation = currentCase.patient.labResults.some(
+        lab => (lab.name === 'PT' && !lab.isAbnormal) || (lab.name === 'PTT' && !lab.isAbnormal)
+      );
+      const normalHemoglobin = currentCase.patient.labResults.some(
+        lab => lab.name === 'Hemoglobin' && lab.significance !== 'Critical'
+      );
+      const femalePatient = currentCase.patient.demographics.sex === 'F';
+      const adultAge = currentCase.patient.demographics.age >= 18;
+
+      if (isolatedThrombocytopenia) {
+        supportingEvidence.push('Isolated thrombocytopenia');
+        probability += 25;
+      }
+
+      if (normalCoagulation) {
+        supportingEvidence.push('Normal PT/PTT (isolated platelet problem)');
+        probability += 20;
+      } else {
+        contradictingEvidence.push('Abnormal coagulation studies');
+        probability -= 15;
+      }
+
+      if (!currentCase.patient.labResults.some(lab => lab.name === 'Schistocytes' && lab.isAbnormal)) {
+        supportingEvidence.push('No schistocytes (excludes TMA)');
+        probability += 15;
+      }
+
+      if (femalePatient) {
+        supportingEvidence.push('Female patient (higher ITP incidence)');
+        probability += 10;
+      }
+
+      if (adultAge) {
+        supportingEvidence.push('Adult onset (chronic ITP pattern)');
+        probability += 10;
+      }
+
+      // Check for contradicting factors
+      if (currentCase.patient.labResults.some(lab => lab.name === 'Schistocytes' && lab.isAbnormal)) {
+        contradictingEvidence.push('Presence of schistocytes suggests TMA');
+        probability -= 20;
+      }
+
+      if (currentCase.patient.labResults.some(lab => lab.name === 'LDH' && lab.significance === 'Critical')) {
+        contradictingEvidence.push('Markedly elevated LDH suggests hemolysis');
+        probability -= 15;
+      }
+    }
+
+    // Generic evidence for less specific diagnoses
+    else {
+      // Provide some basic evidence based on common lab patterns
+      const hasCoagulopathy = currentCase.patient.labResults.some(
+        lab => (lab.name === 'PT' || lab.name === 'PTT' || lab.name === 'INR') && lab.isAbnormal
+      );
+      const hasThrombocytopenia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Platelet Count' && lab.isAbnormal
+      );
+      const hasAnemia = currentCase.patient.labResults.some(
+        lab => lab.name === 'Hemoglobin' && lab.isAbnormal
+      );
+
+      if (hasCoagulopathy) {
+        supportingEvidence.push('Abnormal coagulation studies present');
+        probability += 15;
+      }
+
+      if (hasThrombocytopenia) {
+        supportingEvidence.push('Thrombocytopenia noted');
+        probability += 15;
+      }
+
+      if (hasAnemia) {
+        supportingEvidence.push('Anemia present');
+        probability += 10;
+      }
+
+      // Add some generic contradicting evidence
+      if (!hasCoagulopathy && diagnosisLower.includes('coagulation')) {
+        contradictingEvidence.push('Normal coagulation studies');
+        probability -= 20;
+      }
+
+      if (!hasThrombocytopenia && diagnosisLower.includes('platelet')) {
+        contradictingEvidence.push('Normal platelet count');
+        probability -= 20;
+      }
+    }
+
+    // Cap probability at reasonable bounds
+    probability = Math.max(5, Math.min(probability, 95));
 
     setGameState(prev => ({
       ...prev,
@@ -258,7 +496,9 @@ const Level3 = () => {
   };
 
   const generateNextSteps = (diagnosis: string): string[] => {
-    if (diagnosis.toLowerCase().includes('hemophilia')) {
+    const diagnosisLower = diagnosis.toLowerCase();
+    
+    if (diagnosisLower.includes('hemophilia')) {
       return [
         'Confirm with factor VIII and IX levels',
         'Genetic counseling consultation',
@@ -266,7 +506,7 @@ const Level3 = () => {
         'Activity restrictions counseling'
       ];
     }
-    if (diagnosis.toLowerCase().includes('warfarin')) {
+    if (diagnosisLower.includes('warfarin')) {
       return [
         'Hold warfarin immediately',
         'Consider vitamin K administration',
@@ -274,7 +514,7 @@ const Level3 = () => {
         'Review drug interactions'
       ];
     }
-    if (diagnosis.toLowerCase().includes('ttp')) {
+    if (diagnosisLower.includes('ttp')) {
       return [
         'URGENT: Initiate plasmapheresis',
         'Hematology consultation STAT',
@@ -282,7 +522,36 @@ const Level3 = () => {
         'Consider corticosteroids'
       ];
     }
-    return ['Further diagnostic workup needed'];
+    if (diagnosisLower.includes('dic')) {
+      return [
+        'Treat underlying condition',
+        'Replace consumed factors (FFP, platelets)',
+        'Monitor coagulation parameters',
+        'Consider antifibrinolytic therapy'
+      ];
+    }
+    if (diagnosisLower.includes('hus')) {
+      return [
+        'Supportive care and fluid management',
+        'Monitor kidney function closely',
+        'Avoid antibiotics (if STEC-HUS)',
+        'Consider dialysis if severe AKI'
+      ];
+    }
+    if (diagnosisLower.includes('itp')) {
+      return [
+        'Assess bleeding risk vs platelet count',
+        'Consider corticosteroids if severe',
+        'IVIG if urgent platelet increase needed',
+        'Bone marrow biopsy if atypical features'
+      ];
+    }
+    return [
+      'Further diagnostic workup needed',
+      'Review clinical presentation systematically',
+      'Consider additional laboratory studies',
+      'Specialist consultation if indicated'
+    ];
   };
 
   const handleUpdateHypothesis = (id: string, updates: Partial<DiagnosticHypothesis>) => {

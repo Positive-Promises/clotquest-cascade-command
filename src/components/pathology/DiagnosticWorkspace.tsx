@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { DiagnosticHypothesis } from '@/types/pathologyTypes';
 import { LiteratureSearch } from './LiteratureSearch';
+import { VirtualMicroscopy } from './VirtualMicroscopy';
+import { SymptomTimeline } from './SymptomTimeline';
 
 interface DiagnosticWorkspaceProps {
   hypotheses: DiagnosticHypothesis[];
@@ -29,6 +31,40 @@ interface DiagnosticWorkspaceProps {
   onSearchLiterature: (query: string) => void;
   consultationsRemaining: number;
 }
+
+// Mock microscopy images data
+const mockMicroscopyImages = [
+  {
+    id: 'img-001',
+    title: 'Peripheral Blood Smear - Normal',
+    type: 'blood_smear' as const,
+    magnification: '100x',
+    stain: 'Wright-Giemsa',
+    findings: ['Normal platelet morphology', 'Adequate platelet count', 'No schistocytes'],
+    description: 'Normal peripheral blood smear showing adequate platelets with normal morphology. Red blood cells appear normocytic and normochromic.',
+    imageUrl: '/placeholder.svg'
+  },
+  {
+    id: 'img-002',
+    title: 'Blood Smear - Schistocytes',
+    type: 'blood_smear' as const,
+    magnification: '100x',
+    stain: 'Wright-Giemsa',
+    findings: ['Multiple schistocytes', 'Severe thrombocytopenia', 'Fragmented RBCs'],
+    description: 'Blood smear showing numerous schistocytes (fragmented red blood cells) indicating microangiopathic hemolytic anemia, consistent with TTP/HUS.',
+    imageUrl: '/placeholder.svg'
+  },
+  {
+    id: 'img-003',
+    title: 'Bone Marrow Aspirate',
+    type: 'bone_marrow' as const,
+    magnification: '40x',
+    stain: 'Wright-Giemsa',
+    findings: ['Increased megakaryocytes', 'Normal cellularity', 'No blasts'],
+    description: 'Bone marrow showing increased megakaryocytes, suggesting peripheral platelet destruction rather than production failure.',
+    imageUrl: '/placeholder.svg'
+  }
+];
 
 export const DiagnosticWorkspace = ({
   hypotheses,
@@ -41,6 +77,9 @@ export const DiagnosticWorkspace = ({
 }: DiagnosticWorkspaceProps) => {
   const [newDiagnosis, setNewDiagnosis] = useState('');
   const [selectedHypothesis, setSelectedHypothesis] = useState<string | null>(null);
+  const [showMicroscopy, setShowMicroscopy] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [timelineEvents, setTimelineEvents] = useState<any[]>([]);
 
   const handleAddHypothesis = () => {
     if (newDiagnosis.trim()) {
@@ -55,6 +94,27 @@ export const DiagnosticWorkspace = ({
     }
   };
 
+  const handleMicroscopyFinding = (finding: string) => {
+    // Add finding to current hypothesis as supporting evidence
+    if (selectedHypothesis) {
+      const currentHypothesis = hypotheses.find(h => h.id === selectedHypothesis);
+      if (currentHypothesis) {
+        onUpdateHypothesis(selectedHypothesis, {
+          supportingEvidence: [...currentHypothesis.supportingEvidence, finding]
+        });
+      }
+    }
+  };
+
+  const handleTimelineEventAdded = (event: any) => {
+    const newEvent = { ...event, id: `event-${Date.now()}` };
+    setTimelineEvents(prev => [...prev, newEvent]);
+  };
+
+  const handleTimelineEventRemoved = (id: string) => {
+    setTimelineEvents(prev => prev.filter(event => event.id !== id));
+  };
+
   const getProbabilityColor = (probability: number) => {
     if (probability >= 70) return 'text-green-600';
     if (probability >= 40) return 'text-yellow-600';
@@ -66,6 +126,43 @@ export const DiagnosticWorkspace = ({
     if (probability >= 40) return 'Moderate';
     return 'Low';
   };
+
+  if (showMicroscopy) {
+    return (
+      <div className="space-y-4">
+        <Button 
+          onClick={() => setShowMicroscopy(false)} 
+          variant="outline"
+          className="mb-4"
+        >
+          ← Back to Workspace
+        </Button>
+        <VirtualMicroscopy 
+          images={mockMicroscopyImages}
+          onFindingSelected={handleMicroscopyFinding}
+        />
+      </div>
+    );
+  }
+
+  if (showTimeline) {
+    return (
+      <div className="space-y-4">
+        <Button 
+          onClick={() => setShowTimeline(false)} 
+          variant="outline"
+          className="mb-4"
+        >
+          ← Back to Workspace
+        </Button>
+        <SymptomTimeline 
+          events={timelineEvents}
+          onEventAdded={handleTimelineEventAdded}
+          onEventRemoved={handleTimelineEventRemoved}
+        />
+      </div>
+    );
+  }
 
   return (
     <Card className="bg-card border-border">
@@ -247,7 +344,12 @@ export const DiagnosticWorkspace = ({
                   <p className="text-sm text-muted-foreground mb-3">
                     Examine blood smears and tissue samples
                   </p>
-                  <Button size="sm" className="w-full" variant="outline">
+                  <Button 
+                    size="sm" 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => setShowMicroscopy(true)}
+                  >
                     Launch Microscope
                   </Button>
                 </CardContent>
@@ -262,7 +364,12 @@ export const DiagnosticWorkspace = ({
                   <p className="text-sm text-muted-foreground mb-3">
                     Create interactive timeline of symptoms
                   </p>
-                  <Button size="sm" className="w-full" variant="outline">
+                  <Button 
+                    size="sm" 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => setShowTimeline(true)}
+                  >
                     Build Timeline
                   </Button>
                 </CardContent>
