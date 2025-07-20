@@ -15,7 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
   Microscope,
-  Timeline
+  Clock
 } from 'lucide-react';
 import { DiagnosticHypothesis } from '@/types/pathologyTypes';
 import { LiteratureSearch } from './LiteratureSearch';
@@ -256,7 +256,7 @@ export const DiagnosticWorkspace = ({
               <Card className="border-muted">
                 <CardContent className="p-4">
                   <div className="flex items-center mb-2">
-                    <Timeline className="h-5 w-5 mr-2 text-primary" />
+                    <Clock className="h-5 w-5 mr-2 text-primary" />
                     <h5 className="font-semibold">Symptom Timeline</h5>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">

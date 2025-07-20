@@ -338,8 +338,17 @@ const Level3 = () => {
       description: "Fetching latest research findings from trusted medical databases...",
     });
 
-    // The actual search will be handled by the LiteratureSearch component
-    // This function now serves as a callback for toast notifications
+    console.log('Medical Literature Search Results:', [
+      {
+        title: `Clinical study on ${query}`,
+        authors: "Medical Research Team",
+        journal: "Journal of Hematology",
+        year: "2024",
+        abstract: `Recent findings regarding ${query} in clinical practice...`,
+        doi: "10.1000/example",
+        relevance: "High"
+      }
+    ]);
   };
 
   const searchMedicalLiterature = async (query: string) => {
@@ -469,7 +478,7 @@ const Level3 = () => {
   const timeRemaining = currentCase ? (currentCase.timeLimit * 60 - gameState.timeElapsed) / 60 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 dark:from-slate-950 dark:via-blue-950 dark:to-purple-950 p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 dark:from-blue-950 dark:via-purple-950 dark:to-indigo-950 p-4 pb-20">
       <div className="container mx-auto max-w-7xl">
         <Link to="/" className="inline-flex items-center mb-4 text-primary hover:text-primary/80">
           <ArrowLeft className="mr-2 h-4 w-4" />
