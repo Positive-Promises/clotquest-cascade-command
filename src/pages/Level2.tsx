@@ -72,6 +72,166 @@ interface Patient {
   clinicalHistory: string;
 }
 
+// Available diagnostic tests for coagulation disorders
+const availableTests: DiagnosticTest[] = [
+  {
+    id: 'pt',
+    name: 'Prothrombin Time (PT)',
+    category: 'basic',
+    cost: 50,
+    timeToComplete: 3,
+    description: 'Measures extrinsic coagulation pathway function',
+    indications: ['Bleeding disorders', 'Liver function', 'Warfarin monitoring'],
+    normalRange: '11-13 seconds',
+    specificity: 85,
+    sensitivity: 90,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'aptt',
+    name: 'Activated Partial Thromboplastin Time (aPTT)',
+    category: 'basic',
+    cost: 50,
+    timeToComplete: 3,
+    description: 'Measures intrinsic coagulation pathway function',
+    indications: ['Bleeding disorders', 'Heparin monitoring', 'Factor deficiencies'],
+    normalRange: '25-35 seconds',
+    specificity: 80,
+    sensitivity: 95,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'platelet_count',
+    name: 'Platelet Count',
+    category: 'basic',
+    cost: 30,
+    timeToComplete: 2,
+    description: 'Counts circulating platelets',
+    indications: ['Bleeding disorders', 'Thrombocytopenia', 'Complete blood count'],
+    normalRange: '150,000-450,000/μL',
+    specificity: 95,
+    sensitivity: 98,
+    tubeType: 'Purple top (EDTA)'
+  },
+  {
+    id: 'bleeding_time',
+    name: 'Bleeding Time',
+    category: 'basic',
+    cost: 40,
+    timeToComplete: 15,
+    description: 'Measures primary hemostasis function',
+    indications: ['Platelet function disorders', 'von Willebrand disease'],
+    normalRange: '2-7 minutes',
+    specificity: 70,
+    sensitivity: 75,
+    tubeType: 'No tube required'
+  },
+  {
+    id: 'factor_viii',
+    name: 'Factor VIII Activity',
+    category: 'specialized',
+    cost: 150,
+    timeToComplete: 4,
+    description: 'Measures Factor VIII coagulant activity',
+    indications: ['Hemophilia A', 'von Willebrand disease'],
+    normalRange: '50-150%',
+    specificity: 95,
+    sensitivity: 98,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'factor_ix',
+    name: 'Factor IX Activity',
+    category: 'specialized',
+    cost: 150,
+    timeToComplete: 4,
+    description: 'Measures Factor IX coagulant activity',
+    indications: ['Hemophilia B', 'Factor IX deficiency'],
+    normalRange: '50-150%',
+    specificity: 95,
+    sensitivity: 98,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'vwf_antigen',
+    name: 'von Willebrand Factor Antigen',
+    category: 'specialized',
+    cost: 120,
+    timeToComplete: 5,
+    description: 'Measures vWF protein levels',
+    indications: ['von Willebrand disease', 'Bleeding disorders'],
+    normalRange: '50-150%',
+    specificity: 90,
+    sensitivity: 95,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'vwf_activity',
+    name: 'von Willebrand Factor Activity (Ristocetin)',
+    category: 'specialized',
+    cost: 130,
+    timeToComplete: 6,
+    description: 'Measures vWF functional activity',
+    indications: ['von Willebrand disease classification'],
+    normalRange: '50-150%',
+    specificity: 88,
+    sensitivity: 92,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'factor_v_leiden',
+    name: 'Factor V Leiden Mutation',
+    category: 'genetic',
+    cost: 200,
+    timeToComplete: 24,
+    description: 'Genetic test for thrombophilia',
+    indications: ['Recurrent thrombosis', 'Family history of clots'],
+    normalRange: 'No mutation detected',
+    specificity: 99,
+    sensitivity: 99,
+    tubeType: 'Purple top (EDTA)'
+  },
+  {
+    id: 'prothrombin_gene',
+    name: 'Prothrombin Gene Mutation',
+    category: 'genetic',
+    cost: 200,
+    timeToComplete: 24,
+    description: 'Genetic test for prothrombin G20210A',
+    indications: ['Recurrent thrombosis', 'Unexplained clots'],
+    normalRange: 'No mutation detected',
+    specificity: 99,
+    sensitivity: 99,
+    tubeType: 'Purple top (EDTA)'
+  },
+  {
+    id: 'peripheral_smear',
+    name: 'Peripheral Blood Smear',
+    category: 'microscopy',
+    cost: 80,
+    timeToComplete: 8,
+    description: 'Microscopic examination of blood cells',
+    indications: ['Abnormal CBC', 'Suspected hematologic disorder'],
+    normalRange: 'Normal morphology',
+    specificity: 85,
+    sensitivity: 80,
+    tubeType: 'Purple top (EDTA)'
+  },
+  {
+    id: 'bone_marrow',
+    name: 'Bone Marrow Biopsy',
+    category: 'microscopy',
+    cost: 500,
+    timeToComplete: 48,
+    description: 'Microscopic examination of bone marrow',
+    indications: ['Suspected hematologic malignancy', 'Unexplained cytopenias'],
+    normalRange: 'Normal cellularity and morphology',
+    specificity: 95,
+    sensitivity: 90,
+    tubeType: 'Bone marrow aspirate'
+  }
+];
+
 const Level2 = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
