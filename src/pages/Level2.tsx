@@ -39,6 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { level2Patients, getPatientsByDifficulty, getRandomPatient } from '@/data/level2Cases';
 
 interface DiagnosticTest {
   id: string;
@@ -77,7 +78,7 @@ const Level2 = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [currency, setCurrency] = useState(1000); // Starting QUID
+  const [currency, setCurrency] = useState(1000);
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
   const [selectedTests, setSelectedTests] = useState<DiagnosticTest[]>([]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -89,198 +90,53 @@ const Level2 = () => {
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [gameMode, setGameMode] = useState<'quiz' | 'analysis'>('quiz');
   const [userDiagnosis, setUserDiagnosis] = useState('');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
+  const [caseNumber, setCaseNumber] = useState(1);
+  const [totalCases, setTotalCases] = useState(3);
 
   const checkDiagnosisCorrectness = (diagnosis: string): boolean => {
     if (!currentPatient) return false;
     
     const normalizedDiagnosis = diagnosis.toLowerCase().trim();
+    const level2Patient = level2Patients.find(p => p.id === currentPatient.id);
     
-    // Check for correct diagnosis based on patient case and test results
-    if (currentPatient.id === 'p2') {
-      // James Wilson case - should be Hemophilia A based on test results
-      return normalizedDiagnosis.includes('hemophilia a') || 
-             normalizedDiagnosis.includes('hemophilia') && normalizedDiagnosis.includes('a') ||
-             normalizedDiagnosis.includes('factor viii deficiency');
-    }
+    if (!level2Patient) return false;
     
-    if (currentPatient.id === 'p1') {
-      // Maria Santos case - should be von Willebrand Disease
-      return normalizedDiagnosis.includes('von willebrand') || 
-             normalizedDiagnosis.includes('vwd') ||
-             normalizedDiagnosis.includes('willebrand');
-    }
+    const correctDiagnosis = level2Patient.correctDiagnosis.toLowerCase();
     
-    return false;
+    // Check for exact match or key terms
+    return normalizedDiagnosis.includes(correctDiagnosis) ||
+           correctDiagnosis.includes(normalizedDiagnosis) ||
+           checkDiagnosisKeywords(normalizedDiagnosis, correctDiagnosis);
   };
 
-  const patients: Patient[] = [
-    {
-      id: 'p1',
-      name: 'Maria Santos',
-      age: 34,
-      gender: 'Female',
-      symptoms: ['Easy bruising', 'Heavy menstrual bleeding', 'Bleeding gums'],
-      clinicalHistory: 'Family history of bleeding disorders. Recent dental work with excessive bleeding.'
-    },
-    {
-      id: 'p2',
-      name: 'James Wilson',
-      age: 8,
-      gender: 'Male',
-      symptoms: ['Joint swelling', 'Easy bruising', 'Muscle bleeding'],
-      clinicalHistory: 'X-linked inheritance pattern. Recurrent joint bleeds since early childhood.'
-    }
-  ];
+  const checkDiagnosisKeywords = (userDiag: string, correct: string): boolean => {
+    // Define keyword mappings for common diagnoses
+    const keywordMap: { [key: string]: string[] } = {
+      'von willebrand disease': ['vwd', 'von willebrand', 'willebrand'],
+      'hemophilia a': ['hemophilia a', 'factor viii deficiency', 'factor 8 deficiency'],
+      'hemophilia b': ['hemophilia b', 'factor ix deficiency', 'factor 9 deficiency'],
+      'thrombotic thrombocytopenic purpura (ttp)': ['ttp', 'thrombotic thrombocytopenic purpura'],
+      'hemolytic uremic syndrome (hus)': ['hus', 'hemolytic uremic syndrome'],
+      'immune thrombocytopenic purpura (itp)': ['itp', 'immune thrombocytopenic purpura'],
+      'disseminated intravascular coagulation (dic)': ['dic', 'disseminated intravascular coagulation']
+    };
 
-  const availableTests: DiagnosticTest[] = [
-    // Basic Coagulation Tests
-    {
-      id: 'pt',
-      name: 'Prothrombin Time (PT)',
-      category: 'basic',
-      cost: 15,
-      timeToComplete: 30,
-      description: 'Measures extrinsic pathway function',
-      indications: ['Screening for bleeding disorders', 'Monitoring warfarin therapy'],
-      normalRange: '11-13 seconds',
-      specificity: 85,
-      sensitivity: 90,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    {
-      id: 'aptt',
-      name: 'Activated Partial Thromboplastin Time (aPTT)',
-      category: 'basic',
-      cost: 18,
-      timeToComplete: 35,
-      description: 'Measures intrinsic pathway function',
-      indications: ['Screening for bleeding disorders', 'Monitoring heparin therapy'],
-      normalRange: '25-35 seconds',
-      specificity: 80,
-      sensitivity: 85,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    {
-      id: 'inr',
-      name: 'International Normalized Ratio (INR)',
-      category: 'basic',
-      cost: 12,
-      timeToComplete: 30,
-      description: 'Standardized PT measurement',
-      indications: ['Anticoagulation monitoring', 'Liver function assessment'],
-      normalRange: '0.8-1.2',
-      specificity: 90,
-      sensitivity: 88,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    {
-      id: 'bleeding_time',
-      name: 'Bleeding Time',
-      category: 'basic',
-      cost: 25,
-      timeToComplete: 15,
-      description: 'Measures primary hemostasis',
-      indications: ['Platelet function assessment', 'Pre-surgical screening'],
-      normalRange: '2-7 minutes',
-      specificity: 70,
-      sensitivity: 75,
-      tubeType: 'No tube required (in vivo test)'
-    },
-    // Specialized Tests
-    {
-      id: 'factor_viii',
-      name: 'Factor VIII Assay',
-      category: 'specialized',
-      cost: 120,
-      timeToComplete: 180,
-      description: 'Quantifies Factor VIII activity',
-      indications: ['Hemophilia A diagnosis', 'von Willebrand disease'],
-      normalRange: '50-150%',
-      specificity: 95,
-      sensitivity: 98,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    {
-      id: 'factor_ix',
-      name: 'Factor IX Assay',
-      category: 'specialized',
-      cost: 125,
-      timeToComplete: 180,
-      description: 'Quantifies Factor IX activity',
-      indications: ['Hemophilia B diagnosis'],
-      normalRange: '50-150%',
-      specificity: 96,
-      sensitivity: 97,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    {
-      id: 'vwf_antigen',
-      name: 'von Willebrand Factor Antigen',
-      category: 'specialized',
-      cost: 90,
-      timeToComplete: 120,
-      description: 'Measures vWF protein levels',
-      indications: ['von Willebrand disease diagnosis'],
-      normalRange: '60-140%',
-      specificity: 92,
-      sensitivity: 89,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    {
-      id: 'platelet_aggregometry',
-      name: 'Platelet Aggregometry',
-      category: 'specialized',
-      cost: 150,
-      timeToComplete: 240,
-      description: 'Measures platelet function responses',
-      indications: ['Platelet function disorders', 'Drug effects on platelets'],
-      normalRange: 'Variable by inducer',
-      specificity: 88,
-      sensitivity: 85,
-      tubeType: 'Blue top (sodium citrate)'
-    },
-    // Genetic Tests
-    {
-      id: 'factor_v_leiden',
-      name: 'Factor V Leiden Mutation',
-      category: 'genetic',
-      cost: 200,
-      timeToComplete: 1440,
-      description: 'DNA analysis for Factor V Leiden mutation',
-      indications: ['Thrombophilia screening', 'Family history of clots'],
-      normalRange: 'Normal (no mutation)',
-      specificity: 99,
-      sensitivity: 99,
-      tubeType: 'EDTA (purple top)'
-    },
-    {
-      id: 'prothrombin_gene',
-      name: 'Prothrombin Gene Mutation',
-      category: 'genetic',
-      cost: 180,
-      timeToComplete: 1440,
-      description: 'DNA analysis for prothrombin G20210A',
-      indications: ['Thrombophilia screening'],
-      normalRange: 'Normal (no mutation)',
-      specificity: 99,
-      sensitivity: 99,
-      tubeType: 'EDTA (purple top)'
-    },
-    // Microscopy
-    {
-      id: 'blood_smear',
-      name: 'Peripheral Blood Smear',
-      category: 'microscopy',
-      cost: 35,
-      timeToComplete: 45,
-      description: 'Microscopic examination of blood cells',
-      indications: ['Platelet count verification', 'Cell morphology assessment'],
-      normalRange: 'Normal cell morphology',
-      specificity: 85,
-      sensitivity: 80,
-      tubeType: 'EDTA (purple top)'
-    }
-  ];
+    const keywords = keywordMap[correct] || [];
+    return keywords.some(keyword => userDiag.includes(keyword));
+  };
+
+  // Convert level2Patients to the expected Patient interface
+  const convertToPatient = (level2Patient: any): Patient => {
+    return {
+      id: level2Patient.id,
+      name: level2Patient.name,
+      age: level2Patient.age,
+      gender: level2Patient.gender,
+      symptoms: level2Patient.symptoms,
+      clinicalHistory: level2Patient.clinicalHistory
+    };
+  };
 
   useEffect(() => {
     if (gameStarted) {
@@ -293,11 +149,39 @@ const Level2 = () => {
 
   const startGame = () => {
     setGameStarted(true);
-    setCurrentPatient(patients[0]);
+    const randomPatient = getRandomPatient();
+    setCurrentPatient(convertToPatient(randomPatient));
+    setCaseNumber(1);
     toast({
       title: "🔬 Diagnostic Detective Started!",
-      description: "Welcome to the laboratory! Select appropriate tests to solve the case.",
+      description: `Welcome to the laboratory! Case ${caseNumber}/${totalCases} - ${selectedDifficulty} difficulty`,
     });
+  };
+
+  const nextCase = () => {
+    if (caseNumber < totalCases) {
+      const difficultyPatients = getPatientsByDifficulty(selectedDifficulty);
+      const randomPatient = difficultyPatients[Math.floor(Math.random() * difficultyPatients.length)];
+      setCurrentPatient(convertToPatient(randomPatient));
+      setCaseNumber(prev => prev + 1);
+      
+      // Reset case-specific state
+      setSelectedTests([]);
+      setTestResults([]);
+      setSampleCollected(false);
+      setSelectedTubeType('');
+      setUserDiagnosis('');
+      setCurrentTab('overview');
+      
+      toast({
+        title: "📋 New Case Loaded!",
+        description: `Case ${caseNumber + 1}/${totalCases} - ${randomPatient.name}`,
+      });
+    } else {
+      // Complete level
+      setLevel2Complete(true);
+      setShowCompletionDialog(true);
+    }
   };
 
   const collectSample = (tubeType: string) => {
@@ -374,6 +258,13 @@ const Level2 = () => {
         interpretation: patient.id === 'p2' ? 'Severe deficiency' : patient.id === 'p1' ? 'Mild deficiency' : 'Normal',
         abnormalFlags: patient.id === 'p2' ? ['Critical Low'] : patient.id === 'p1' ? ['Low'] : [],
         followUpSuggestions: patient.id === 'p2' ? ['Severe Hemophilia A confirmed', 'Genetic counseling recommended'] : []
+      },
+      'vwf_antigen': {
+        testId: 'vwf_antigen',
+        value: patient.id === 'p1' ? '35%' : '90%',
+        interpretation: patient.id === 'p1' ? 'Low' : 'Normal',
+        abnormalFlags: patient.id === 'p1' ? ['Low'] : [],
+        followUpSuggestions: patient.id === 'p1' ? ['Suggests von Willebrand Disease', 'Consider desmopressin trial'] : []
       }
     };
 
@@ -398,12 +289,14 @@ const Level2 = () => {
     setTimeElapsed(0);
     setSelectedTests([]);
     setTestResults([]);
-    setCurrentPatient(patients[0]);
+    const randomPatient = getRandomPatient();
+    setCurrentPatient(convertToPatient(randomPatient));
     setSampleCollected(false);
     setSelectedTubeType('');
     setLevel2Complete(false);
     setShowCompletionDialog(false);
     setGameStarted(true);
+    setCaseNumber(1);
   };
 
   const getCategoryColor = (category: string) => {
@@ -458,6 +351,11 @@ const Level2 = () => {
                   Level 2: Diagnostic Detective
                 </h1>
                 <p className="text-blue-200 text-lg">Master laboratory diagnostics for coagulation disorders</p>
+                {gameStarted && (
+                  <p className="text-green-300 text-sm mt-1">
+                    Case {caseNumber}/{totalCases} • {selectedDifficulty} difficulty
+                  </p>
+                )}
               </div>
               <div className="flex items-center space-x-6">
                 <div className="text-center">
@@ -484,6 +382,28 @@ const Level2 = () => {
               <h2 className="text-3xl font-bold text-white mb-4">Ready to Enter the Laboratory?</h2>
               <p className="text-white/70 mb-8 text-lg">Step into the role of a laboratory specialist and solve coagulation mysteries!</p>
               
+              {/* Difficulty Selection */}
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-white mb-4">Select Difficulty:</h3>
+                <div className="flex justify-center space-x-4 mb-4">
+                  {(['beginner', 'intermediate', 'advanced'] as const).map((diff) => (
+                    <Button
+                      key={diff}
+                      onClick={() => setSelectedDifficulty(diff)}
+                      variant={selectedDifficulty === diff ? 'default' : 'outline'}
+                      className={`px-6 py-3 capitalize ${selectedDifficulty === diff ? 'bg-green-600 hover:bg-green-700' : 'border-white/30 text-white hover:bg-white/10'}`}
+                    >
+                      {diff}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-white/60 text-sm">
+                  {selectedDifficulty === 'beginner' && 'Classic hereditary bleeding disorders'}
+                  {selectedDifficulty === 'intermediate' && 'Complex cases with multiple factors'}
+                  {selectedDifficulty === 'advanced' && 'Emergency situations requiring rapid diagnosis'}
+                </p>
+              </div>
+
               {/* Game Mode Selection */}
               <div className="mb-8">
                 <h3 className="text-xl font-bold text-white mb-4">Select Game Mode:</h3>
@@ -506,7 +426,7 @@ const Level2 = () => {
                   </Button>
                 </div>
                 <p className="text-white/60 mt-2 text-sm">
-                  {gameMode === 'quiz' ? 'Traditional quiz format with scoring' : 'Analyze any diagnosis with evidence-based feedback'}
+                  {gameMode === 'quiz' ? 'Traditional quiz format with scoring and progression through cases' : 'Analyze any diagnosis with evidence-based feedback and educational exploration'}
                 </p>
               </div>
               
@@ -753,6 +673,12 @@ const Level2 = () => {
                                 <span>Severe Factor VIII deficiency confirms Hemophilia A</span>
                               </div>
                             )}
+                            {testResults.some(r => r.testId === 'vwf_antigen' && r.abnormalFlags.includes('Low')) && (
+                              <div className="flex items-center space-x-2">
+                                <CheckCircle className="h-4 w-4 text-green-400" />
+                                <span>Low vWF antigen suggests von Willebrand Disease</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         
@@ -789,6 +715,15 @@ const Level2 = () => {
                                     title: "Excellent Diagnosis! 🎯",
                                     description: `Correct! ${userDiagnosis} is the right diagnosis. +200 points`,
                                   });
+                                  
+                                  if (caseNumber < totalCases) {
+                                    setTimeout(() => nextCase(), 2000);
+                                  } else {
+                                    setTimeout(() => {
+                                      setLevel2Complete(true);
+                                      setShowCompletionDialog(true);
+                                    }, 2000);
+                                  }
                                 } else {
                                   setScore(prev => prev + 50);
                                   toast({
@@ -806,10 +741,16 @@ const Level2 = () => {
                           <Button 
                             variant="outline" 
                             className="border-white/20 text-white hover:bg-white/10 p-4"
-                            onClick={resetLevel}
+                            onClick={() => {
+                              if (caseNumber < totalCases) {
+                                nextCase();
+                              } else {
+                                resetLevel();
+                              }
+                            }}
                           >
                             <RotateCcw className="h-4 w-4 mr-2" />
-                            New Case
+                            {caseNumber < totalCases ? 'Next Case' : 'New Session'}
                           </Button>
                         </div>
                       </div>
