@@ -88,6 +88,30 @@ const Level2 = () => {
   const [level2Complete, setLevel2Complete] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [gameMode, setGameMode] = useState<'quiz' | 'analysis'>('quiz');
+  const [userDiagnosis, setUserDiagnosis] = useState('');
+
+  const checkDiagnosisCorrectness = (diagnosis: string): boolean => {
+    if (!currentPatient) return false;
+    
+    const normalizedDiagnosis = diagnosis.toLowerCase().trim();
+    
+    // Check for correct diagnosis based on patient case and test results
+    if (currentPatient.id === 'p2') {
+      // James Wilson case - should be Hemophilia A based on test results
+      return normalizedDiagnosis.includes('hemophilia a') || 
+             normalizedDiagnosis.includes('hemophilia') && normalizedDiagnosis.includes('a') ||
+             normalizedDiagnosis.includes('factor viii deficiency');
+    }
+    
+    if (currentPatient.id === 'p1') {
+      // Maria Santos case - should be von Willebrand Disease
+      return normalizedDiagnosis.includes('von willebrand') || 
+             normalizedDiagnosis.includes('vwd') ||
+             normalizedDiagnosis.includes('willebrand');
+    }
+    
+    return false;
+  };
 
   const patients: Patient[] = [
     {
@@ -732,15 +756,48 @@ const Level2 = () => {
                           </div>
                         </div>
                         
+                        {/* Diagnosis Input Section */}
+                        <div className="bg-white/5 p-4 rounded-lg border border-white/20">
+                          <h4 className="font-bold text-blue-300 mb-3">Enter Your Diagnosis</h4>
+                          <div className="space-y-3">
+                            <Label htmlFor="diagnosis-input" className="text-white/80">
+                              Based on the clinical presentation and test results, what is your diagnosis?
+                            </Label>
+                            <Input
+                              id="diagnosis-input"
+                              value={userDiagnosis}
+                              onChange={(e) => setUserDiagnosis(e.target.value)}
+                              placeholder="Type your diagnosis here (e.g., Hemophilia A, von Willebrand Disease)..."
+                              className="bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:border-blue-400"
+                            />
+                            <p className="text-white/60 text-sm">
+                              Consider the patient's symptoms, family history, and laboratory findings when making your diagnosis.
+                            </p>
+                          </div>
+                        </div>
+                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <Button 
                             className="bg-green-600 hover:bg-green-700 p-4"
+                            disabled={!userDiagnosis.trim()}
                             onClick={() => {
-                              setScore(prev => prev + 200);
-                              toast({
-                                title: "Excellent Interpretation! 🎯",
-                                description: "Your diagnostic reasoning is spot on! +200 points",
-                              });
+                              if (userDiagnosis.trim()) {
+                                const isCorrect = checkDiagnosisCorrectness(userDiagnosis);
+                                if (isCorrect) {
+                                  setScore(prev => prev + 200);
+                                  toast({
+                                    title: "Excellent Diagnosis! 🎯",
+                                    description: `Correct! ${userDiagnosis} is the right diagnosis. +200 points`,
+                                  });
+                                } else {
+                                  setScore(prev => prev + 50);
+                                  toast({
+                                    title: "Good Attempt! 🤔",
+                                    description: `${userDiagnosis} - Consider reviewing the test results. +50 points for effort`,
+                                    variant: "destructive",
+                                  });
+                                }
+                              }
                             }}
                           >
                             <Target className="h-4 w-4 mr-2" />
