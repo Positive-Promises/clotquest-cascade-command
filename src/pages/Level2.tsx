@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, Clock, Target, Users, Home, Brain, Microscope, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '@/components/ThemeToggle';
+import DiagnosisAnalyzer from '@/components/DiagnosisAnalyzer';
 
 const Level2: React.FC = () => {
   const navigate = useNavigate();
@@ -15,13 +16,14 @@ const Level2: React.FC = () => {
   const [score, setScore] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [gameMode, setGameMode] = useState<'quiz' | 'analysis'>('quiz');
 
-  // Mock scenarios for bleeding disorders
+  // Enhanced scenarios with diagnosis analysis data
   const scenarios = [
     {
       id: 1,
       title: "Emergency: Massive Hemorrhage",
-      urgency: "critical",
+      urgency: "critical" as const,
       description: "A 45-year-old patient presents with massive gastrointestinal bleeding following anticoagulant therapy.",
       question: "What is the most appropriate immediate intervention?",
       options: [
@@ -31,13 +33,21 @@ const Level2: React.FC = () => {
         "Begin heparin therapy"
       ],
       correctAnswer: 0,
-      explanation: "For anticoagulant-related bleeding, reversing the anticoagulation with FFP and vitamin K is the priority."
+      explanation: "For anticoagulant-related bleeding, reversing the anticoagulation with FFP and vitamin K is the priority.",
+      // Diagnosis analysis data
+      analysisData: {
+        symptoms: ["Massive GI bleeding", "Recent anticoagulant use", "Hemodynamic instability"],
+        labResults: ["Prolonged PT/INR", "Low hemoglobin", "Normal platelet count"],
+        history: "45-year-old on warfarin therapy for atrial fibrillation",
+        correctDiagnosis: "Anticoagulant-associated bleeding",
+        differentialDiagnoses: ["Peptic ulcer disease", "Esophageal varices", "Mallory-Weiss tear"]
+      }
     },
     {
       id: 2,
-      title: "Surgical Case: Pre-operative Assessment",
-      urgency: "moderate",
-      description: "A 32-year-old patient scheduled for surgery has a family history of bleeding disorders.",
+      title: "Pediatric Case: Recurrent Bleeding",
+      urgency: "moderate" as const,
+      description: "An 8-year-old boy presents with recurrent joint bleeding and prolonged bleeding after minor trauma.",
       question: "Which test would be most appropriate for initial screening?",
       options: [
         "Platelet aggregometry",
@@ -46,7 +56,14 @@ const Level2: React.FC = () => {
         "Factor VIII activity"
       ],
       correctAnswer: 1,
-      explanation: "PT/INR and aPTT provide a comprehensive initial screening for bleeding disorders."
+      explanation: "PT/INR and aPTT provide a comprehensive initial screening for bleeding disorders.",
+      analysisData: {
+        symptoms: ["Recurrent joint bleeding", "Prolonged bleeding after trauma", "Easy bruising"],
+        labResults: ["Prolonged aPTT", "Normal PT", "Normal platelet count"],
+        history: "8-year-old male, family history of bleeding disorders",
+        correctDiagnosis: "Hemophilia A",
+        differentialDiagnoses: ["Hemophilia B", "von Willebrand disease", "Platelet dysfunction"]
+      }
     }
   ];
 
@@ -70,6 +87,10 @@ const Level2: React.FC = () => {
       setCurrentScenario(prev => prev + 1);
       setSelectedAnswer(null);
     }
+  };
+
+  const handleAnalysisComplete = (correct: boolean, points: number) => {
+    setScore(prev => prev + points);
   };
 
   const formatTime = (seconds: number) => {
@@ -129,6 +150,28 @@ const Level2: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Game Mode Selection */}
+        <Card className="glassmorphic-card mb-6">
+          <CardContent className="p-4">
+            <div className="flex justify-center gap-4">
+              <Button
+                onClick={() => setGameMode('quiz')}
+                variant={gameMode === 'quiz' ? 'default' : 'outline'}
+                className={gameMode === 'quiz' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white/10 hover:bg-white/20 border-white/20'}
+              >
+                Quiz Mode
+              </Button>
+              <Button
+                onClick={() => setGameMode('analysis')}
+                variant={gameMode === 'analysis' ? 'default' : 'outline'}
+                className={gameMode === 'analysis' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-white/10 hover:bg-white/20 border-white/20'}
+              >
+                Diagnosis Analysis
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Current Case */}
         <Card className="glassmorphic-card">
           <CardHeader>
@@ -152,62 +195,69 @@ const Level2: React.FC = () => {
                 {currentCase.description}
               </p>
 
-              <div className="bg-blue-800/30 dark:bg-blue-800/30 light:bg-blue-100/50 p-4 rounded-lg">
-                <h3 className="font-semibold text-white dark:text-white light:text-black mb-3">
-                  {currentCase.question}
-                </h3>
-                
-                <div className="space-y-2">
-                  {currentCase.options.map((option, index) => (
-                    <Button
-                      key={index}
-                      onClick={() => handleAnswerSelect(index)}
-                      variant={selectedAnswer === index ? "default" : "outline"}
-                      className={`w-full justify-start text-left h-auto p-4 ${
-                        selectedAnswer === index
-                          ? index === currentCase.correctAnswer
-                            ? 'bg-green-600 hover:bg-green-700 border-green-500'
-                            : 'bg-red-600 hover:bg-red-700 border-red-500'
-                          : 'bg-white/10 hover:bg-white/20 border-white/20'
-                      }`}
-                      disabled={selectedAnswer !== null}
-                    >
-                      <span className="mr-3 font-bold">
-                        {String.fromCharCode(65 + index)}.
-                      </span>
-                      {option}
-                    </Button>
-                  ))}
-                </div>
-
-                {selectedAnswer !== null && (
-                  <div className="mt-4 p-4 bg-blue-900/50 dark:bg-blue-900/50 light:bg-blue-50 rounded-lg">
-                    <p className="text-blue-100 dark:text-blue-100 light:text-blue-900">
-                      <strong>Explanation:</strong> {currentCase.explanation}
-                    </p>
-                    
-                    {currentScenario < scenarios.length - 1 ? (
-                      <Button 
-                        onClick={handleNextScenario}
-                        className="mt-3 bg-blue-600 hover:bg-blue-700"
+              {gameMode === 'quiz' ? (
+                <div className="bg-blue-800/30 dark:bg-blue-800/30 light:bg-blue-100/50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-white dark:text-white light:text-black mb-3">
+                    {currentCase.question}
+                  </h3>
+                  
+                  <div className="space-y-2">
+                    {currentCase.options.map((option, index) => (
+                      <Button
+                        key={index}
+                        onClick={() => handleAnswerSelect(index)}
+                        variant={selectedAnswer === index ? "default" : "outline"}
+                        className={`w-full justify-start text-left h-auto p-4 ${
+                          selectedAnswer === index
+                            ? index === currentCase.correctAnswer
+                              ? 'bg-green-600 hover:bg-green-700 border-green-500'
+                              : 'bg-red-600 hover:bg-red-700 border-red-500'
+                            : 'bg-white/10 hover:bg-white/20 border-white/20'
+                        }`}
+                        disabled={selectedAnswer !== null}
                       >
-                        Next Case
+                        <span className="mr-3 font-bold">
+                          {String.fromCharCode(65 + index)}.
+                        </span>
+                        {option}
                       </Button>
-                    ) : (
-                      <div className="mt-3 text-center">
-                        <p className="text-green-400 font-bold mb-3">Level 2 Complete!</p>
-                        <Button 
-                          onClick={() => navigate('/level3')}
-                          className="bg-green-600 hover:bg-green-700 mr-2"
-                        >
-                          <Target className="h-4 w-4 mr-2" />
-                          Continue to Level 3
-                        </Button>
-                      </div>
-                    )}
+                    ))}
                   </div>
-                )}
-              </div>
+
+                  {selectedAnswer !== null && (
+                    <div className="mt-4 p-4 bg-blue-900/50 dark:bg-blue-900/50 light:bg-blue-50 rounded-lg">
+                      <p className="text-blue-100 dark:text-blue-100 light:text-blue-900">
+                        <strong>Explanation:</strong> {currentCase.explanation}
+                      </p>
+                      
+                      {currentScenario < scenarios.length - 1 ? (
+                        <Button 
+                          onClick={handleNextScenario}
+                          className="mt-3 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Next Case
+                        </Button>
+                      ) : (
+                        <div className="mt-3 text-center">
+                          <p className="text-green-400 font-bold mb-3">Level 2 Complete!</p>
+                          <Button 
+                            onClick={() => navigate('/level3')}
+                            className="bg-green-600 hover:bg-green-700 mr-2"
+                          >
+                            <Target className="h-4 w-4 mr-2" />
+                            Continue to Level 3
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <DiagnosisAnalyzer 
+                  patientCase={currentCase.analysisData}
+                  onAnalysisComplete={handleAnalysisComplete}
+                />
+              )}
             </div>
           </CardContent>
         </Card>

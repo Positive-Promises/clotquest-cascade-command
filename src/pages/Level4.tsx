@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import {
   BookOpen, 
   Search, 
   FileText, 
-  PresentationChart, 
+  BarChart3, 
   Users, 
   Award, 
   Home,
@@ -184,7 +183,7 @@ const Level4: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-4 mt-6">
                       <Button className="bg-blue-600 hover:bg-blue-700">
-                        <PresentationChart className="h-4 w-4 mr-2" />
+                        <BarChart3 className="h-4 w-4 mr-2" />
                         View Analytics
                       </Button>
                       <Button variant="outline" className="bg-white/10 hover:bg-white/20 border-white/20">
