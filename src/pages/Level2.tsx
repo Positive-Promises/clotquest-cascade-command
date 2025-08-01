@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import GlassmorphicCard from '@/components/enhanced/GlassmorphicCard';
 import AudioSystem from '@/components/AudioSystem';
+import DiagnosisAnalyzer from '@/components/DiagnosisAnalyzer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -87,6 +87,7 @@ const Level2 = () => {
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [level2Complete, setLevel2Complete] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [gameMode, setGameMode] = useState<'quiz' | 'analysis'>('quiz');
 
   const patients: Patient[] = [
     {
@@ -458,6 +459,33 @@ const Level2 = () => {
               <Microscope className="h-24 w-24 text-blue-400 mx-auto mb-6" />
               <h2 className="text-3xl font-bold text-white mb-4">Ready to Enter the Laboratory?</h2>
               <p className="text-white/70 mb-8 text-lg">Step into the role of a laboratory specialist and solve coagulation mysteries!</p>
+              
+              {/* Game Mode Selection */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4">Select Game Mode:</h3>
+                <div className="flex justify-center space-x-4">
+                  <Button
+                    onClick={() => setGameMode('quiz')}
+                    variant={gameMode === 'quiz' ? 'default' : 'outline'}
+                    className={`px-6 py-3 ${gameMode === 'quiz' ? 'bg-blue-600 hover:bg-blue-700' : 'border-white/30 text-white hover:bg-white/10'}`}
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    Quiz Mode
+                  </Button>
+                  <Button
+                    onClick={() => setGameMode('analysis')}
+                    variant={gameMode === 'analysis' ? 'default' : 'outline'}
+                    className={`px-6 py-3 ${gameMode === 'analysis' ? 'bg-purple-600 hover:bg-purple-700' : 'border-white/30 text-white hover:bg-white/10'}`}
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    Diagnosis Analysis
+                  </Button>
+                </div>
+                <p className="text-white/60 mt-2 text-sm">
+                  {gameMode === 'quiz' ? 'Traditional quiz format with scoring' : 'Analyze any diagnosis with evidence-based feedback'}
+                </p>
+              </div>
+              
               <Button onClick={startGame} size="lg" className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-4 text-lg">
                 <Play className="h-6 w-6 mr-3" />
                 Start Laboratory Session
@@ -665,65 +693,73 @@ const Level2 = () => {
             </TabsContent>
 
             <TabsContent value="interpretation" className="space-y-6">
-              <GlassmorphicCard intensity="medium" color="green">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Brain className="h-6 w-6 mr-2 text-green-400" />
-                    Clinical Interpretation
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-white space-y-4">
-                  {testResults.length === 0 ? (
-                    <p className="text-white/60 text-center py-8">Complete diagnostic tests to begin clinical interpretation.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="bg-white/5 p-4 rounded-lg">
-                        <h4 className="font-bold text-green-300 mb-2">Diagnostic Algorithm</h4>
-                        <p className="text-white/80 mb-3">Based on your test results, consider the following diagnostic pathway:</p>
-                        {/* Dynamic diagnostic algorithm based on results */}
-                        <div className="space-y-2 text-sm">
-                          {testResults.some(r => r.abnormalFlags.includes('Critical High') && r.testId === 'aptt') && (
-                            <div className="flex items-center space-x-2">
-                              <CheckCircle className="h-4 w-4 text-green-400" />
-                              <span>Prolonged aPTT suggests intrinsic pathway defect</span>
-                            </div>
-                          )}
-                          {testResults.some(r => r.testId === 'factor_viii' && r.abnormalFlags.includes('Critical Low')) && (
-                            <div className="flex items-center space-x-2">
-                              <CheckCircle className="h-4 w-4 text-green-400" />
-                              <span>Severe Factor VIII deficiency confirms Hemophilia A</span>
-                            </div>
-                          )}
+              {gameMode === 'analysis' ? (
+                <DiagnosisAnalyzer
+                  patient={currentPatient}
+                  testResults={testResults}
+                  onScoreUpdate={(points) => setScore(prev => prev + points)}
+                />
+              ) : (
+                <GlassmorphicCard intensity="medium" color="green">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Brain className="h-6 w-6 mr-2 text-green-400" />
+                      Clinical Interpretation
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-white space-y-4">
+                    {testResults.length === 0 ? (
+                      <p className="text-white/60 text-center py-8">Complete diagnostic tests to begin clinical interpretation.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="bg-white/5 p-4 rounded-lg">
+                          <h4 className="font-bold text-green-300 mb-2">Diagnostic Algorithm</h4>
+                          <p className="text-white/80 mb-3">Based on your test results, consider the following diagnostic pathway:</p>
+                          {/* Dynamic diagnostic algorithm based on results */}
+                          <div className="space-y-2 text-sm">
+                            {testResults.some(r => r.abnormalFlags.includes('Critical High') && r.testId === 'aptt') && (
+                              <div className="flex items-center space-x-2">
+                                <CheckCircle className="h-4 w-4 text-green-400" />
+                                <span>Prolonged aPTT suggests intrinsic pathway defect</span>
+                              </div>
+                            )}
+                            {testResults.some(r => r.testId === 'factor_viii' && r.abnormalFlags.includes('Critical Low')) && (
+                              <div className="flex items-center space-x-2">
+                                <CheckCircle className="h-4 w-4 text-green-400" />
+                                <span>Severe Factor VIII deficiency confirms Hemophilia A</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Button 
+                            className="bg-green-600 hover:bg-green-700 p-4"
+                            onClick={() => {
+                              setScore(prev => prev + 200);
+                              toast({
+                                title: "Excellent Interpretation! 🎯",
+                                description: "Your diagnostic reasoning is spot on! +200 points",
+                              });
+                            }}
+                          >
+                            <Target className="h-4 w-4 mr-2" />
+                            Submit Diagnosis
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="border-white/20 text-white hover:bg-white/10 p-4"
+                            onClick={resetLevel}
+                          >
+                            <RotateCcw className="h-4 w-4 mr-2" />
+                            New Case
+                          </Button>
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Button 
-                          className="bg-green-600 hover:bg-green-700 p-4"
-                          onClick={() => {
-                            setScore(prev => prev + 200);
-                            toast({
-                              title: "Excellent Interpretation! 🎯",
-                              description: "Your diagnostic reasoning is spot on! +200 points",
-                            });
-                          }}
-                        >
-                          <Target className="h-4 w-4 mr-2" />
-                          Submit Diagnosis
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="border-white/20 text-white hover:bg-white/10 p-4"
-                          onClick={resetLevel}
-                        >
-                          <RotateCcw className="h-4 w-4 mr-2" />
-                          New Case
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </GlassmorphicCard>
+                    )}
+                  </CardContent>
+                </GlassmorphicCard>
+              )}
             </TabsContent>
           </Tabs>
         )}
