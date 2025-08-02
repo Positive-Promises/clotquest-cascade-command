@@ -6,7 +6,7 @@ interface GlassmorphicCardProps {
   children: React.ReactNode;
   className?: string;
   intensity?: 'light' | 'medium' | 'heavy';
-  color?: 'neutral' | 'blue' | 'purple' | 'green' | 'red';
+  color?: 'neutral' | 'blue' | 'purple' | 'green' | 'red' | 'orange';
   hover?: boolean;
   animated?: boolean;
 }
@@ -30,7 +30,8 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({
     blue: 'shadow-blue-500/20 shadow-2xl border-blue-400/20',
     purple: 'shadow-purple-500/20 shadow-2xl border-purple-400/20',
     green: 'shadow-green-500/20 shadow-2xl border-green-400/20',
-    red: 'shadow-red-500/20 shadow-2xl border-red-400/20'
+    red: 'shadow-red-500/20 shadow-2xl border-red-400/20',
+    orange: 'shadow-orange-500/20 shadow-2xl border-orange-400/20'
   };
 
   const hoverClasses = hover 
