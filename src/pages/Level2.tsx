@@ -331,7 +331,7 @@ const availableTests: DiagnosticTest[] = [
     tubeType: 'Bone marrow aspirate'
   },
 
-  // Imaging Tests (NEW)
+  // Imaging Tests
   {
     id: 'duplex_doppler',
     name: 'Duplex Doppler Ultrasound',
@@ -1037,10 +1037,10 @@ const Level2 = () => {
             </TabsContent>
 
             <TabsContent value="imaging" className="space-y-6">
-              <GlassmorphicCard intensity="medium" color="orange">
+              <GlassmorphicCard intensity="medium" color="red">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center">
-                    <Zap className="h-6 w-6 mr-2 text-orange-400" />
+                    <Zap className="h-6 w-6 mr-2 text-red-400" />
                     Imaging Studies
                   </CardTitle>
                 </CardHeader>
@@ -1050,7 +1050,7 @@ const Level2 = () => {
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-white font-bold text-sm">{test.name}</h4>
                         <div className="flex items-center space-x-2">
-                          <Badge className="text-xs bg-orange-600">
+                          <Badge className="text-xs bg-red-600">
                             {test.cost} QUID
                           </Badge>
                           <Badge variant="outline" className="text-white border-white/30 text-xs">
@@ -1067,7 +1067,7 @@ const Level2 = () => {
                           size="sm"
                           onClick={() => orderTest(test)}
                           disabled={selectedTests.some(t => t.id === test.id)}
-                          className="bg-orange-600 hover:bg-orange-700 text-white text-xs"
+                          className="bg-red-600 hover:bg-red-700 text-white text-xs"
                         >
                           {selectedTests.some(t => t.id === test.id) ? 'Ordered' : 'Order Study'}
                         </Button>
