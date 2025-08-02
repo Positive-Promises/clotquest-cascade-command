@@ -22,7 +22,9 @@ import {
   AlertTriangle,
   Brain,
   Droplets,
-  Activity
+  Activity,
+  Zap,
+  Heart
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -44,7 +46,7 @@ import { level2Patients, getPatientsByDifficulty, getRandomPatient } from '@/dat
 interface DiagnosticTest {
   id: string;
   name: string;
-  category: 'basic' | 'specialized' | 'genetic' | 'microscopy';
+  category: 'basic' | 'specialized' | 'genetic' | 'microscopy' | 'imaging';
   cost: number;
   timeToComplete: number;
   description: string;
@@ -72,8 +74,9 @@ interface Patient {
   clinicalHistory: string;
 }
 
-// Available diagnostic tests for coagulation disorders
+// Enhanced diagnostic tests with missing tests added
 const availableTests: DiagnosticTest[] = [
+  // Basic Tests
   {
     id: 'pt',
     name: 'Prothrombin Time (PT)',
@@ -127,6 +130,47 @@ const availableTests: DiagnosticTest[] = [
     tubeType: 'No tube required'
   },
   {
+    id: 'inr',
+    name: 'INR (International Normalized Ratio)',
+    category: 'basic',
+    cost: 45,
+    timeToComplete: 3,
+    description: 'Standardized PT for warfarin monitoring',
+    indications: ['Warfarin monitoring', 'Liver function assessment'],
+    normalRange: '0.9-1.2',
+    specificity: 90,
+    sensitivity: 92,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'd_dimer',
+    name: 'D-Dimer',
+    category: 'basic',
+    cost: 80,
+    timeToComplete: 4,
+    description: 'Measures fibrin degradation products',
+    indications: ['DVT/PE screening', 'DIC diagnosis', 'Thrombosis workup'],
+    normalRange: '<500 ng/mL',
+    specificity: 40,
+    sensitivity: 95,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'fibrinogen',
+    name: 'Fibrinogen Level',
+    category: 'basic',
+    cost: 70,
+    timeToComplete: 4,
+    description: 'Measures fibrinogen concentration',
+    indications: ['DIC diagnosis', 'Bleeding disorders', 'Liver function'],
+    normalRange: '200-400 mg/dL',
+    specificity: 85,
+    sensitivity: 80,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+
+  // Specialized Tests
+  {
     id: 'factor_viii',
     name: 'Factor VIII Activity',
     category: 'specialized',
@@ -179,6 +223,47 @@ const availableTests: DiagnosticTest[] = [
     tubeType: 'Blue top (sodium citrate)'
   },
   {
+    id: 'antithrombin',
+    name: 'Antithrombin III',
+    category: 'specialized',
+    cost: 140,
+    timeToComplete: 5,
+    description: 'Natural anticoagulant protein',
+    indications: ['Thrombophilia workup', 'Recurrent thrombosis'],
+    normalRange: '80-120%',
+    specificity: 90,
+    sensitivity: 85,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'protein_c',
+    name: 'Protein C Activity',
+    category: 'specialized',
+    cost: 160,
+    timeToComplete: 6,
+    description: 'Natural anticoagulant protein',
+    indications: ['Thrombophilia screening', 'Family history of clots'],
+    normalRange: '70-130%',
+    specificity: 88,
+    sensitivity: 82,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+  {
+    id: 'protein_s',
+    name: 'Protein S Activity',
+    category: 'specialized',
+    cost: 160,
+    timeToComplete: 6,
+    description: 'Cofactor for protein C anticoagulant activity',
+    indications: ['Thrombophilia workup', 'Recurrent DVT/PE'],
+    normalRange: '65-140%',
+    specificity: 85,
+    sensitivity: 78,
+    tubeType: 'Blue top (sodium citrate)'
+  },
+
+  // Genetic Tests
+  {
     id: 'factor_v_leiden',
     name: 'Factor V Leiden Mutation',
     category: 'genetic',
@@ -205,6 +290,21 @@ const availableTests: DiagnosticTest[] = [
     tubeType: 'Purple top (EDTA)'
   },
   {
+    id: 'mthfr_mutation',
+    name: 'MTHFR Gene Mutation',
+    category: 'genetic',
+    cost: 180,
+    timeToComplete: 24,
+    description: 'Genetic test for methylenetetrahydrofolate reductase',
+    indications: ['Thrombophilia workup', 'Hyperhomocysteinemia'],
+    normalRange: 'No significant mutations',
+    specificity: 95,
+    sensitivity: 92,
+    tubeType: 'Purple top (EDTA)'
+  },
+
+  // Microscopy & Morphology
+  {
     id: 'peripheral_smear',
     name: 'Peripheral Blood Smear',
     category: 'microscopy',
@@ -229,6 +329,60 @@ const availableTests: DiagnosticTest[] = [
     specificity: 95,
     sensitivity: 90,
     tubeType: 'Bone marrow aspirate'
+  },
+
+  // Imaging Tests (NEW)
+  {
+    id: 'duplex_doppler',
+    name: 'Duplex Doppler Ultrasound',
+    category: 'imaging',
+    cost: 250,
+    timeToComplete: 20,
+    description: 'Combines B-mode ultrasound with Doppler flow assessment',
+    indications: ['DVT diagnosis', 'Venous insufficiency', 'Arterial disease'],
+    normalRange: 'No evidence of thrombosis',
+    specificity: 95,
+    sensitivity: 98,
+    tubeType: 'No sample required'
+  },
+  {
+    id: 'venous_doppler',
+    name: 'Venous Doppler Ultrasound',
+    category: 'imaging',
+    cost: 200,
+    timeToComplete: 15,
+    description: 'Evaluates venous blood flow and patency',
+    indications: ['DVT screening', 'Leg swelling', 'Suspected thrombosis'],
+    normalRange: 'Patent veins with normal flow',
+    specificity: 92,
+    sensitivity: 95,
+    tubeType: 'No sample required'
+  },
+  {
+    id: 'ct_pulmonary_angio',
+    name: 'CT Pulmonary Angiogram',
+    category: 'imaging',
+    cost: 400,
+    timeToComplete: 30,
+    description: 'CT scan with contrast to evaluate pulmonary vessels',
+    indications: ['Pulmonary embolism', 'Chest pain', 'Shortness of breath'],
+    normalRange: 'No pulmonary embolism detected',
+    specificity: 96,
+    sensitivity: 94,
+    tubeType: 'No sample required'
+  },
+  {
+    id: 'echocardiogram',
+    name: 'Echocardiogram',
+    category: 'imaging',
+    cost: 300,
+    timeToComplete: 25,
+    description: 'Ultrasound of the heart to assess cardiac function',
+    indications: ['Heart strain from PE', 'Cardiac function assessment'],
+    normalRange: 'Normal cardiac structure and function',
+    specificity: 85,
+    sensitivity: 80,
+    tubeType: 'No sample required'
   }
 ];
 
@@ -238,7 +392,7 @@ const Level2 = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [currency, setCurrency] = useState(1000);
+  const [currency, setCurrency] = useState(2000); // Increased starting money
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
   const [selectedTests, setSelectedTests] = useState<DiagnosticTest[]>([]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -253,6 +407,8 @@ const Level2 = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
   const [caseNumber, setCaseNumber] = useState(1);
   const [totalCases, setTotalCases] = useState(3);
+  const [showDiagnosisResult, setShowDiagnosisResult] = useState(false);
+  const [diagnosisCorrect, setDiagnosisCorrect] = useState(false);
 
   const checkDiagnosisCorrectness = (diagnosis: string): boolean => {
     if (!currentPatient) return false;
@@ -264,27 +420,166 @@ const Level2 = () => {
     
     const correctDiagnosis = level2Patient.correctDiagnosis.toLowerCase();
     
-    // Check for exact match or key terms
-    return normalizedDiagnosis.includes(correctDiagnosis) ||
-           correctDiagnosis.includes(normalizedDiagnosis) ||
-           checkDiagnosisKeywords(normalizedDiagnosis, correctDiagnosis);
-  };
-
-  const checkDiagnosisKeywords = (userDiag: string, correct: string): boolean => {
-    // Define keyword mappings for common diagnoses
+    // More comprehensive keyword matching
     const keywordMap: { [key: string]: string[] } = {
       'von willebrand disease': ['vwd', 'von willebrand', 'willebrand'],
-      'hemophilia a': ['hemophilia a', 'factor viii deficiency', 'factor 8 deficiency'],
-      'hemophilia b': ['hemophilia b', 'factor ix deficiency', 'factor 9 deficiency'],
+      'hemophilia a': ['hemophilia a', 'factor viii deficiency', 'factor 8 deficiency', 'haemophilia a'],
+      'hemophilia b': ['hemophilia b', 'factor ix deficiency', 'factor 9 deficiency', 'haemophilia b'],
       'thrombotic thrombocytopenic purpura (ttp)': ['ttp', 'thrombotic thrombocytopenic purpura'],
       'hemolytic uremic syndrome (hus)': ['hus', 'hemolytic uremic syndrome'],
-      'immune thrombocytopenic purpura (itp)': ['itp', 'immune thrombocytopenic purpura'],
-      'disseminated intravascular coagulation (dic)': ['dic', 'disseminated intravascular coagulation']
+      'immune thrombocytopenic purpura (itp)': ['itp', 'immune thrombocytopenic purpura', 'idiopathic thrombocytopenic purpura'],
+      'disseminated intravascular coagulation (dic)': ['dic', 'disseminated intravascular coagulation'],
+      'factor v leiden mutation': ['factor v leiden', 'factor 5 leiden', 'leiden'],
+      'warfarin over-anticoagulation': ['warfarin toxicity', 'over anticoagulation', 'warfarin overdose'],
+      'liver disease coagulopathy': ['liver disease', 'hepatic coagulopathy', 'cirrhosis'],
+      'platelet function disorder': ['platelet dysfunction', 'platelet function defect'],
+      'myelodysplastic syndrome': ['myelodysplastic', 'mds']
     };
 
-    const keywords = keywordMap[correct] || [];
-    return keywords.some(keyword => userDiag.includes(keyword));
+    const keywords = keywordMap[correctDiagnosis] || [];
+    return normalizedDiagnosis.includes(correctDiagnosis) ||
+           correctDiagnosis.includes(normalizedDiagnosis) ||
+           keywords.some(keyword => normalizedDiagnosis.includes(keyword));
   };
+
+  // Enhanced test result generation based on actual patient conditions
+  const generateTestResult = (test: DiagnosticTest, patient: Patient | null): TestResult => {
+    if (!patient) return { testId: test.id, value: 'N/A', interpretation: 'No patient', abnormalFlags: [], followUpSuggestions: [] };
+
+    const level2Patient = level2Patients.find(p => p.id === patient.id);
+    const condition = level2Patient?.correctDiagnosis.toLowerCase() || '';
+
+    // Condition-specific test results
+    const conditionResults: { [key: string]: { [key: string]: TestResult } } = {
+      'von willebrand disease': {
+        'bleeding_time': {
+          testId: 'bleeding_time',
+          value: '12 minutes',
+          interpretation: 'Prolonged bleeding time',
+          abnormalFlags: ['High'],
+          followUpSuggestions: ['Check von Willebrand studies', 'Consider platelet function testing']
+        },
+        'vwf_antigen': {
+          testId: 'vwf_antigen',
+          value: '35%',
+          interpretation: 'Low von Willebrand factor antigen',
+          abnormalFlags: ['Low'],
+          followUpSuggestions: ['Confirm with vWF activity', 'Consider desmopressin trial']
+        },
+        'vwf_activity': {
+          testId: 'vwf_activity',
+          value: '25%',
+          interpretation: 'Severely reduced vWF activity',
+          abnormalFlags: ['Critical Low'],
+          followUpSuggestions: ['von Willebrand Disease confirmed', 'Multimer analysis recommended']
+        }
+      },
+      'hemophilia a': {
+        'aptt': {
+          testId: 'aptt',
+          value: '68.5 seconds',
+          interpretation: 'Significantly prolonged aPTT',
+          abnormalFlags: ['Critical High'],
+          followUpSuggestions: ['Factor VIII or IX deficiency likely', 'Order specific factor assays']
+        },
+        'factor_viii': {
+          testId: 'factor_viii',
+          value: '2%',
+          interpretation: 'Severe Factor VIII deficiency',
+          abnormalFlags: ['Critical Low'],
+          followUpSuggestions: ['Severe Hemophilia A confirmed', 'Genetic counseling recommended']
+        }
+      },
+      'factor v leiden mutation': {
+        'd_dimer': {
+          testId: 'd_dimer',
+          value: '850 ng/mL',
+          interpretation: 'Elevated D-dimer',
+          abnormalFlags: ['High'],
+          followUpSuggestions: ['Suggests recent thrombosis', 'Consider imaging studies']
+        },
+        'duplex_doppler': {
+          testId: 'duplex_doppler',
+          value: 'Acute thrombus in left femoral vein',
+          interpretation: 'Deep vein thrombosis identified',
+          abnormalFlags: ['Abnormal'],
+          followUpSuggestions: ['DVT confirmed', 'Anticoagulation therapy indicated']
+        },
+        'factor_v_leiden': {
+          testId: 'factor_v_leiden',
+          value: 'Heterozygous mutation detected',
+          interpretation: 'Factor V Leiden mutation present',
+          abnormalFlags: ['Abnormal'],
+          followUpSuggestions: ['Thrombophilia confirmed', 'Long-term anticoagulation consideration']
+        }
+      },
+      'thrombotic thrombocytopenic purpura (ttp)': {
+        'platelet_count': {
+          testId: 'platelet_count',
+          value: '15,000/μL',
+          interpretation: 'Severe thrombocytopenia',
+          abnormalFlags: ['Critical Low'],
+          followUpSuggestions: ['TTP suspected', 'Urgent hematology consultation']
+        },
+        'peripheral_smear': {
+          testId: 'peripheral_smear',
+          value: 'Schistocytes present, fragmented RBCs',
+          interpretation: 'Microangiopathic hemolytic anemia',
+          abnormalFlags: ['Abnormal'],
+          followUpSuggestions: ['Consistent with TTP', 'Plasmapheresis indicated']
+        }
+      },
+      'disseminated intravascular coagulation (dic)': {
+        'platelet_count': {
+          testId: 'platelet_count',
+          value: '45,000/μL',
+          interpretation: 'Severe thrombocytopenia',
+          abnormalFlags: ['Critical Low'],
+          followUpSuggestions: ['DIC likely', 'Check coagulation studies']
+        },
+        'd_dimer': {
+          testId: 'd_dimer',
+          value: '4500 ng/mL',
+          interpretation: 'Markedly elevated D-dimer',
+          abnormalFlags: ['Critical High'],
+          followUpSuggestions: ['Consistent with DIC', 'Treat underlying cause']
+        },
+        'fibrinogen': {
+          testId: 'fibrinogen',
+          value: '85 mg/dL',
+          interpretation: 'Low fibrinogen',
+          abnormalFlags: ['Low'],
+          followUpSuggestions: ['DIC pattern confirmed', 'Consider cryoprecipitate']
+        }
+      }
+    };
+
+    // Get condition-specific result or default normal result
+    const conditionResult = conditionResults[condition]?.[test.id];
+    if (conditionResult) {
+      return conditionResult;
+    }
+
+    // Default normal results
+    return {
+      testId: test.id,
+      value: test.normalRange.includes('-') ? 
+        test.normalRange.split('-')[0] + ' (Normal)' : 
+        'Normal',
+      interpretation: 'Within normal limits',
+      abnormalFlags: [],
+      followUpSuggestions: []
+    };
+  };
+
+  useEffect(() => {
+    if (gameStarted) {
+      const timer = setInterval(() => {
+        setTimeElapsed(prev => prev + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [gameStarted]);
 
   // Convert level2Patients to the expected Patient interface
   const convertToPatient = (level2Patient: any): Patient => {
@@ -298,23 +593,22 @@ const Level2 = () => {
     };
   };
 
-  useEffect(() => {
-    if (gameStarted) {
-      const timer = setInterval(() => {
-        setTimeElapsed(prev => prev + 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [gameStarted]);
-
   const startGame = () => {
     setGameStarted(true);
     const randomPatient = getRandomPatient();
     setCurrentPatient(convertToPatient(randomPatient));
     setCaseNumber(1);
+    setScore(0);
+    setCurrency(2000);
+    setSelectedTests([]);
+    setTestResults([]);
+    setSampleCollected(false);
+    setSelectedTubeType('');
+    setUserDiagnosis('');
+    setCurrentTab('overview');
     toast({
       title: "🔬 Diagnostic Detective Started!",
-      description: `Welcome to the laboratory! Case ${caseNumber}/${totalCases} - ${selectedDifficulty} difficulty`,
+      description: `Welcome to the laboratory! Case 1/${totalCases} - ${selectedDifficulty} difficulty`,
     });
   };
 
@@ -335,7 +629,7 @@ const Level2 = () => {
       
       toast({
         title: "📋 New Case Loaded!",
-        description: `Case ${caseNumber + 1}/${totalCases} - ${randomPatient.name}`,
+        description: `Case ${caseNumber + 1}/${totalCases}`,
       });
     } else {
       // Complete level
@@ -393,50 +687,6 @@ const Level2 = () => {
     }, test.timeToComplete * 10); // Reduced time for gameplay
   };
 
-  const generateTestResult = (test: DiagnosticTest, patient: Patient | null): TestResult => {
-    if (!patient) return { testId: test.id, value: 'N/A', interpretation: 'No patient', abnormalFlags: [], followUpSuggestions: [] };
-
-    // Simulate realistic results based on patient condition
-    const results: { [key: string]: TestResult } = {
-      'pt': {
-        testId: 'pt',
-        value: patient.id === 'p1' ? '14.2 seconds' : '12.8 seconds',
-        interpretation: patient.id === 'p1' ? 'Slightly prolonged' : 'Normal',
-        abnormalFlags: patient.id === 'p1' ? ['High'] : [],
-        followUpSuggestions: patient.id === 'p1' ? ['Consider factor deficiency', 'Order mixing studies'] : []
-      },
-      'aptt': {
-        testId: 'aptt',
-        value: patient.id === 'p2' ? '68.5 seconds' : '32.1 seconds',
-        interpretation: patient.id === 'p2' ? 'Significantly prolonged' : 'Normal',
-        abnormalFlags: patient.id === 'p2' ? ['Critical High'] : [],
-        followUpSuggestions: patient.id === 'p2' ? ['Factor VIII or IX deficiency likely', 'Order specific factor assays'] : []
-      },
-      'factor_viii': {
-        testId: 'factor_viii',
-        value: patient.id === 'p2' ? '2%' : patient.id === 'p1' ? '45%' : '85%',
-        interpretation: patient.id === 'p2' ? 'Severe deficiency' : patient.id === 'p1' ? 'Mild deficiency' : 'Normal',
-        abnormalFlags: patient.id === 'p2' ? ['Critical Low'] : patient.id === 'p1' ? ['Low'] : [],
-        followUpSuggestions: patient.id === 'p2' ? ['Severe Hemophilia A confirmed', 'Genetic counseling recommended'] : []
-      },
-      'vwf_antigen': {
-        testId: 'vwf_antigen',
-        value: patient.id === 'p1' ? '35%' : '90%',
-        interpretation: patient.id === 'p1' ? 'Low' : 'Normal',
-        abnormalFlags: patient.id === 'p1' ? ['Low'] : [],
-        followUpSuggestions: patient.id === 'p1' ? ['Suggests von Willebrand Disease', 'Consider desmopressin trial'] : []
-      }
-    };
-
-    return results[test.id] || {
-      testId: test.id,
-      value: 'Normal',
-      interpretation: 'Within normal limits',
-      abnormalFlags: [],
-      followUpSuggestions: []
-    };
-  };
-
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -445,7 +695,7 @@ const Level2 = () => {
 
   const resetLevel = () => {
     setScore(0);
-    setCurrency(1000);
+    setCurrency(2000);
     setTimeElapsed(0);
     setSelectedTests([]);
     setTestResults([]);
@@ -457,6 +707,51 @@ const Level2 = () => {
     setShowCompletionDialog(false);
     setGameStarted(true);
     setCaseNumber(1);
+    setUserDiagnosis('');
+    setCurrentTab('overview');
+  };
+
+  const submitDiagnosis = () => {
+    if (!userDiagnosis.trim()) return;
+
+    const isCorrect = checkDiagnosisCorrectness(userDiagnosis);
+    setDiagnosisCorrect(isCorrect);
+    setShowDiagnosisResult(true);
+
+    if (isCorrect) {
+      setScore(prev => prev + 200);
+    } else {
+      setScore(prev => prev + 50);
+    }
+  };
+
+  const handleDiagnosisResult = (nextCase: boolean) => {
+    setShowDiagnosisResult(false);
+    if (nextCase && diagnosisCorrect) {
+      if (caseNumber < totalCases) {
+        // Move to next case
+        const difficultyPatients = getPatientsByDifficulty(selectedDifficulty);
+        const randomPatient = difficultyPatients[Math.floor(Math.random() * difficultyPatients.length)];
+        setCurrentPatient(convertToPatient(randomPatient));
+        setCaseNumber(prev => prev + 1);
+        
+        // Reset case-specific state
+        setSelectedTests([]);
+        setTestResults([]);
+        setSampleCollected(false);
+        setSelectedTubeType('');
+        setUserDiagnosis('');
+        setCurrentTab('overview');
+        
+        toast({
+          title: "📋 New Case Loaded!",
+          description: `Case ${caseNumber + 1}/${totalCases}`,
+        });
+      } else {
+        setLevel2Complete(true);
+        setShowCompletionDialog(true);
+      }
+    }
   };
 
   const getCategoryColor = (category: string) => {
@@ -465,6 +760,7 @@ const Level2 = () => {
       case 'specialized': return 'bg-blue-600';
       case 'genetic': return 'bg-purple-600';
       case 'microscopy': return 'bg-orange-600';
+      case 'imaging': return 'bg-orange-600';
       default: return 'bg-gray-600';
     }
   };
@@ -598,7 +894,7 @@ const Level2 = () => {
           </div>
         ) : (
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-lg border border-white/20">
+            <TabsList className="grid w-full grid-cols-6 bg-white/10 backdrop-blur-lg border border-white/20">
               <TabsTrigger value="overview" className="data-[state=active]:bg-white/20">
                 <Activity className="h-4 w-4 mr-2" />
                 Patient
@@ -610,6 +906,10 @@ const Level2 = () => {
               <TabsTrigger value="testing" className="data-[state=active]:bg-white/20">
                 <Beaker className="h-4 w-4 mr-2" />
                 Testing
+              </TabsTrigger>
+              <TabsTrigger value="imaging" className="data-[state=active]:bg-white/20">
+                <Zap className="h-4 w-4 mr-2" />
+                Imaging
               </TabsTrigger>
               <TabsTrigger value="results" className="data-[state=active]:bg-white/20">
                 <FlaskConical className="h-4 w-4 mr-2" />
@@ -736,6 +1036,48 @@ const Level2 = () => {
               </div>
             </TabsContent>
 
+            <TabsContent value="imaging" className="space-y-6">
+              <GlassmorphicCard intensity="medium" color="orange">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Zap className="h-6 w-6 mr-2 text-orange-400" />
+                    Imaging Studies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {availableTests.filter(test => test.category === 'imaging').map((test) => (
+                    <div key={test.id} className="bg-white/5 p-4 rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-white font-bold text-sm">{test.name}</h4>
+                        <div className="flex items-center space-x-2">
+                          <Badge className="text-xs bg-orange-600">
+                            {test.cost} QUID
+                          </Badge>
+                          <Badge variant="outline" className="text-white border-white/30 text-xs">
+                            {test.timeToComplete}min
+                          </Badge>
+                        </div>
+                      </div>
+                      <p className="text-white/70 text-xs mb-2">{test.description}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-white/60">
+                          Sens: {test.sensitivity}% | Spec: {test.specificity}%
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => orderTest(test)}
+                          disabled={selectedTests.some(t => t.id === test.id)}
+                          className="bg-orange-600 hover:bg-orange-700 text-white text-xs"
+                        >
+                          {selectedTests.some(t => t.id === test.id) ? 'Ordered' : 'Order Study'}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </GlassmorphicCard>
+            </TabsContent>
+
             <TabsContent value="results" className="space-y-6">
               <GlassmorphicCard intensity="medium" color="blue">
                 <CardHeader>
@@ -839,10 +1181,22 @@ const Level2 = () => {
                                 <span>Low vWF antigen suggests von Willebrand Disease</span>
                               </div>
                             )}
+                            {testResults.some(r => r.testId === 'd_dimer' && r.abnormalFlags.includes('High')) && (
+                              <div className="flex items-center space-x-2">
+                                <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                                <span>Elevated D-Dimer suggests thrombosis or DIC</span>
+                              </div>
+                            )}
+                            {testResults.some(r => r.testId === 'duplex_doppler' && r.abnormalFlags.includes('Abnormal')) && (
+                              <div className="flex items-center space-x-2">
+                                <CheckCircle className="h-4 w-4 text-green-400" />
+                                <span>Duplex Doppler confirms deep vein thrombosis</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         
-                        {/* Diagnosis Input Section */}
+                        {/* Enhanced Diagnosis Input Section */}
                         <div className="bg-white/5 p-4 rounded-lg border border-white/20">
                           <h4 className="font-bold text-blue-300 mb-3">Enter Your Diagnosis</h4>
                           <div className="space-y-3">
@@ -853,65 +1207,18 @@ const Level2 = () => {
                               id="diagnosis-input"
                               value={userDiagnosis}
                               onChange={(e) => setUserDiagnosis(e.target.value)}
-                              placeholder="Type your diagnosis here (e.g., Hemophilia A, von Willebrand Disease)..."
+                              placeholder="Type your diagnosis here..."
                               className="bg-white/10 border-white/30 text-white placeholder:text-white/50 focus:border-blue-400"
                             />
-                            <p className="text-white/60 text-sm">
-                              Consider the patient's symptoms, family history, and laboratory findings when making your diagnosis.
-                            </p>
+                            <Button 
+                              className="w-full bg-green-600 hover:bg-green-700 p-4"
+                              disabled={!userDiagnosis.trim()}
+                              onClick={submitDiagnosis}
+                            >
+                              <Target className="h-4 w-4 mr-2" />
+                              Submit Diagnosis
+                            </Button>
                           </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <Button 
-                            className="bg-green-600 hover:bg-green-700 p-4"
-                            disabled={!userDiagnosis.trim()}
-                            onClick={() => {
-                              if (userDiagnosis.trim()) {
-                                const isCorrect = checkDiagnosisCorrectness(userDiagnosis);
-                                if (isCorrect) {
-                                  setScore(prev => prev + 200);
-                                  toast({
-                                    title: "Excellent Diagnosis! 🎯",
-                                    description: `Correct! ${userDiagnosis} is the right diagnosis. +200 points`,
-                                  });
-                                  
-                                  if (caseNumber < totalCases) {
-                                    setTimeout(() => nextCase(), 2000);
-                                  } else {
-                                    setTimeout(() => {
-                                      setLevel2Complete(true);
-                                      setShowCompletionDialog(true);
-                                    }, 2000);
-                                  }
-                                } else {
-                                  setScore(prev => prev + 50);
-                                  toast({
-                                    title: "Good Attempt! 🤔",
-                                    description: `${userDiagnosis} - Consider reviewing the test results. +50 points for effort`,
-                                    variant: "destructive",
-                                  });
-                                }
-                              }
-                            }}
-                          >
-                            <Target className="h-4 w-4 mr-2" />
-                            Submit Diagnosis
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            className="border-white/20 text-white hover:bg-white/10 p-4"
-                            onClick={() => {
-                              if (caseNumber < totalCases) {
-                                nextCase();
-                              } else {
-                                resetLevel();
-                              }
-                            }}
-                          >
-                            <RotateCcw className="h-4 w-4 mr-2" />
-                            {caseNumber < totalCases ? 'Next Case' : 'New Session'}
-                          </Button>
                         </div>
                       </div>
                     )}
@@ -922,6 +1229,63 @@ const Level2 = () => {
           </Tabs>
         )}
       </div>
+
+      {/* Diagnosis Result Dialog */}
+      <AlertDialog open={showDiagnosisResult} onOpenChange={() => {}}>
+        <AlertDialogContent className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 border border-blue-400/30 backdrop-blur-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className={`text-center text-2xl font-bold ${diagnosisCorrect ? 'text-green-400' : 'text-red-400'}`}>
+              {diagnosisCorrect ? '🎯 CORRECT DIAGNOSIS!' : '❌ WRONG DIAGNOSIS'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-lg text-gray-300">
+              {diagnosisCorrect ? (
+                <>
+                  Excellent work! You correctly diagnosed: <strong>{userDiagnosis}</strong>
+                  <br />+200 points earned!
+                </>
+              ) : (
+                <>
+                  <strong>{userDiagnosis}</strong> is not the correct diagnosis.
+                  <br />Review the test results and try again. +50 points for effort.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex justify-center space-x-4">
+            {diagnosisCorrect ? (
+              <>
+                <AlertDialogAction 
+                  onClick={() => handleDiagnosisResult(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {caseNumber < totalCases ? 'NEXT CASE' : 'COMPLETE LEVEL'}
+                </AlertDialogAction>
+                <AlertDialogAction 
+                  onClick={() => navigate('/')}
+                  className="bg-gray-600 hover:bg-gray-700"
+                >
+                  EXIT GAME
+                </AlertDialogAction>
+              </>
+            ) : (
+              <>
+                <AlertDialogAction 
+                  onClick={() => handleDiagnosisResult(false)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  TRY AGAIN
+                </AlertDialogAction>
+                <AlertDialogAction 
+                  onClick={() => navigate('/')}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  EXIT GAME
+                </AlertDialogAction>
+              </>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Exit Dialog */}
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
@@ -944,6 +1308,37 @@ const Level2 = () => {
             >
               <LogOut className="h-4 w-4 mr-2" />
               Exit Laboratory
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Completion Dialog */}
+      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <AlertDialogContent className="bg-gradient-to-br from-slate-900 via-blue-900 to-green-900 border border-green-400/30 backdrop-blur-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-2xl font-bold text-green-400">
+              Level Complete!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-lg text-gray-300">
+              Congratulations! You have completed all cases for Level 2.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex justify-center space-x-4">
+            <AlertDialogAction 
+              onClick={() => {
+                resetLevel();
+                setShowCompletionDialog(false);
+              }}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Play Again
+            </AlertDialogAction>
+            <AlertDialogAction 
+              onClick={() => navigate('/')}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Exit to Home
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
